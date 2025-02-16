@@ -1,30 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Route Visualization</title>
-    <link rel="stylesheet" href="/leaflet/leaflet.css" />
-    <link rel="stylesheet" href="/leaflet-routing-machine/leaflet-routing-machine.css" />
-</head>
-<body>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  </head>
+  <body>
     <div id="map" style="width: 90%; height: 800px; margin: 0 auto;"></div>
+    
     <script src="/leaflet/leaflet.js"></script>
     <script src="/leaflet-routing-machine/leaflet-routing-machine.js"></script>
-    <script>
-        const map = L.map('map').setView([51.505, -0.09], 13);
+    <!--<script>
+      const map = L.map('map').setView([51.505, -0.09], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      L.Routing.control({
+      waypoints: [
+      L.latLng(57.74, 11.94),
+      L.latLng(57.6792, 11.949)
+      ]
+      }).addTo(map);
+    </script>-->
+    <div id="root"></div>
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        L.Routing.control({
-            waypoints: [
-                L.latLng(62.826941, 22.909949),
-                L.latLng(62.626202, 22.395327),
-                L.latLng(62.424408, 22.173556)
-            ]
-        }).addTo(map);
-    </script>
-</body>
+  </body>
 </html>
