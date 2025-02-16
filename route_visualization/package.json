@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "install-all": "npm install && npm install --prefix ./leaflet && npm install --prefix ./leaflet-routing-machine",
     "start": "node index.js"
   },
   "author": "",
