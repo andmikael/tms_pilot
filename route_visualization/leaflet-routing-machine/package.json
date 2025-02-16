@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "route_visualization": "file:.."
+  }
+}
