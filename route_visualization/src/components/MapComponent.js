@@ -2,6 +2,10 @@ import React, { useEffect } from 'react';
 
 const MapComponent = () => {
   useEffect(() => {
+    if (L.DomUtil.get('map') !== null) {
+      L.DomUtil.get('map')._leaflet_id = null;
+    }
+    
     const map = L.map('map').setView([51.505, -0.09], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -18,7 +22,7 @@ const MapComponent = () => {
     }).addTo(map);
   }, []);
 
-  return <div id="map" style={{ width: '100%', height: '100vh' }}></div>;
+  return <div id="map"></div>;
 };
 
 export default MapComponent;
