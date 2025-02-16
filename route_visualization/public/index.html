@@ -4,16 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Route Visualization</title>
-    <link href="/leaflet/dist/leaflet.css" rel="stylesheet" />
-    <link href="/leaflet-routing-machine/dist/leaflet-routing-machine.css" rel="stylesheet" />
-    <script src="/leaflet/dist/leaflet.js"></script>
-    <script>
-      window.L = window.L || {};
-    </script>
-    <script src="/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
   </head>
   <body>
+    <div id="map" style="width: 90%; height: 800px; margin: 0 auto;"></div>
+    
+    <script src="/leaflet/leaflet.js"></script>
+    <script src="/leaflet-routing-machine/leaflet-routing-machine.js"></script>
+    <!--<script>
+      const map = L.map('map').setView([51.505, -0.09], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      L.Routing.control({
+      waypoints: [
+      L.latLng(57.74, 11.94),
+      L.latLng(57.6792, 11.949)
+      ]
+      }).addTo(map);
+    </script>-->
     <div id="root"></div>
-    <script defer="defer" src="/static/js/main.7694c52c.js"></script>
+
   </body>
 </html>
