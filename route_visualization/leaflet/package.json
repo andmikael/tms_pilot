@@ -11,7 +11,6 @@
     "eslint-config-mourner": "^2.0.3",
     "git-rev-sync": "^3.0.2",
     "happen": "~0.3.2",
-    "husky": "^8.0.1",
     "karma": "^6.4.0",
     "karma-chrome-launcher": "^3.1.1",
     "karma-edge-launcher": "^0.4.2",
@@ -51,8 +50,7 @@
     "watch": "rollup -w -c build/rollup-config.js",
     "uglify": "uglifyjs dist/leaflet-src.js -c -m -o dist/leaflet.js --source-map filename=dist/leaflet.js.map --source-map content=dist/leaflet-src.js.map --source-map url=leaflet.js.map --comments",
     "bundlemon": "bundlemon --subProject js --defaultCompression none && bundlemon --subProject js-gzip --defaultCompression gzip",
-    "serve": "cd docs && bundle exec jekyll serve",
-    "prepare": "husky install"
+    "serve": "cd docs && bundle exec jekyll serve"
   },
   "eslintConfig": {
     "ignorePatterns": [
