@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 const MapComponent = () => {
   useEffect(() => {
-    const map = L.map('map').setView([51.505, -0.09], 13);
+    const map = L.map('map').setView([62.7903, 22.8403], 9);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
