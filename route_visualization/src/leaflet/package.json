@@ -145,6 +145,6 @@
     "*.(js|md)": "eslint --cache --fix"
   },
   "dependencies": {
-    "route_visualization": "file:.."
+    "route_visualization": "file:../.."
   }
 }
