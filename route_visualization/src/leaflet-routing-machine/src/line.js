@@ -17,7 +17,7 @@
 				{color: 'white', opacity: 0.6, weight: 4},
 				{color: 'gray', opacity: 0.8, weight: 2, dashArray: '7,12'}
 			],
-			addWaypoints: true,
+			addWaypoints: true, // should be set to false
 			extendToWaypoints: true,
 			missingRouteTolerance: 10
 		},
@@ -34,7 +34,8 @@
 			this._addSegment(
 				route.coordinates,
 				this.options.styles,
-				this.options.addWaypoints);
+				false); // temporary workaround to disable adding waypoints when dragging route between points
+				//this.options.addWaypoints); // uncomment when fix is found
 		},
 
 		getBounds: function() {
