@@ -1,5 +1,5 @@
 import "./App.css"
-import React, { useState } from "react";
+import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AddPage from "./pages/AddPage";
 import PlanningPage from "./pages/PlanningPage";

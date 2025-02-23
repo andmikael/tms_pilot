@@ -1,6 +1,6 @@
 # TMS_pilot
 
-You can find the pilot version under tms folder.
+You can find the pilot version under \tms folder.
 
 When you are under tms folder, first install dependencies:
 
