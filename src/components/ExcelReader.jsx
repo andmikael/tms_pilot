@@ -14,6 +14,11 @@
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
 
+const StandardPickup = Object.freeze({
+    YES: "yes",
+    NO: "no"
+  });
+
 export const ExcelReader = ({routeHandler}) => {
     const [message, setMessage] = useState(null);
 
@@ -62,23 +67,29 @@ export const ExcelReader = ({routeHandler}) => {
             for (let i = 0; i < jsonData.length; i++) {
                 const row = Object.values(jsonData[i]);
 
-                // Varmistetaan, että rivillä on vähintään 5 saraketta
-                if (row.length < 5) {
+                // Varmistetaan, että rivillä on vähintään 4 saraketta.
+                // (Vakionoutosarake saa olla tyhjä)
+                if (row.length < 4) {
                     console.warn(`Puuttuvia tietoja rivillä ${i + 1}, ohitetaan...`, row);
                     continue;
                 }
     
-                // Poistetaan ylimääräiset välilyönnit ja varmistetaan, että tiedot ovat olemassa
-                const name = row[0].trim();
-                const address = row[1].trim();
+                // Poistetaan ylimääräiset välilyönnit ja varmistetaan, että tiedot ovat olemassa.
+                // Varmistetaan, että kaikki tieto on string muodossa.
+                const name = row[0].toString().trim();
+                const address = row[1].toString().trim();
                 const postalCode = row[2].toString().trim(); // Muutetaan tekstiksi, jos se on numero
-                const city = row[3].trim();
-                const standardPickup = row[4].trim();
+                const city = row[3].toString().trim();
+                const standardPickupColumn = row[4] ? row[4].toString().trim() : "";
                 
                 if (!name || !address || !postalCode || !city) {
                     console.warn(`Puuttuvia tietoja rivillä ${i + 1}, ohitetaan...`, row);
                     continue;
                 }
+
+                // Tunnistetaan, onko kyseessä vakionouto.
+                const standardPickup = standardPickupColumn.toLowerCase() === "x" 
+                                    ? StandardPickup.YES : StandardPickup.NO;
     
                 // Muodostetaan täydellinen osoite hakua varten
                 const fullPlace = `${address}, ${postalCode} ${city},`;
@@ -87,13 +98,13 @@ export const ExcelReader = ({routeHandler}) => {
                 
 
                 // Tallennetaan heattu data name, address, postalCode, city ja standardPickup muotoiseksi
-                // JSON objektiksi ja lisätään se Reactin readData arrayhin.
+                // JSON objektiksi.
                 const newPlaceObject = {
                     name: name,
                     address: address,
                     postalCode: postalCode,
                     city: city,
-                    standardPickup: standardPickup, //Muuta enum esimerkiksi. Tällä hetkellä ei tallenna tietoa oikein.
+                    standardPickup: standardPickup, // Käyttää StandardPickup muotoa (joko yes tai no)
                 };
 
                 // Tallennetaan luettu data listaan.
