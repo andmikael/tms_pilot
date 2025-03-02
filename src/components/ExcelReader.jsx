@@ -108,9 +108,9 @@ export const ExcelReader = ({ routeHandler }) => {
 
                     // Poistetaan ylimääräiset välilyönnit ja varmistetaan, että tiedot ovat olemassa.
                     // Varmistetaan, että kaikki tieto on string muodossa.
-                    const name = row[0].toString().trim();
-                    const address = row[1].toString().trim();
-                    const postalCode = row[2].toString().trim(); // Muutetaan tekstiksi, jos se on numero
+                    const postalCode = row[0].toString().trim();
+                    const name = row[1].toString().trim();
+                    const address = row[2].toString().trim();
                     const city = row[3].toString().trim();
                     const standardPickupColumn = row[4] ? row[4].toString().trim() : "";
 
