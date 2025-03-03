@@ -69,23 +69,27 @@ function App() {
     }*/
   };
 
+  // toinen esimerkkifunktio kopioitu jostain
   function handlePostQuery(query){
       var myParams = {
           data: query
       }
-      if (query != "") {
-          axios.post('http://localhost:8000/api/query', myParams)
-              .then(function(response){
-                  console.log(response);
-        //Perform action based on response
-          })
-          .catch(function(error){
-              console.log(error);
-        //Perform action based on error
-          });
-      } else {
-          alert("The search query cannot be empty")
-      }
+        axios.post('http://localhost:8000/api/post_test', {
+         headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'http://localhost:8000',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS, POST',
+        },
+        myParams})
+            .then(function(response){
+                console.log(response);
+      //Perform action based on response
+        })
+        .catch(function(error){
+            console.log(error);
+      //Perform action based on error
+        });
+
   }
   
 
@@ -104,7 +108,7 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
-      <input name="testInput" value = {formData} onChange={e => handleSubmit(e.target.value)}/>
+      <input name="testInput" value = {formData} onChange={e => handlePostQuery(e.target.value)}/>
 
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
