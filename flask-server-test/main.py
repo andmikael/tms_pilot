@@ -1,8 +1,8 @@
-from flask import Flask, jsonify # jsonify siirtää apin tietoja
+from flask import Flask, jsonify, request # jsonify siirtää apin tietoja
 from flask_cors import CORS, cross_origin
 app = Flask(__name__) # luo app-instanssin
 app.config['CORS_HEADERS'] = 'Content-Type'
-cors = CORS(app, origins='^')
+cors = CORS(app, origins='*')
 #@app.use(cors({origin: true, credentials: true}))
 
 
@@ -21,11 +21,20 @@ def get_test():
     )
 
 
-@app.route('/api/post_test', methods =['POST'])
+@app.route('/api/post_test', methods =['POST', 'OPTIONS'])
 @cross_origin()
 def post_test():
+   data = request.json['viesti']
    return jsonify({"Viesti": "Flask sai Reactilta viestin: "
-                                   +request.json['name']})
+                                   + data})
+
+
+@app.route('/api/post_test2', methods =['POST', 'OPTIONS'])
+@cross_origin()
+def post_test2():
+    data = request.get_json()
+    print(data)
+    return data
 
 """
 

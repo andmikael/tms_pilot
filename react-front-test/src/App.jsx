@@ -33,14 +33,15 @@ function App() {
     const customHeader = { 
       headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': 'http://localhost:8000',
+      'Access-Control-Allow-Origin': 'http://localhost:8000/',
+      //'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, OPTIONS, POST',
     },
   };
 
     const data = { viesti: 'testi' }
 
-    axios.post("http://localhost:8000/post_test", 
+    axios.post("http://localhost:8000/api/post_test", 
     data, customHeader).then(
       (response) => {
           let result = response.data;
@@ -69,12 +70,12 @@ function App() {
     }*/
   };
 
-  // toinen esimerkkifunktio kopioitu jostain
+  // toinen esimerkki POSTista formin kanssa
   function handlePostQuery(query){
       var myParams = {
           data: query
       }
-        axios.post('http://localhost:8000/api/post_test', {
+        axios.post('http://localhost:8000/api/post_test2', {
          headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': 'http://localhost:8000',
@@ -108,6 +109,8 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
+      Tähän kun kirjoittaa niin kirjaimet postaa backendiin (katso konsolia, Firefoxissa esim. F12)
+      <br></br>
       <input name="testInput" value = {formData} onChange={e => handlePostQuery(e.target.value)}/>
 
       <div className="card">
@@ -138,10 +141,6 @@ function App() {
       </div>
 
 
-
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
