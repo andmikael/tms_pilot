@@ -9,11 +9,9 @@ python -m venv .\venv
 pip install -r requirements.txt
 
 4. Run venv
-
-
+.\venv\Scripts\Activate
 
 5. Run server
 python main.py
-
 
 The server will be up at localhost:8000
