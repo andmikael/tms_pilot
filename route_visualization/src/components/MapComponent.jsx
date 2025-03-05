@@ -2,7 +2,14 @@ import React, { useEffect } from 'react';
 
 const MapComponent = () => {
   useEffect(() => {
+    // Check if the map is already initialized
+    if (window.map) {
+      window.map.remove(); // Remove the existing map instance
+      window.map = null;
+    }
+
     const map = L.map('map').setView([62.7903, 22.8403], 9);
+    window.map = map; // Store the map instance in the global window object
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
@@ -18,7 +25,7 @@ const MapComponent = () => {
     }).addTo(map);
   }, []);
 
-  return <div id="map"></div>;
+  return <div id="map" style={{ height: '100vh', width: '100%' }}></div>;
 };
 
 export default MapComponent;

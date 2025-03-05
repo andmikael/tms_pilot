@@ -6,7 +6,8 @@
   "scripts": {
     "build": "react-scripts build",
     "install-all": "npm install && npm install ./src/leaflet && npm install ./src/leaflet-routing-machine",
-    "start": "concurrently \"node index.js\" \"react-scripts start\""
+    "start": "concurrently \"node index.js\" \"react-scripts start\"",
+    "start-backend": "node index.js"
   },
   "proxy": "http://localhost:5000",
   "author": "",

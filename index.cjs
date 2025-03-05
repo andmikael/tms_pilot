@@ -7,23 +7,11 @@ const port = 5000;
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve Leaflet and Leaflet Routing Machine files
-app.use(
-  '/leaflet',
-  express.static(
-    path.join(__dirname, 'route_visualization', 'src', 'leaflet', 'dist')
-  )
+app.use('/route_visualization/src/leaflet/dist',
+  express.static(path.join(__dirname, 'route_visualization', 'src', 'leaflet', 'dist'))
 );
-app.use(
-  '/leaflet-routing-machine',
-  express.static(
-    path.join(
-      __dirname,
-      'route_visualization',
-      'src',
-      'leaflet-routing-machine',
-      'dist'
-    )
-  )
+app.use('/route_visualization/src/leaflet-routing-machine/dist',
+  express.static(path.join(__dirname, 'route_visualization', 'src', 'leaflet-routing-machine', 'dist'))
 );
 
 // Serve the React app
