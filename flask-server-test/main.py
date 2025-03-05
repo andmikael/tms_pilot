@@ -68,7 +68,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     
     data = {}
     data['addresses'] = list_of_addresses
-    data['API_key'] = 'AIzaSyBZIR9byPxe-ZC3o8Ntu7zv4BmfJ8doPJg' #RAINERIN OMA!!!
+    data['API_key'] = 'GOOGLE_API_AVAIN_TAHAN' 
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends
