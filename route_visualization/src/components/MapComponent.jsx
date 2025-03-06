@@ -25,7 +25,7 @@ const MapComponent = () => {
     }).addTo(map);
   }, []);
 
-  return <div id="map" style={{ height: '100vh', width: '100%' }}></div>;
+  return <div id="map" style={{ height: '60vh', width: '80%' }}></div>;
 };
 
 export default MapComponent;

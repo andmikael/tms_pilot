@@ -4,35 +4,21 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "react-scripts build",
     "install-all": "npm install && npm install ./src/leaflet && npm install ./src/leaflet-routing-machine",
-    "start": "concurrently \"node index.js\" \"react-scripts start\"",
     "start-backend": "node index.js"
   },
   "proxy": "http://localhost:5000",
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.21.2",
     "leaflet": "file:src/leaflet",
-    "leaflet-routing-machine": "file:src/leaflet-routing-machine",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1"
+    "leaflet-routing-machine": "file:src/leaflet-routing-machine"
   },
   "browserslist": {
     "production": [
       ">0.2%",
       "not dead",
       "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "concurrently": "^9.1.2"
   }
 }
