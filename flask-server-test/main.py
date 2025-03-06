@@ -6,14 +6,20 @@ import urllib.request
 import json
 
 def create_distance_matrix(data):
+    """
+    Creates distance matrix from the addresses to be used in route optimization
+
+    :param data: dict, dictionary with list of the addresses and google api key
+    :return distance_matrix: list, list of lists representing the distance matrix
+    """
     addresses = data["addresses"]
     API_key = data["API_key"]
     # Distance Matrix API only accepts 100 elements per request, so get rows in multiple requests.
     max_elements = 100
-    num_addresses = len(addresses) # 16 in this example.
-    # Maximum number of rows that can be computed per request (6 in this example).
+    num_addresses = len(addresses)
+    # Maximum number of rows that can be computed per request
     max_rows = max_elements // num_addresses
-    # num_addresses = q * max_rows + r (q = 2 and r = 4 in this example).
+    # num_addresses = q * max_rows + r 
     q, r = divmod(num_addresses, max_rows)
     dest_addresses = addresses
     distance_matrix = []
@@ -31,7 +37,14 @@ def create_distance_matrix(data):
     return distance_matrix
 
 def send_request(origin_addresses, dest_addresses, API_key):
-    """ Build and send request for the given origin and destination addresses."""
+    """ 
+    Build and send request for the given origin and destination addresses.
+    
+    :param origin_addresses: list, list of strings of the starting addresses
+    :param dest_addresses: list, list of strings of the starting addresses
+    :param API_key: string, google api key
+    :return response: dict, Dictionary of the response from google api
+    """
     def build_address_str(addresses):
         # Build a pipe-separated string of addresses
         address_str = ''
@@ -51,21 +64,51 @@ def send_request(origin_addresses, dest_addresses, API_key):
     return response
 
 def build_distance_matrix(response):
+    """
+    Processes the google api responses to create the distance matrix for optimization
+
+    :param response: dict, dictionary of the response from google api
+    :return distance_matrix: list, list of lists representing the distance matrix
+    """
     distance_matrix = []
     for row in response['rows']:
+        """
+        'duration' gives travel time between places in seconds, Change to 
+        'distance' to get distance between places in meters
+        """
         row_list = [row['elements'][j]['duration']['value'] for j in range(len(row['elements']))]
         distance_matrix.append(row_list)
     return distance_matrix
 
 def distance_callback(from_index, to_index):
-    """Returns the distance between the two nodes."""
+    """
+    Returns the distance between the two nodes.
+
+    :param from_index: int, 
+    :param to_index: int, 
+    :return data["distance_matrix"][from_node][to_node]: int, time in seconds or distance in meters
+    """
     # Convert from routing variable Index to distance matrix NodeIndex.
     from_node = manager.IndexToNode(from_index)
     to_node = manager.IndexToNode(to_index)
     return data["distance_matrix"][from_node][to_node]
 
 def route_order(list_of_addresses, starts, ends, number_of_vehicles):
+    """
+    Creates optimized routes for each vehicle given list of addresses to visit 
+    and start and end locations for each vehicle.
+
+    :param list_of_addresses: list, list of strings of the addresses (Voisi toimia koordinaateillakin?)
+    :param starts: list, list of ints. A list of len(starts) == number_of_vehicles. List contains indexes 
+    of list_of_addresses indicating the starting location for each vehicle. Start locations can be the same
+    for each vehicle and can be same as end locations.
+    :param ends: list, list of ints. Indexes of the end locations for each vehicle
+    :param number_of_vehicles: int, Number of vehicles available.
+    :return vehicle_routes_with_addresses: list, list of lists with addresses for each vehicle in optimized order
+    including start and end locations even if same
+    """
     
+    #Ei välttämättä tarvitsisi tehdä dictionarya, mutta nyt se on tälleen
     data = {}
     data['addresses'] = list_of_addresses
     data['API_key'] = 'GOOGLE_API_AVAIN_TAHAN' 
@@ -96,14 +139,14 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
         vehicle_route.append(manager.IndexToNode(index))
         vehicle_routes.append(vehicle_route)
     
-    vehicle_route_with_addresses = []
+    vehicle_routes_with_addresses = []
     for route in vehicle_routes:
         route_addresses = []
         for index in route:
             route_addresses.append(list_of_addresses[index])
-        vehicle_route_with_addresses.append(route_addresses)
+        vehicle_routes_with_addresses.append(route_addresses)
         
-    return vehicle_route_with_addresses
+    return vehicle_routes_with_addresses
 
 app = Flask(__name__) # luo app-instanssin
 app.config['CORS_HEADERS'] = 'Content-Type'
