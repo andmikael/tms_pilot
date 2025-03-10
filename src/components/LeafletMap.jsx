@@ -1,15 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const LeafletMap = () => {
-  useEffect(() => {
-    // Check if the map is already initialized
-    if (window.map) {
-      window.map.remove(); // Remove the existing map instance
-      window.map = null;
-    }
+  const mapInstanceRef = useRef(null);
 
+  useEffect(() => {
+    // Initialize LeafLet map instance (L.map)
     const map = L.map('map').setView([62.7903, 22.8403], 9);
-    window.map = map;
+    mapInstanceRef.current = map;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
@@ -23,6 +20,14 @@ const LeafletMap = () => {
         L.latLng(62.424408, 22.173556),
       ],
     }).addTo(map);
+
+    //Removes previous Map container if it already exists
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
   }, []);
 
   return (

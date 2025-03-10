@@ -44,6 +44,7 @@ const PlanningPage = ( {data} ) => {
         <div>
             <Table returnDataToList={handleFormData}/>
         </div>
+        <LeafletMap id="map"/>
       </div>
     );
 };
