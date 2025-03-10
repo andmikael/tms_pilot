@@ -35,8 +35,8 @@ describe("Header", () => {
         expect(navLink).toHaveClass(/nav-link|nav-link-active/i);
     });
 
-    it("renders 'Lisää' navigation link", () => {
-        const navLink = screen.getByRole('link', { name: "Lisää" });
+    it("renders 'Tiedostot' navigation link", () => {
+        const navLink = screen.getByRole('link', { name: "Tiedostot" });
         expect(navLink).toBeInTheDocument();
         expect(navLink).toHaveClass(/nav-link|nav-link-active/i);
     });

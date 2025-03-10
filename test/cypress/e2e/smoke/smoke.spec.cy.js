@@ -11,8 +11,8 @@ describe("Smoke tests", () => {
     cy.contains("Kuljetuksien suunnittelujärjestelmä");
   });
 
-  it("should load the 'Lisää' page", () => {
-    cy.visit(BASE_URL + "add");
+  it("should load the 'Tiedostot' page", () => {
+    cy.visit(BASE_URL + "files");
     cy.contains('Kuljetuksien suunnittelujärjestelmä');
   });
 
@@ -39,10 +39,10 @@ describe("Smoke tests", () => {
     cy.url().should("include", "/");
   });
 
-  it("should navigate to 'Lisää' page", () => {
+  it("should navigate to 'Tiedostot' page", () => {
     cy.visit(BASE_URL);
-    cy.get("a[href='/add']").click();
-    cy.url().should("include", "/add");
+    cy.get("a[href='/files']").click();
+    cy.url().should("include", "/files");
   });
 
 });
