@@ -1,3 +1,7 @@
+/**
+ * placeProptype määrittelee yhden noutopaikan rakenteen.
+ */
+
 import PropTypes from "prop-types";
 
 const placePropType = PropTypes.shape({
