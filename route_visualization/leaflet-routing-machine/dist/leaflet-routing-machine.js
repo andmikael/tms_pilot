@@ -19420,7 +19420,7 @@ module.exports = L.Routing = {
 			minimizedClassName: '',
 			itineraryClassName: '',
 			totalDistanceRoundingSensitivity: -1,
-			show: true,
+			show: false,
 			collapsible: undefined,
 			collapseBtn: function(itinerary) {
 				var collapseBtn = L.DomUtil.create('span', itinerary.options.collapseBtnClass);
@@ -19645,7 +19645,7 @@ module.exports = L.Routing = {
 				{color: 'white', opacity: 0.6, weight: 4},
 				{color: 'gray', opacity: 0.8, weight: 2, dashArray: '7,12'}
 			],
-			addWaypoints: true,
+			addWaypoints: true, // should be set to false
 			extendToWaypoints: true,
 			missingRouteTolerance: 10
 		},
@@ -19662,7 +19662,8 @@ module.exports = L.Routing = {
 			this._addSegment(
 				route.coordinates,
 				this.options.styles,
-				this.options.addWaypoints);
+				false); // temporary workaround to disable adding waypoints when dragging route between points
+				//this.options.addWaypoints); // uncomment when fix is found
 		},
 
 		getBounds: function() {
@@ -20967,7 +20968,7 @@ module.exports = L.Routing = {
 				{color: 'white', opacity: 0.8, weight: 6},
 				{color: 'red', opacity: 1, weight: 2, dashArray: '7,12'}
 			],
-			draggableWaypoints: true,
+			draggableWaypoints: false,
 			routeWhileDragging: false,
 			addWaypoints: true,
 			reverseWaypoints: false,

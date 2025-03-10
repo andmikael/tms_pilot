@@ -2,6 +2,7 @@
 * Pääsivu (reittisuunnittelu): Voidaan tarkastella tallennettuja reittejä, lisätä noutopaikkoja niihin
 * ja muodostaa reittisuunnitelmia.
 */ 
+import LeafletMap from "../components/LeafletMap";
 
 
 import React, { useState } from 'react';
@@ -20,9 +21,11 @@ const PlanningPage = (data) => {
         setNewPickups(updatedPickups);
       };
     
-    return <div>
-        <div className="content">Reittisuunnittelu sivu
-            <p>Järjestelmän reitit: {JSON.stringify(data)}</p>
+    return (
+      <div>
+        <div className="content">
+          Reittisuunnittelu sivu
+          <p>Järjestelmän reitit: {JSON.stringify(data)}</p>
         </div>
         <h3>Valittavat noutopisteet</h3>
         <div className="PickupList">
@@ -39,7 +42,8 @@ const PlanningPage = (data) => {
         <div>
             <Table returnDataToList={handleFormData}/>
         </div>
-    </div>
+      </div>
+    );
 };
 
 export default PlanningPage;

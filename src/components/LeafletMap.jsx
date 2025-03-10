@@ -1,8 +1,15 @@
 import React, { useEffect } from 'react';
 
-const MapComponent = () => {
+const LeafletMap = () => {
   useEffect(() => {
+    // Check if the map is already initialized
+    if (window.map) {
+      window.map.remove(); // Remove the existing map instance
+      window.map = null;
+    }
+
     const map = L.map('map').setView([62.7903, 22.8403], 9);
+    window.map = map;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
@@ -18,7 +25,12 @@ const MapComponent = () => {
     }).addTo(map);
   }, []);
 
-  return <div id="map"></div>;
+  return (
+    <div>
+      <h3>Leaflet Map</h3>
+      <div id="map" style={{ height: '60vh', width: '80%' }}></div>
+    </div>
+  );
 };
 
-export default MapComponent;
+export default LeafletMap;
