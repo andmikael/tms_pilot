@@ -7,8 +7,10 @@ import LeafletMap from "../components/LeafletMap";
 
 import React, { useState } from 'react';
 import Table from "../components/pickupForm/table";
+import { routePropType } from "../propTypes/routePropType";
+import PropTypes from "prop-types";
 
-const PlanningPage = (data) => {
+const PlanningPage = ( {data} ) => {
 
     const [pickups, setNewPickups] = useState([]);
 
@@ -44,6 +46,11 @@ const PlanningPage = (data) => {
         </div>
       </div>
     );
+};
+
+// Määritellään sivun data eli järjestelmän reitit noudattamaan routesPropTypeä, joka on määritelty propTypes/routesPropType.js tiedostossa.
+PlanningPage.propTypes = {
+  data: PropTypes.arrayOf(routePropType),
 };
 
 export default PlanningPage;

@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AddPage from "./pages/AddPage";
 import PlanningPage from "./pages/PlanningPage";
 import Header from "./components/Header";
+import { routePropType } from "./propTypes/routePropType";
+import PropTypes from "prop-types";
 
 function App() {
   const [routes, setRoutes] = useState([]);
@@ -28,5 +30,9 @@ function App() {
     </>
   )
 }
+
+App.propTypes = {
+  newRoute: PropTypes.arrayOf(routePropType),
+};
 
 export default App;
