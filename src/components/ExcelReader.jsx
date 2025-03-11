@@ -13,7 +13,10 @@
 import { useState, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import { useDropzone } from 'react-dropzone';
+import fs from "fs";
 import "../index.css";
+import PropTypes from 'prop-types';
+import { routePropType } from '../propTypes/routePropType';
 
 const StandardPickup = Object.freeze({
     YES: "yes",
@@ -50,6 +53,7 @@ async function getCoordinates(fullPlace) {
 // Lataa Excel-pohjan käyttäjälle
 const downloadTemplate = () => {
     const ws = XLSX.utils.aoa_to_sheet([
+        ["Reitin nimi:"],
         ["Nimi", "Osoite", "Postinumero", "Kaupunki", "Vakionouto"],
     ]);
 
@@ -83,6 +87,9 @@ export const ExcelReader = ({ routeHandler }) => {
                 // Ensimmäinen taulukkosivu tiedostosta.
                 const sheetName = workbook.SheetNames[0];
 
+                const sheet = workbook.Sheets[sheetName];
+                const routeName = sheet["B1"] ? sheet["B1"].v : "Uusi reitti";
+
                  // Muutetaan tiedosto JSON muotoon.
                 const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
@@ -97,7 +104,7 @@ export const ExcelReader = ({ routeHandler }) => {
 
                 // Käydään jokainen rivi läpi
                 // Järjestys: nimi, osoite, postinumero, kaupunki, vakionouto
-                for (let i = 0; i < jsonData.length; i++) {
+                for (let i = 1; i < jsonData.length; i++) {
                     const row = Object.values(jsonData[i]);
 
                     // Varmistetaan, että rivillä on vähintään 4 saraketta
@@ -108,9 +115,9 @@ export const ExcelReader = ({ routeHandler }) => {
 
                     // Poistetaan ylimääräiset välilyönnit ja varmistetaan, että tiedot ovat olemassa.
                     // Varmistetaan, että kaikki tieto on string muodossa.
-                    const postalCode = row[0].toString().trim();
-                    const name = row[1].toString().trim();
-                    const address = row[2].toString().trim();
+                    const name = row[0].toString().trim();
+                    const address = row[1].toString().trim();
+                    const postalCode = row[2].toString().trim();
                     const city = row[3].toString().trim();
                     const standardPickupColumn = row[4] ? row[4].toString().trim() : "";
 
@@ -124,9 +131,9 @@ export const ExcelReader = ({ routeHandler }) => {
                         ? StandardPickup.YES : StandardPickup.NO;
                     
                      // Muodostetaan täydellinen osoite hakua varten
-                     const fullPlace = `${address}, ${postalCode} ${city},`;
+                    const fullPlace = `${address}, ${postalCode} ${city},`;
 
-                     const coordinates = await getCoordinates(fullPlace);
+                    const coordinates = await getCoordinates(fullPlace);
 
                     // Tallennetaan heattu data name, address, postalCode, city ja standardPickup muotoiseksi
                     // JSON objektiksi ja lisätään se Reactin readData arrayhin.
@@ -149,6 +156,33 @@ export const ExcelReader = ({ routeHandler }) => {
                 if (excelData.length !== 0) {
                     setMessage({ type: "success", message: "Tiedosto luettu onnistuneesti!" });
                     routeHandler(excelData);
+
+                    /* Ei vielä valmis
+                    // Excel tallennus
+                    // Luodaan tyhjä taulukko ja lisätään ensin otsikkorivi
+                    const newSheet = XLSX.utils.aoa_to_sheet([["Reitin nimi:", routeName]]);
+    
+                    // Lisätään ExcelData alkamaan solusta A2
+                    XLSX.utils.sheet_add_json(newSheet, excelData, { origin: "A2", skipHeader: false });
+
+                    // Luodaan uusi työkirja ja lisätään päivitetty taulukko
+                    const newWorkbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(newWorkbook, newSheet, "Luetut paikat");
+
+                    // Määritetään tallennuskansio ja tiedostopolku
+                    const xlsxDirPath = "../../.secret/ExcelFiles";
+                    const xlsxFilePath = `${xlsxDirPath}/${routeName}.xlsx`;
+
+                    // Luodaan hakemisto, jos sitä ei ole olemassa
+                    if (!fs.existsSync(xlsxDirPath)) {
+                        fs.mkdirSync(xlsxDirPath, { recursive: true });
+                    }
+                    // Kirjoitetaan tiedosto bufferina
+                    const buffer = XLSX.write(newWorkbook, { bookType: "xlsx", type: "buffer" });
+
+                    // Tallennetaan tiedosto
+                    fs.writeFileSync(xlsxFilePath, buffer);
+                    */
                 } else {
                     setMessage({ type: "error", message: "Tiedoston luku epäonnistui!" });
                 }
@@ -199,3 +233,8 @@ export const ExcelReader = ({ routeHandler }) => {
         </div>
     );
 };
+ 
+ExcelReader.propTypes = {
+    routeHandler: PropTypes.func.isRequired,
+  };
+  
