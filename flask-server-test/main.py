@@ -154,7 +154,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     #Ei välttämättä tarvitsisi tehdä dictionarya, mutta nyt se on tälleen
     data = {}
     data['addresses'] = list_of_addresses
-    data['API_key'] = 'GOOGLE_API_KEY_HERE_HERE'
+    data['API_key'] = 'AIzaSyC9IV_y8UzCLaEXmGCruAsYjMNSHoWzFVA'
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends
@@ -202,14 +202,15 @@ cors = CORS(app, origins='*')
 @app.errorhandler(DataError)
 def handle_exception(e):
     error_data = {
-        "error_message": e.message,
+        "error_message": "DataError: " + e.message,
     }
+    
     return jsonify(error_data)
 
 @app.errorhandler(GoogleAPIError)
 def handle_exception(e):
     error_data = {
-        "error_message": e.message,
+        "error_message": "GoogleAPIError: " + e.message,
     }
     return jsonify(error_data)
 
@@ -217,7 +218,7 @@ def handle_exception(e):
 @app.errorhandler(Exception)
 def handle_exception(e):
     error_data = {
-        "error_message": repr(e)
+        "error_message": "Exception: " + repr(e)
     }
     return jsonify(error_data)
 
