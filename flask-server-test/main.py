@@ -5,6 +5,34 @@ from ortools.constraint_solver import pywrapcp
 import urllib.request
 import json
 
+class DataError(Exception):
+    """Exception raised for incorrect routing input data
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"{self.message} (Error Code: {self.error_code})"
+
+class GoogleAPIError(Exception):
+    """Exception raised for errors from google api
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"{self.message} (Error Code: {self.error_code})"
+
 def create_distance_matrix(data):
     """
     Creates distance matrix from the addresses to be used in route optimization
@@ -60,7 +88,22 @@ def send_request(origin_addresses, dest_addresses, API_key):
                        dest_address_str + '&key=' + API_key
     jsonResult = urllib.request.urlopen(request).read()
     response = json.loads(jsonResult)
-    #print(response)
+
+    if 'error_message' in response:
+        raise GoogleAPIError("Error from google API: " + response['error_message'])
+
+    """
+    Jos osoitetta ei löydy google apilla on '' sen tilalla response['destination_addresses']
+    ja response['destination_addresses'] listoissa
+    """
+    if '' in response['destination_addresses']:
+        i = 0
+        for address in response['destination_addresses']:
+            if address == '':
+                break
+            i += 1
+        raise GoogleAPIError("Address not found: " + origin_addresses[i])
+
     return response
 
 def build_distance_matrix(response):
@@ -107,11 +150,12 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     :return vehicle_routes_with_addresses: list, list of lists with addresses for each vehicle in optimized order
     including start and end locations even if same
     """
-    
+
     #Ei välttämättä tarvitsisi tehdä dictionarya, mutta nyt se on tälleen
     data = {}
     data['addresses'] = list_of_addresses
-    data['API_key'] = 'GOOGLE_API_AVAIN_TAHAN' 
+    data['API_key'] = 'AIzaSyBZIR9byPxe-ZC3o8Ntu7zv4BmfJ8doPJg'
+    #data['API_key'] = 'GOOGLE_API_KEY_HERE_HERE'
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends
@@ -151,7 +195,35 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
 app = Flask(__name__) # luo app-instanssin
 app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, origins='*')
+
+#@app.errorhandler(Exception)
+#def handle_bad_request(e):
+#    return 'bad request!', 400
+
+@app.errorhandler(DataError)
+def handle_exception(e):
+    error_data = {
+        "error_message": e.message,
+    }
+    return jsonify(error_data)
+
+@app.errorhandler(GoogleAPIError)
+def handle_exception(e):
+    error_data = {
+        "error_message": e.message,
+    }
+    return jsonify(error_data)
+
+#Muiden kuin itse määritettyjen exceptioneiden käsittelyä varten
+@app.errorhandler(Exception)
+def handle_exception(e):
+    error_data = {
+        "error_message": repr(e)
+    }
+    return jsonify(error_data)
+
 #@app.use(cors({origin: true, credentials: true}))
+
 
 
 # https://stackoverflow.com/questions/45980173/react-axios-network-error
@@ -186,25 +258,32 @@ def post_test2():
     return data
 
 """
-Testi reititysta varten. Kun laitetaan postilla json muotoa {"adresses": ["Osoite1", "Osoite2", "Osoite3"]}
-palauttaa listan reiteista optimoidussa jarjestyksessa.
-
-Nyt lahtopiste ja lopetus ovat aina ensimmaisen indeksin osoite ja kaytossa vain 1 auto
-
-Ripuliltahan tama koodi viela nayttaa, mutta vaikuttaisi kuitenkin toimivan.
+Testi reititysta varten. Kun laitetaan postilla json muotoa {"addresses": ["Osoite1", "Osoite2", "Osoite3"]}
+palauttaa jsonin jossa 'ordered_routes' kohdassa on lista reiteista optimoidussa jarjestyksessa.
 
 Esim. {"adresses": ["Prannarintie+8+Kauhajoki", "Prannarintie+10+Kauhajoki", "Topeeka+26+Kauhajoki"]}
-palauttaa [["Prannarintie+8+Kauhajoki","Topeeka+26+Kauhajoki","Prannarintie+10+Kauhajoki","Prannarintie+8+Kauhajoki"]]
+palauttaa {"ordered_routes": [["Prannarintie+8+Kauhajoki","Topeeka+26+Kauhajoki","Prannarintie+10+Kauhajoki",
+"Prannarintie+8+Kauhajoki"]]}
 """
 @app.route('/api/route_test', methods =['POST', 'OPTIONS'])
 @cross_origin()
 def route_test():
     data = request.get_json()
     print(data)
-    route = route_order(data['adresses'], [0], [0], 1)
+    if data['number_of_vehicles'] < 1:
+        raise DataError("number_of_vehicles < 1")
+    if len(data['start_indexes']) != data['number_of_vehicles']:
+        raise DataError("Length of start_indexes doesn't equal number_of_vehicles")
+    if len(data['start_indexes']) != data['number_of_vehicles']:
+        raise DataError("Length of end_indexes doesn't equal number_of_vehicles")
+    if len(data['addresses']) < 2:
+        raise DataError("Less than 2 addresses provided")
 
 
-    return route
+    route = route_order(data['addresses'], data['start_indexes'], data['end_indexes'], data['number_of_vehicles'])
+    return_data = {}
+    return_data['ordered_routes'] = route
+    return return_data
 
 """
 
