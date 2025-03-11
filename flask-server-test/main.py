@@ -154,7 +154,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     #Ei välttämättä tarvitsisi tehdä dictionarya, mutta nyt se on tälleen
     data = {}
     data['addresses'] = list_of_addresses
-    data['API_key'] = 'AIzaSyC9IV_y8UzCLaEXmGCruAsYjMNSHoWzFVA'
+    data['API_key'] = ''
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends
