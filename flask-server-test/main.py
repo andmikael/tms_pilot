@@ -154,8 +154,8 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     #Ei välttämättä tarvitsisi tehdä dictionarya, mutta nyt se on tälleen
     data = {}
     data['addresses'] = list_of_addresses
-    data['API_key'] = 'AIzaSyBZIR9byPxe-ZC3o8Ntu7zv4BmfJ8doPJg'
-    #data['API_key'] = 'GOOGLE_API_KEY_HERE_HERE'
+    
+    data['API_key'] = 'GOOGLE_API_KEY_HERE_HERE'
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends
@@ -224,39 +224,6 @@ def handle_exception(e):
 
 #@app.use(cors({origin: true, credentials: true}))
 
-
-
-# https://stackoverflow.com/questions/45980173/react-axios-network-error
-
-@app.route("/api/get_test", methods = ['GET', 'POST'])
-@cross_origin()
-def get_test():
-    return jsonify(
-        {
-            "users": [
-                'test1',
-                'test2'
-            ]
-        }
-    )
-
-
-@app.route('/api/post_test', methods =['POST', 'OPTIONS'])
-@cross_origin()
-def post_test():
-   data = request.json['viesti']
-   return jsonify({"Viesti": "Flask sai Reactilta viestin: "
-                                   + data})
-
-
-@app.route('/api/post_test2', methods =['POST', 'OPTIONS'])
-@cross_origin()
-def post_test2():
-    data = request.get_json()
-    print(data)
-    data["Moi"] = "moimoi"
-    return data
-
 """
 Testi reititysta varten. Kun laitetaan postilla json muotoa {"addresses": ["Osoite1", "Osoite2", "Osoite3"]}
 palauttaa jsonin jossa 'ordered_routes' kohdassa on lista reiteista optimoidussa jarjestyksessa.
@@ -285,19 +252,40 @@ def route_test():
     return_data['ordered_routes'] = route
     return return_data
 
-"""
 
-@app.route("/api/send", methods = ['POST']) 
-def send():
-    request_data = request.get_json(force=True)
-    return {"201": request_data['content']}
+"""Alla muutama esimerkki siitä, kuinka GET- ja POST-kutsut voidaan implementoida Flaskilla
+# GET
+@app.route("/api/get_test", methods = ['GET', 'POST'])
+@cross_origin()
+def get_test():
+    return jsonify(
+        {
+            "users": [
+                'test1',
+                'test2'
+            ]
+        }
+    )
 
-@app.route('/api/query', methods = ['POST'])
-def get_query_from_react():
+# POST
+@app.route('/api/post_test', methods =['POST', 'OPTIONS'])
+@cross_origin()
+def post_test():
+   data = request.json['viesti']
+   return jsonify({"Viesti": "Flask sai Reactilta viestin: "
+                                   + data})
+
+# POST
+@app.route('/api/post_test2', methods =['POST', 'OPTIONS'])
+@cross_origin()
+def post_test2():
     data = request.get_json()
     print(data)
+    data["Moi"] = "moimoi"
     return data
 """
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
+
+
