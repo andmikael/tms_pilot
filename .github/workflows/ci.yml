@@ -37,6 +37,12 @@ jobs:
           source venv/bin/activate
           python main.py &
 
+      - name: Debug printing
+        run: |
+          node -v
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
       - name: Run smoke tests
         run: DEBUG=cypress:* npm run test:smoke
       
