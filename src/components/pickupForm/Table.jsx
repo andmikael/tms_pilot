@@ -1,5 +1,5 @@
 import React from 'react';
-import TableSection from './tablesection';
+import TableSection from './Tablesection';
 import useOpenController from "./useOpenController";
 import ExpandableButton from "./ExpandableButton";
 

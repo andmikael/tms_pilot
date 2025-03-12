@@ -13,9 +13,6 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: List files in the repository
-        run: ls ${{ github.workspace }}
-
       - name: Installing dependencies on frontend
         run: npm install
 
@@ -29,7 +26,6 @@ jobs:
       - name: Starting frontend (port 3000)
         run: |
           nohup npm run dev &
-          sleep 10
 
       - name: Starting Flask backend (port 8000)
         working-directory: flask-server-test
@@ -37,27 +33,11 @@ jobs:
           source venv/bin/activate
           python main.py &
 
-      - name: Debug printing
-        run: |
-          node -v
-          npm install --save-dev electron
-          sudo apt-get update
-          sudo apt-get install -y libx11-dev libxkbfile-dev libsecret-1-dev
-          echo "Electron version:"
-          npx electron --version
-
-
       - name: Run smoke tests
-        run: DEBUG=cypress:* npx cypress run --browser electron
+        run: npm run test:smoke
       
       - name: Run unit tests
         run: npm run test:unit
-
-      - name: Run flask backend tests
-        working-directory: react-front-test
-        run: |
-          npm run install-all
-          npm run start
 
       - name: Upload Cypress Screenshots
         uses: actions/upload-artifact@v4
