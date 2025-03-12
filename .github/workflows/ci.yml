@@ -29,7 +29,6 @@ jobs:
       - name: Starting frontend (port 3000)
         run: |
           nohup npm run dev &
-          sleep 10
 
       - name: Starting Flask backend (port 8000)
         working-directory: flask-server-test
@@ -39,12 +38,7 @@ jobs:
 
       - name: Debug printing
         run: |
-          node -v
           npm install --save-dev electron
-          sudo apt-get update
-          sudo apt-get install -y libx11-dev libxkbfile-dev libsecret-1-dev
-          echo "Electron version:"
-          npx electron --version
 
 
       - name: Run smoke tests
