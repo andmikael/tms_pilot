@@ -58,3 +58,10 @@ jobs:
         run: |
           npm run install-all
           npm run start
+
+      - name: Upload Cypress Screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress
+          path: cypress
+        if: always()
