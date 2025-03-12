@@ -40,11 +40,10 @@ jobs:
       - name: Debug printing
         run: |
           node -v
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+          npm install --save-dev electron
 
       - name: Run smoke tests
-        run: DEBUG=cypress:* npm run test:smoke
+        run: DEBUG=cypress:* npx cypress run --browser electron
       
       - name: Run unit tests
         run: npm run test:unit
