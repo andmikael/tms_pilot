@@ -35,6 +35,20 @@ jobs:
           source venv/bin/activate
           python main.py &
 
+      - name: Wait for frontend (3000) to be ready
+        run: |
+          until curl --output /dev/null --silent --head --fail http://localhost:3000; do
+            echo "Waiting for frontend..."
+            sleep 2
+          done
+
+      - name: Wait for backend (8000) to be ready
+        run: |
+          until curl --output /dev/null --silent --head --fail http://localhost:8000; do
+            echo "Waiting for backend..."
+            sleep 2
+          done
+
       - name: Run smoke tests
         run: npm run test:smoke
       
