@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "leaflet-backend": "node index.cjs",
-    "test:smoke": "cypress run --spec './test/cypress/e2e/smoke/smoke.spec.cy.js' --browser chrome",
+    "test:smoke": "cypress run --headed --spec './test/cypress/e2e/smoke/smoke.spec.cy.js' --browser chrome",
     "test:unit": "vitest"
   },
   "dependencies": {

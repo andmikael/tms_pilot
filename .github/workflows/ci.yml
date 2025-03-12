@@ -35,22 +35,8 @@ jobs:
           source venv/bin/activate
           python main.py &
 
-      - name: Wait for frontend (3000) to be ready
-        run: |
-          until curl --output /dev/null --silent --head --fail http://localhost:3000; do
-            echo "Waiting for frontend..."
-            sleep 2
-          done
-
-      - name: Wait for backend (8000) to be ready
-        run: |
-          until curl --output /dev/null --silent --head --fail http://localhost:8000; do
-            echo "Waiting for backend..."
-            sleep 2
-          done
-
       - name: Run smoke tests
-        run: npm run test:smoke
+        run: CYPRESS_BASE_URL="http://127.0.0.1:3000" npm run test:smoke
       
       - name: Run unit tests
         run: npm run test:unit
