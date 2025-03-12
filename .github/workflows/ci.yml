@@ -34,3 +34,15 @@ jobs:
         run: |
           source venv/bin/activate
           python main.py &
+
+      - name: Run smoke tests
+        run: npm run test:smoke
+      
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - name: Run flask backend tests
+        working-directory: react-front-test
+        run: |
+          npm run install-all
+          npm run start
