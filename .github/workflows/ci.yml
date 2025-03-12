@@ -27,7 +27,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Starting frontend (port 3000)
-        run: npm run dev &
+        run: |
+          nohup npm run dev &
+          sleep 10
 
       - name: Starting Flask backend (port 8000)
         working-directory: flask-server-test
@@ -36,7 +38,7 @@ jobs:
           python main.py &
 
       - name: Run smoke tests
-        run: npm run test:smoke
+        run: DEBUG=cypress:* npm run test:smoke
       
       - name: Run unit tests
         run: npm run test:unit
