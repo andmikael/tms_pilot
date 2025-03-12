@@ -41,6 +41,11 @@ jobs:
         run: |
           node -v
           npm install --save-dev electron
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxkbfile-dev libsecret-1-dev
+          echo "Electron version:"
+          npx electron --version
+
 
       - name: Run smoke tests
         run: DEBUG=cypress:* npx cypress run --browser electron
