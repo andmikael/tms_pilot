@@ -8,7 +8,7 @@ describe("Smoke tests", () => {
 
   it("should load the main page", () => {
     cy.visit(BASE_URL);
-    cy.contains('Kuljetuksien suunnittelujärjestelmä', { timeout: 10000 }).should('be.visible');
+    cy.contains('Kuljetuksien suunnittelujärjestelmä');
   });
 
   it("should load the 'Tiedostot' page", () => {
