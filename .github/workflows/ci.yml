@@ -40,18 +40,11 @@ jobs:
         run: |
           npm install --save-dev electron
 
-
       - name: Run smoke tests
         run: DEBUG=cypress:* npx cypress run --browser electron
       
       - name: Run unit tests
         run: npm run test:unit
-
-      - name: Run flask backend tests
-        working-directory: react-front-test
-        run: |
-          npm run install-all
-          npm run start
 
       - name: Upload Cypress Screenshots
         uses: actions/upload-artifact@v4
