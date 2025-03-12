@@ -4,6 +4,15 @@ from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
 import urllib.request
 import json
+from dotenv import load_dotenv
+import sys, os
+
+load_dotenv()
+
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+if not GOOGLE_API_KEY:
+    raise ValueError("Google api key not found in .env file")
+
 
 class DataError(Exception):
     """Exception raised for incorrect routing input data
@@ -154,7 +163,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     #Ei välttämättä tarvitsisi tehdä dictionarya, mutta nyt se on tälleen
     data = {}
     data['addresses'] = list_of_addresses
-    data['API_key'] = 'GOOGLE_API_KEY_HERE_HERE'
+    data['API_key'] = GOOGLE_API_KEY
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends
@@ -204,22 +213,22 @@ def handle_exception(e):
     error_data = {
         "error_message": e.message,
     }
-    return jsonify(error_data)
+    return jsonify(error_data), 400
 
 @app.errorhandler(GoogleAPIError)
 def handle_exception(e):
     error_data = {
         "error_message": e.message,
     }
-    return jsonify(error_data)
+    return jsonify(error_data), 400
 
 #Muiden kuin itse määritettyjen exceptioneiden käsittelyä varten
-@app.errorhandler(Exception)
-def handle_exception(e):
-    error_data = {
-        "error_message": repr(e)
-    }
-    return jsonify(error_data)
+# @app.errorhandler(Exception)
+# def handle_exception(e):
+#     error_data = {
+#         "error_message": repr(e)
+#     }
+#     return jsonify(error_data), 400
 
 #@app.use(cors({origin: true, credentials: true}))
 
@@ -260,7 +269,10 @@ def post_test2():
 Testi reititysta varten. Kun laitetaan postilla json muotoa {"addresses": ["Osoite1", "Osoite2", "Osoite3"]}
 palauttaa jsonin jossa 'ordered_routes' kohdassa on lista reiteista optimoidussa jarjestyksessa.
 
-Esim. {"adresses": ["Prannarintie+8+Kauhajoki", "Prannarintie+10+Kauhajoki", "Topeeka+26+Kauhajoki"]}
+Esim. {"adresses": ["Prannarintie+8+Kauhajoki", "Prannarintie+10+Kauhajoki", "Topeeka+26+Kauhajoki"], 
+       "start_indexes": [0],
+       "end_indexes": [0],
+       "number_of_vehicles": 1}
 palauttaa {"ordered_routes": [["Prannarintie+8+Kauhajoki","Topeeka+26+Kauhajoki","Prannarintie+10+Kauhajoki",
 "Prannarintie+8+Kauhajoki"]]}
 """
@@ -282,21 +294,8 @@ def route_test():
     route = route_order(data['addresses'], data['start_indexes'], data['end_indexes'], data['number_of_vehicles'])
     return_data = {}
     return_data['ordered_routes'] = route
-    return return_data
+    return jsonify(return_data)
 
-"""
-
-@app.route("/api/send", methods = ['POST']) 
-def send():
-    request_data = request.get_json(force=True)
-    return {"201": request_data['content']}
-
-@app.route('/api/query', methods = ['POST'])
-def get_query_from_react():
-    data = request.get_json()
-    print(data)
-    return data
-"""
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
