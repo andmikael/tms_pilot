@@ -163,7 +163,11 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     #Ei välttämättä tarvitsisi tehdä dictionarya, mutta nyt se on tälleen
     data = {}
     data['addresses'] = list_of_addresses
+<<<<<<< HEAD
     data['API_key'] = GOOGLE_API_KEY
+=======
+    data['API_key'] = ''
+>>>>>>> 91dcffbdf88a30626de0df8a9b2818f736fa6808
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends
@@ -211,59 +215,40 @@ cors = CORS(app, origins='*')
 @app.errorhandler(DataError)
 def handle_exception(e):
     error_data = {
-        "error_message": e.message,
+        "error_message": "DataError: " + e.message,
     }
+<<<<<<< HEAD
     return jsonify(error_data), 400
+=======
+    
+    return jsonify(error_data)
+>>>>>>> 91dcffbdf88a30626de0df8a9b2818f736fa6808
 
 @app.errorhandler(GoogleAPIError)
 def handle_exception(e):
     error_data = {
-        "error_message": e.message,
+        "error_message": "GoogleAPIError: " + e.message,
     }
     return jsonify(error_data), 400
 
 #Muiden kuin itse määritettyjen exceptioneiden käsittelyä varten
+<<<<<<< HEAD
 # @app.errorhandler(Exception)
 # def handle_exception(e):
 #     error_data = {
 #         "error_message": repr(e)
 #     }
 #     return jsonify(error_data), 400
+=======
+@app.errorhandler(Exception)
+def handle_exception(e):
+    error_data = {
+        "error_message": "Exception: " + repr(e)
+    }
+    return jsonify(error_data)
+>>>>>>> 91dcffbdf88a30626de0df8a9b2818f736fa6808
 
 #@app.use(cors({origin: true, credentials: true}))
-
-
-
-# https://stackoverflow.com/questions/45980173/react-axios-network-error
-
-@app.route("/api/get_test", methods = ['GET', 'POST'])
-@cross_origin()
-def get_test():
-    return jsonify(
-        {
-            "users": [
-                'test1',
-                'test2'
-            ]
-        }
-    )
-
-
-@app.route('/api/post_test', methods =['POST', 'OPTIONS'])
-@cross_origin()
-def post_test():
-   data = request.json['viesti']
-   return jsonify({"Viesti": "Flask sai Reactilta viestin: "
-                                   + data})
-
-
-@app.route('/api/post_test2', methods =['POST', 'OPTIONS'])
-@cross_origin()
-def post_test2():
-    data = request.get_json()
-    print(data)
-    data["Moi"] = "moimoi"
-    return data
 
 """
 Testi reititysta varten. Kun laitetaan postilla json muotoa {"addresses": ["Osoite1", "Osoite2", "Osoite3"]}
@@ -296,6 +281,43 @@ def route_test():
     return_data['ordered_routes'] = route
     return jsonify(return_data)
 
+<<<<<<< HEAD
+=======
+
+"""Alla muutama esimerkki siitä, kuinka GET- ja POST-kutsut voidaan implementoida Flaskilla
+# GET
+@app.route("/api/get_test", methods = ['GET', 'POST'])
+@cross_origin()
+def get_test():
+    return jsonify(
+        {
+            "users": [
+                'test1',
+                'test2'
+            ]
+        }
+    )
+
+# POST
+@app.route('/api/post_test', methods =['POST', 'OPTIONS'])
+@cross_origin()
+def post_test():
+   data = request.json['viesti']
+   return jsonify({"Viesti": "Flask sai Reactilta viestin: "
+                                   + data})
+
+# POST
+@app.route('/api/post_test2', methods =['POST', 'OPTIONS'])
+@cross_origin()
+def post_test2():
+    data = request.get_json()
+    print(data)
+    data["Moi"] = "moimoi"
+    return data
+"""
+>>>>>>> 91dcffbdf88a30626de0df8a9b2818f736fa6808
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
+
+

@@ -6,7 +6,7 @@ import LeafletMap from "../components/LeafletMap";
 
 
 import React, { useState } from 'react';
-import Table from "../components/pickupForm/table";
+import Table from "../components/pickupForm/Table";
 import { routePropType } from "../propTypes/routePropType";
 import PropTypes from "prop-types";
 

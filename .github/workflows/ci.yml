@@ -1,0 +1,47 @@
+name: TMS CI
+
+on: [push]
+
+jobs:
+  automated_tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print branch name
+        run: echo "Running tests on branch ${{ github.ref }}"
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Installing dependencies on frontend
+        run: npm install
+
+      - name: Setting up Flask backend
+        working-directory: flask-server-test
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Starting frontend (port 3000)
+        run: |
+          nohup npm run dev &
+
+      - name: Starting Flask backend (port 8000)
+        working-directory: flask-server-test
+        run: |
+          source venv/bin/activate
+          python main.py &
+
+      - name: Run smoke tests
+        run: npm run test:smoke
+      
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - name: Upload Cypress Screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress
+          path: cypress
+        if: always()
