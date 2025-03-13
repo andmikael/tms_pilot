@@ -188,6 +188,22 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
 
+    """
+    Vaikka ajoneuvojen reittien pituutta ei ole varsinaisesti rajoitettu optimointi
+    ei tunnu toimivan ilman, että distance dimension on määritetty.
+    """
+    dimension_name = "Distance"
+    routing.AddDimension(
+        transit_callback_index,
+        0,  # no slack
+        
+        100000000,  #vehicle maximum travel distance (Valittu satunnainen iso luku)
+        True,  # start cumul to zero
+        dimension_name,
+    )
+    distance_dimension = routing.GetDimensionOrDie(dimension_name)
+    distance_dimension.SetGlobalSpanCostCoefficient(100)
+
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     #search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
     search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
@@ -276,6 +292,8 @@ def route_test():
     route = route_order(data['addresses'], data['start_indexes'], data['end_indexes'], data['number_of_vehicles'])
     return_data = {}
     return_data['ordered_routes'] = route
+    return_data['durations'] = 'NOT YET IMPLEMENTED'
+    return_data['distances'] = 'NOT YET IMPLEMENTED'
     return jsonify(return_data)
 
 
