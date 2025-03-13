@@ -132,18 +132,18 @@ def build_distance_matrix(response):
         distance_matrix.append(row_list)
     return distance_matrix
 
-def distance_callback(from_index, to_index):
-    """
-    Returns the distance between the two nodes.
+# def distance_callback(from_index, to_index):
+#     """
+#     Returns the distance between the two nodes.
 
-    :param from_index: int, 
-    :param to_index: int, 
-    :return data["distance_matrix"][from_node][to_node]: int, time in seconds or distance in meters
-    """
-    # Convert from routing variable Index to distance matrix NodeIndex.
-    from_node = manager.IndexToNode(from_index)
-    to_node = manager.IndexToNode(to_index)
-    return data["distance_matrix"][from_node][to_node]
+#     :param from_index: int, 
+#     :param to_index: int, 
+#     :return data["distance_matrix"][from_node][to_node]: int, time in seconds or distance in meters
+#     """
+#     # Convert from routing variable Index to distance matrix NodeIndex.
+#     from_node = manager.IndexToNode(from_index)
+#     to_node = manager.IndexToNode(to_index)
+#     return data["distance_matrix"][from_node][to_node]
 
 def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     """
@@ -163,11 +163,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     #Ei välttämättä tarvitsisi tehdä dictionarya, mutta nyt se on tälleen
     data = {}
     data['addresses'] = list_of_addresses
-<<<<<<< HEAD
     data['API_key'] = GOOGLE_API_KEY
-=======
-    data['API_key'] = ''
->>>>>>> 91dcffbdf88a30626de0df8a9b2818f736fa6808
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends
@@ -175,10 +171,25 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     
     manager = pywrapcp.RoutingIndexManager(len(data['distance_matrix']), data['num_vehicles'], data["starts"], data["ends"])
     routing = pywrapcp.RoutingModel(manager)
+
+    def distance_callback(from_index, to_index):
+        """
+        Returns the distance between the two nodes.
+
+        :param from_index: int, 
+        :param to_index: int, 
+        :return data["distance_matrix"][from_node][to_node]: int, time in seconds or distance in meters
+        """
+        # Convert from routing variable Index to distance matrix NodeIndex.
+        from_node = manager.IndexToNode(from_index)
+        to_node = manager.IndexToNode(to_index)
+        return data["distance_matrix"][from_node][to_node]
+
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
 
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
+    #search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
     search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
 
     solution = routing.SolveWithParameters(search_parameters)
@@ -217,12 +228,7 @@ def handle_exception(e):
     error_data = {
         "error_message": "DataError: " + e.message,
     }
-<<<<<<< HEAD
     return jsonify(error_data), 400
-=======
-    
-    return jsonify(error_data)
->>>>>>> 91dcffbdf88a30626de0df8a9b2818f736fa6808
 
 @app.errorhandler(GoogleAPIError)
 def handle_exception(e):
@@ -232,21 +238,12 @@ def handle_exception(e):
     return jsonify(error_data), 400
 
 #Muiden kuin itse määritettyjen exceptioneiden käsittelyä varten
-<<<<<<< HEAD
-# @app.errorhandler(Exception)
-# def handle_exception(e):
-#     error_data = {
-#         "error_message": repr(e)
-#     }
-#     return jsonify(error_data), 400
-=======
 @app.errorhandler(Exception)
 def handle_exception(e):
     error_data = {
         "error_message": "Exception: " + repr(e)
     }
-    return jsonify(error_data)
->>>>>>> 91dcffbdf88a30626de0df8a9b2818f736fa6808
+    return jsonify(error_data), 400
 
 #@app.use(cors({origin: true, credentials: true}))
 
@@ -281,8 +278,6 @@ def route_test():
     return_data['ordered_routes'] = route
     return jsonify(return_data)
 
-<<<<<<< HEAD
-=======
 
 """Alla muutama esimerkki siitä, kuinka GET- ja POST-kutsut voidaan implementoida Flaskilla
 # GET
@@ -315,7 +310,6 @@ def post_test2():
     data["Moi"] = "moimoi"
     return data
 """
->>>>>>> 91dcffbdf88a30626de0df8a9b2818f736fa6808
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
