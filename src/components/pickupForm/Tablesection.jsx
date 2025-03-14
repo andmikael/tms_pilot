@@ -1,6 +1,6 @@
 import { React, useState } from "react";
 
-const TableSection = ({ returnData }) => {
+const TableSection = ({ args }) => {
 
     const [newPickup, setNewPickup] = useState({
         name: "",
@@ -12,7 +12,7 @@ const TableSection = ({ returnData }) => {
     });
 
     const submitForm = () => {
-        returnData(newPickup);
+        args(newPickup);
     }
 
     const handleInputChange = (e) => {
@@ -33,7 +33,8 @@ const TableSection = ({ returnData }) => {
     };
 
     return ( 
-        <tbody className="pickupFormBody">
+        <table>
+            <tbody className="pickupFormBody">
             <tr>
                 <td>
                     <label>Nimi</label>
@@ -96,6 +97,7 @@ const TableSection = ({ returnData }) => {
                 </td>
             </tr>
         </tbody>
+        </table>
     )
 }
 

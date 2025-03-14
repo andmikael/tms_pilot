@@ -6,10 +6,10 @@ import LeafletMap from "../components/LeafletMap";
 
 
 import React, { useState } from 'react';
-import Table from "../components/pickupForm/Table";
 import { routePropType } from "../propTypes/routePropType";
 import PropTypes from "prop-types";
 import TemplateBody from "../components/templateDropdown/TemplateBody";
+import TableSection from "../components/pickupForm/Tablesection";
 
 const PlanningPage = ( {data} ) => {
 
@@ -43,7 +43,7 @@ const PlanningPage = ( {data} ) => {
                 </ul>
           </div>
         <div>
-            <Table returnDataToList={handleFormData}/>
+        <TemplateBody PropComponent={TableSection} PropName={"pickupform"} PropTitle={"Lisää uusi noutopaikka"} PropFunc={handleFormData}/>
         </div>
         
         <div>
