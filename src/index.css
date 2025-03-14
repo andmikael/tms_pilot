@@ -88,4 +88,18 @@ label {
   width: 100%;
 }
 
+.test-container {
+  position: relative;
+  width: 1000px;
+}
+
+
+.dropdown-header > button {
+  position: absolute;
+  right: 0;
+}
+
+#map {
+  width:100%;
+}
 

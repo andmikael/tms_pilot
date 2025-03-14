@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import Table from "../components/pickupForm/Table";
 import { routePropType } from "../propTypes/routePropType";
 import PropTypes from "prop-types";
+import TemplateBody from "../components/templateDropdown/TemplateBody";
 
 const PlanningPage = ( {data} ) => {
 
@@ -44,7 +45,10 @@ const PlanningPage = ( {data} ) => {
         <div>
             <Table returnDataToList={handleFormData}/>
         </div>
-        <LeafletMap id="map"/>
+        
+        <div>
+              <TemplateBody PropComponent={LeafletMap} PropName={"test-container"} PropTitle={"test container text"}/>
+        </div>
       </div>
     );
 };
