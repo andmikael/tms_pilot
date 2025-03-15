@@ -422,6 +422,31 @@ def get_excel_jsons():
 
     return jsonify(excel_jsons)
 
+@app.route('/api/delete_excel', methods=['DELETE'])
+@cross_origin()
+def delete_excel():
+    data = request.get_json()
+    file_name = data.get("file_name")
+    if not file_name:
+        return jsonify({"error": "file_name not provided"}), 400
+
+    if not file_name.endswith(".xlsx"):
+        file_name_full = file_name + ".xlsx"
+    else:
+        file_name_full = file_name
+
+    folder = os.path.join(".secret", "ExcelFiles")
+    file_path = os.path.join(folder, file_name_full)
+    
+    if not os.path.exists(file_path):
+        return jsonify({"error": "Tiedostoa ei löytynyt"}), 404
+
+    try:
+        os.remove(file_path)
+        return jsonify({"message": "Tiedosto poistettu onnistuneesti", "file_name": file_name_full}), 200
+    except Exception as e:
+        return jsonify({"error": True, "message": f"Tiedoston poisto epäonnistui: {e}"}), 500
+
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
 
