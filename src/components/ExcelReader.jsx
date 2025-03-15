@@ -14,6 +14,12 @@ import { useState, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import { useDropzone } from 'react-dropzone';
 import fs from "fs";
+<<<<<<< HEAD
+=======
+import "../index.css";
+import PropTypes from 'prop-types';
+import { routePropType } from '../propTypes/routePropType';
+>>>>>>> 88ca976a6a4ca7dd111c42f4032c79100bf044f0
 
 const StandardPickup = Object.freeze({
     YES: "yes",
@@ -235,3 +241,8 @@ export const ExcelReader = ({ routeHandler }) => {
         </div>
     );
 };
+ 
+ExcelReader.propTypes = {
+    routeHandler: PropTypes.func.isRequired,
+  };
+  

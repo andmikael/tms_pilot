@@ -33,3 +33,53 @@ h1 {
     background-color: #ffffff;
   }
 }
+
+.pickupFormTable {
+  width: 450px;
+}
+
+.button-td {
+  width:225px;
+}
+
+label {
+  display: inline-block;
+  width: 150px;
+  padding: 0px 10px;
+}
+
+.pickupFormTable > td tr { 
+  display: inline-block;
+  width: 150px;
+}
+
+.button-save {
+  margin: 0 10px;
+}
+
+.point-check {
+  width: 20px;
+  height: 20px;
+}
+
+.PickupList {
+  /*background-color: #fef7ff;*/
+  background-color: #c272cc;
+  display: inline-block;
+  width: 350px;
+}
+
+.pointList {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.point {
+  border-bottom: 2px solid;
+  display: inline-block;
+  width: 100%;
+}
+
+
