@@ -111,8 +111,7 @@ label {
 }
 
 .dropdown-header {
-  border: 1px solid;
-  padding: 5px;
+  padding: 10px 7px;
   background-color: #EBEBEB;
   border-radius: 0.2em;
   position: relative;
@@ -120,10 +119,14 @@ label {
 
 .template-body {
   border: 1px solid #e6e6e6;
-  border-radius: 0.2em;
+  border-radius: 0.1em;
 }
 
 .pickupform {
   width: 400px;
+}
+
+.excel-reader {
+  width: 60%;
 }
 
