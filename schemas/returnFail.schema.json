@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "",
+  "title": "Fail",
+  "description": "JSON schema for response to failed task",
+  "type": "object",
+  "properties": {
+	"error_message": {
+		"description":  "Error message",
+		"type": "string"
+	}
+    
+  },
+  "required": ["error_message"]
+}
