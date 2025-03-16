@@ -35,9 +35,14 @@ const PlanningPage = ( {data} ) => {
                 <ul className="pointList">
                     {pickups.map((itinerary, index) => (
                       <li key={index} className="point">
-                        <label>{itinerary.name}, {itinerary.address}, {itinerary.zipcode}, {itinerary.city}</label>
-                        <button onClick={() => removePickup(index)} className="point-remove">Remove</button>
-                        <input type="checkbox" id="" value={itinerary.name} className="point-check"/>
+                        <div className="point-info">
+                          <label className="point-name">{itinerary.name}</label>
+                          <label>{itinerary.address}, {itinerary.zipcode}, {itinerary.city}</label>
+                        </div>
+                        <div className="point-list-controls">
+                          <button onClick={() => removePickup(index)} className="point-remove">Remove</button>
+                          <input type="checkbox" id="" value={itinerary.name} className="point-check"/>
+                        </div>
                       </li>
                     ))}
                 </ul>
