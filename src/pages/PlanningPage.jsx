@@ -43,11 +43,11 @@ const PlanningPage = ( {data} ) => {
                 </ul>
           </div>
         <div>
-        <TemplateBody PropComponent={TableSection} PropName={"pickupform"} PropTitle={"Lisää uusi noutopaikka"} PropFunc={handleFormData}/>
+        <TemplateBody PropComponent={TableSection} PropName={"pickupform"} PropTitle={"Lisää uusi noutopaikka"} PropFunc={handleFormData} Expandable={true}/>
         </div>
         
         <div>
-              <TemplateBody PropComponent={LeafletMap} PropName={"test-container"} PropTitle={"test container text"}/>
+              <TemplateBody PropComponent={LeafletMap} PropName={"test-container"} PropTitle={"test container text"} Expandable={true}/>
         </div>
       </div>
     );

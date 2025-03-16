@@ -7,7 +7,7 @@ const ExpandableButton = ({isOpen, toggle }) => {
                 transform:`rotate(${isOpen ? 180:0}deg)`,
                 transition: "all 0.25s"
             }}>
-            expand_circle_down
+            expand_more
             </span>
         </button>
     );

@@ -3,12 +3,13 @@
 */ 
 
 import { ExcelReader } from "../components/ExcelReader";
+import TemplateBody from "../components/templateDropdown/TemplateBody";
 
 const FilesPage = ({routeHandler}) => {
 
     return <div>
         <div className="content">Excelin lataus sivu</div>
-        <ExcelReader routeHandler={routeHandler}></ExcelReader>
+        <TemplateBody PropComponent={ExcelReader} PropName={"excel-reader"} PropTitle={"Lisää uusi tiedosto"} PropFunc={routeHandler}/>
     </div>
 };
 

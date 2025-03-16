@@ -218,7 +218,7 @@ export const ExcelReader = ({ routeHandler }) => {
     return (
         <div>
             {/* Excel tiedoston lataaminen kansionäkymästä */}
-            <input type="file" onChange={(e) => processFile(e.target.files[0])} />
+            <input type="file" hidden="true" onChange={(e) => processFile(e.target.files[0])} />
 
             {/* Dropzone toteutus */}
             <div {...getRootProps()} className="dropzone">

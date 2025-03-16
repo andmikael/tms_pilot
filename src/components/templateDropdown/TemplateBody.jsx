@@ -10,43 +10,75 @@
         const Component = ({args}) => {
             
         }
+
+    Expandable argumentti muuttaa template komponentin tiputusvalikoksi
  */
 
 import React from 'react';
 import useOpenController from "./useOpenController";
 import ExpandableButton from "./ExpandableButton";
 
-const TemplateBody = ({PropComponent, PropName, PropTitle, PropFunc=null}) => {
+const TemplateBody = ({PropComponent, PropName, PropTitle, PropFunc=null, Expandable=false}) => {
     const {isOpen, toggle} = useOpenController(false);
 
     if (PropFunc != null) {
-        return (
-            <div className="dropdown-template">
-                <div className={PropName}>
-                    <div className="dropdown-header">
-                        <span>{PropTitle}</span>
-                        <ExpandableButton isOpen={isOpen} toggle={toggle}/>
-                    </div>
-                    <div className="template-body">
-                        {isOpen && <PropComponent args={PropFunc}/>}
+        if (Expandable) {
+            return (
+                <div className="dropdown-template">
+                    <div className={PropName}>
+                        <div className="dropdown-header">
+                            <span>{PropTitle}</span>
+                            <ExpandableButton isOpen={isOpen} toggle={toggle}/>
+                        </div>
+                        <div className="template-body">
+                            {isOpen && <PropComponent args={PropFunc}/>}
+                        </div>
                     </div>
                 </div>
-            </div>
-        )
+            )
+        } else {
+            return (
+                <div className="dropdown-template">
+                    <div className={PropName}>
+                        <div className="dropdown-header">
+                            <span>{PropTitle}</span>
+                        </div>
+                        <div className="template-body">
+                            <PropComponent args={PropFunc}/>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
     } else {
-        return (
-            <div className="dropdown-template">
-                <div className={PropName}>
-                    <div className="dropdown-header">
-                        <span>{PropTitle}</span>
-                        <ExpandableButton isOpen={isOpen} toggle={toggle}/>
-                    </div>
-                    <div className="template-body">
-                        {isOpen && <PropComponent />}
+        if (Expandable) {
+            return (
+                <div className="dropdown-template">
+                    <div className={PropName}>
+                        <div className="dropdown-header">
+                            <span>{PropTitle}</span>
+                            <ExpandableButton isOpen={isOpen} toggle={toggle}/>
+                        </div>
+                        <div className="template-body">
+                            {isOpen && <PropComponent/>}
+                        </div>
                     </div>
                 </div>
-            </div>
-        )
+            )
+        } else {
+            return (
+                <div className="dropdown-template">
+                    <div className={PropName}>
+                        <div className="dropdown-header">
+                            <span>{PropTitle}</span>
+                        </div>
+                        <div className="template-body">
+                            <PropComponent/>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
     }
 }
 
