@@ -25,7 +25,7 @@ const PlanningPage = ( {data} ) => {
       };
     
     return (
-      <div>
+      <div className="body-container">
         <div className="content">
           Reittisuunnittelu sivu
           <p>Järjestelmän reitit: {JSON.stringify(data)}</p>
@@ -48,11 +48,11 @@ const PlanningPage = ( {data} ) => {
                 </ul>
           </div>
         <div>
-        <TemplateBody PropComponent={TableSection} PropName={"pickupform"} PropTitle={"Lisää uusi noutopaikka"} PropFunc={handleFormData} Expandable={true}/>
+          <TemplateBody PropComponent={TableSection} PropName={"pickupform"} PropTitle={"Lisää uusi noutopaikka"} PropFunc={handleFormData} Expandable={true}/>
         </div>
         
         <div>
-              <TemplateBody PropComponent={LeafletMap} PropName={"test-container"} PropTitle={"test container text"} Expandable={true}/>
+          <TemplateBody PropComponent={LeafletMap} PropName={"test-container"} PropTitle={"test container text"} Expandable={true}/>
         </div>
       </div>
     );
