@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Routes",
+  "description": "List of places to be visited",
+  "type": "object",
+  "properties": {
+    "ordered_routes": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "$ref": "#/properties/ordered_routes/$defs/place"
+        }
+      },
+      "required": ["name", "startPlace", "endPlace", "startTime", "endTime"],
+      "$defs": {
+        "place": {
+          "type": "object",
+        "title": "Place",
+        "description": "Single location to be visited",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "address": {
+              "type": "string"
+            },
+            "postalCode": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "standardPickup": {
+              "type": "string",
+              "enum": ["yes", "no"]
+            },
+            "lat": {
+              "type": ["number", "null"]
+            },
+            "lon": {
+              "type": ["number", "null"]
+            }
+          },
+          "required": ["name", "address", "postalCode", "city", "standardPickup", "lat", "lon"]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "ordered_routes": {
+        "type": "array",
+        "description": "List of routes",
+        "items": {
+  
+          "$ref": "#/$defs/route"
+        },
+       "distances": {
+          "description": "NOT IMPLEMENTED YET"
+       },
+       "distances": {
+          "description": "NOT IMPLEMENTED YET"
+       }
+      }
+    },
+    "required": ["ordered_routes"],
+    "$defs": {
+      "route": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "startPlace": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "endPlace": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "routes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/place"
+            }
+          }
+        },
+        "required": ["name", "startPlace", "endPlace", "startTime", "endTime", "routes"]
+      },
+      "place": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "standardPickup": {
+            "type": "string",
+            "enum": ["yes", "no"]
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lon": {
+            "type": "number"
+          }
+        },
+        "required": ["name", "address", "postalCode", "city", "standardPickup", "lat", "lon"]
+      }
+    }
+  }

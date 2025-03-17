@@ -13,8 +13,6 @@
 import { useState, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import { useDropzone } from 'react-dropzone';
-import fs from "fs";
-import "../index.css";
 import PropTypes from 'prop-types';
 import { routePropType } from '../propTypes/routePropType';
 
@@ -54,7 +52,12 @@ async function getCoordinates(fullPlace) {
 const downloadTemplate = () => {
     const ws = XLSX.utils.aoa_to_sheet([
         ["Reitin nimi:"],
-        ["Nimi", "Osoite", "Postinumero", "Kaupunki", "Vakionouto"],
+        ["Yksikkö", "Osoite", "Postinumero", "Kaupunki", "Vakionouto"],
+        [],
+        [],
+        ["Aloituspaikka", "Katuosoite",	"Postinumero", "Toimipaikka", "Lähtöaika"],
+        [],
+        ["Määräpaikka", "Katuosoite",	"Postinumero", "Toimipaikka", "Paluuaika"],
     ]);
 
     const wb = XLSX.utils.book_new();
@@ -67,6 +70,8 @@ const downloadTemplate = () => {
 // ExcelReader-komponentti
 export const ExcelReader = ({ routeHandler }) => {
     const [message, setMessage] = useState(null);
+
+    
 
     // Tiedoston prosessointi
     const processFile = async (file) => {
@@ -91,7 +96,7 @@ export const ExcelReader = ({ routeHandler }) => {
                 const routeName = sheet["B1"] ? sheet["B1"].v : "Uusi reitti";
 
                  // Muutetaan tiedosto JSON muotoon.
-                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+                const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
                 // Jos tiedosto on tyhjä, lopetetaan käsittely
                 if (jsonData.length === 0) {
@@ -104,8 +109,18 @@ export const ExcelReader = ({ routeHandler }) => {
 
                 // Käydään jokainen rivi läpi
                 // Järjestys: nimi, osoite, postinumero, kaupunki, vakionouto
-                for (let i = 1; i < jsonData.length; i++) {
-                    const row = Object.values(jsonData[i]);
+                for (let i = 2; i < jsonData.length; i++) {
+                    
+                    // Jos ensimmäisen sarakkeen arvo sisältää "aloituspaikka", lopetetaan lukeminen
+                    if (
+                        jsonData[i][0] &&
+                        jsonData[i][0].toString().toLowerCase().includes("aloituspaikka")
+                    ) {
+                        break;
+                    }
+
+                    // Otetaan vain ensimmäiset 5 saraketta (A–E)
+                    const row = jsonData[i].slice(0, 5);
 
                     // Varmistetaan, että rivillä on vähintään 4 saraketta
                     if (row.length < 4) {
@@ -157,32 +172,18 @@ export const ExcelReader = ({ routeHandler }) => {
                     setMessage({ type: "success", message: "Tiedosto luettu onnistuneesti!" });
                     routeHandler(excelData);
 
-                    /* Ei vielä valmis
-                    // Excel tallennus
-                    // Luodaan tyhjä taulukko ja lisätään ensin otsikkorivi
-                    const newSheet = XLSX.utils.aoa_to_sheet([["Reitin nimi:", routeName]]);
-    
-                    // Lisätään ExcelData alkamaan solusta A2
-                    XLSX.utils.sheet_add_json(newSheet, excelData, { origin: "A2", skipHeader: false });
+                    const response = await fetch("http://localhost:8000/upload", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ routeName, data: excelData }),
+                    });
 
-                    // Luodaan uusi työkirja ja lisätään päivitetty taulukko
-                    const newWorkbook = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(newWorkbook, newSheet, "Luetut paikat");
+                    const result = await response.json();
+                    setMessage({ type: result.error ? "error" : "success", message: result.message });
 
-                    // Määritetään tallennuskansio ja tiedostopolku
-                    const xlsxDirPath = "../../.secret/ExcelFiles";
-                    const xlsxFilePath = `${xlsxDirPath}/${routeName}.xlsx`;
+                    // Päivitetään tiedot käyttöliittymässä
+                    routeHandler(excelData);
 
-                    // Luodaan hakemisto, jos sitä ei ole olemassa
-                    if (!fs.existsSync(xlsxDirPath)) {
-                        fs.mkdirSync(xlsxDirPath, { recursive: true });
-                    }
-                    // Kirjoitetaan tiedosto bufferina
-                    const buffer = XLSX.write(newWorkbook, { bookType: "xlsx", type: "buffer" });
-
-                    // Tallennetaan tiedosto
-                    fs.writeFileSync(xlsxFilePath, buffer);
-                    */
                 } else {
                     setMessage({ type: "error", message: "Tiedoston luku epäonnistui!" });
                 }
@@ -221,7 +222,7 @@ export const ExcelReader = ({ routeHandler }) => {
             <input type="file" hidden="true" onChange={(e) => processFile(e.target.files[0])} />
 
             {/* Dropzone toteutus */}
-            <div {...getRootProps()} className="dropzone">
+            <div {...getRootProps()} style={{ border: '2px dashed #ccc', padding: '20px', textAlign: 'center', cursor: 'pointer', width: '100%' }}>
                 <input {...getInputProps()} />
                 <p>Raahaa ja pudota Excel-tiedosto tähän tai klikkaa valitaksesi tiedoston</p>
             </div>
@@ -233,8 +234,3 @@ export const ExcelReader = ({ routeHandler }) => {
         </div>
     );
 };
- 
-ExcelReader.propTypes = {
-    routeHandler: PropTypes.func.isRequired,
-  };
-  
