@@ -1,0 +1,33 @@
+openapi: 3.0.4
+info:
+  title: Optimization API
+  description: .
+  version: 0.0.1
+paths:
+  /route_test:
+    post:
+      summary: Calculate route.
+      description: Sends a route to be calculated, returns an optimized result
+      operationId: route_order
+      requestBody:
+        description: "JSON object with route data"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "incoming.schema.json"
+    responses:
+      '200':
+        description: Success
+        content:
+          application/json:
+            schema:
+              $ref: "returnSuccess.schema.json"
+      '500':
+        description: Fail
+        content:
+          application/json:
+            schema:
+                $ref: "returnFail.schema.json"
+                example:
+                  errorMsg: "Must have at least one route!"
