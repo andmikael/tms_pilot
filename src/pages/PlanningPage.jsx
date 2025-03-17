@@ -4,11 +4,10 @@
 */ 
 import React, { useState, useEffect } from 'react';
 import LeafletMap from "../components/LeafletMap";
-
-
-import Table from "../components/pickupForm/Table";
 import { routePropType } from "../propTypes/routePropType";
 import PropTypes from "prop-types";
+import TemplateBody from "../components/templateDropdown/TemplateBody";
+import TableSection from "../components/pickupForm/Tablesection";
 
 const PlanningPage = ({ data }) => {
   const [pickups, setNewPickups] = useState([]);
@@ -71,7 +70,7 @@ const PlanningPage = ({ data }) => {
     }
   };
     return (
-      <div>
+      <div className="body-container">
         <div className="content">
           Reittisuunnittelu sivu
           <p>Järjestelmän reitit: {JSON.stringify(data)}</p>
@@ -107,17 +106,25 @@ const PlanningPage = ({ data }) => {
                 <ul className="pointList">
                     {pickups.map((itinerary, index) => (
                       <li key={index} className="point">
-                        <label>{itinerary.name}, {itinerary.address}, {itinerary.zipcode}, {itinerary.city}</label>
-                        <button onClick={() => removePickup(index)} className="point-remove">Remove</button>
-                        <input type="checkbox" id="" value={itinerary.name} className="point-check"/>
+                        <div className="point-info">
+                          <label className="point-name">{itinerary.name}</label>
+                          <label>{itinerary.address}, {itinerary.zipcode}, {itinerary.city}</label>
+                        </div>
+                        <div className="point-list-controls">
+                          <button onClick={() => removePickup(index)} className="point-remove">Remove</button>
+                          <input type="checkbox" id="" value={itinerary.name} className="point-check"/>
+                        </div>
                       </li>
                     ))}
                 </ul>
           </div>
         <div>
-            <Table returnDataToList={handleFormData}/>
+          <TemplateBody PropComponent={TableSection} PropName={"pickupform"} PropTitle={"Lisää uusi noutopaikka"} PropFunc={handleFormData} Expandable={true}/>
         </div>
-        <LeafletMap id="map"/>
+        
+        <div>
+          <TemplateBody PropComponent={LeafletMap} PropName={"test-container"} PropTitle={"test container text"} Expandable={true}/>
+        </div>
       </div>
     );
 };

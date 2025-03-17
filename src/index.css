@@ -44,7 +44,6 @@ h1 {
 
 label {
   display: inline-block;
-  width: 150px;
   padding: 0px 10px;
 }
 
@@ -60,26 +59,82 @@ label {
 .point-check {
   width: 20px;
   height: 20px;
+  position: absolute;
 }
 
 .PickupList {
-  /*background-color: #fef7ff;*/
-  background-color: #c272cc;
+  background-color: #fef7ff;
+  /*background-color: #c272cc;*/
   display: inline-block;
-  width: 350px;
+  width: 500px;
 }
 
 .pointList {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  display: flex;
 }
 
 .point {
-  border-bottom: 2px solid;
-  display: inline-block;
+  border-bottom: 1px solid #e6e6e6;
+  display: inline-flex;
   width: 100%;
+  position: relative;
+}
+
+.test-container {
+  width: 1000px;
 }
 
 
+.dropdown-header > button {
+  position: absolute;
+  right: 0.5em;
+  padding: 0;
+  border: none;
+  background: none;
+  
+}
+
+.dropdown-header > button:hover {
+  cursor: pointer;
+}
+
+#map {
+  width:100%;
+}
+
+.dropdown-header {
+  padding: 10px 7px;
+  background-color: #EBEBEB;
+  border-radius: 0.2em;
+  position: relative;
+}
+
+.template-body {
+  border: 1px solid #e6e6e6;
+  border-radius: 0.1em;
+}
+
+.pickupform {
+  width: 400px;
+}
+
+.excel-reader {
+  width: 60%;
+}
+
+.point-list-controls {
+  top: 25%;
+  align-content: center;
+  right: 10%;
+  position: absolute;
+}
+
+.point-info {
+  display: grid;
+}
+
+.point-name {
+  font-size: 1.1rem;
+}
