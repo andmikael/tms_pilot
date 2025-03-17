@@ -89,7 +89,7 @@ label {
 }
 
 .test-container {
-  width: 1000px
+  width: 1000px;
 }
 
 
@@ -143,5 +143,4 @@ label {
 
 .point-name {
   font-size: 1.1rem;
-  font-family: 'Monsterrat', sans-serif;
 }
