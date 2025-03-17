@@ -4,9 +4,6 @@
 */ 
 import React, { useState, useEffect } from 'react';
 import LeafletMap from "../components/LeafletMap";
-
-
-import React, { useState } from 'react';
 import { routePropType } from "../propTypes/routePropType";
 import PropTypes from "prop-types";
 import TemplateBody from "../components/templateDropdown/TemplateBody";
