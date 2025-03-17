@@ -68,7 +68,7 @@ const downloadTemplate = () => {
 };
 
 // ExcelReader-komponentti
-export const ExcelReader = ({ routeHandler }) => {
+export const ExcelReader = ({ dataToParent }) => {
     const [message, setMessage] = useState(null);
 
     
@@ -167,10 +167,10 @@ export const ExcelReader = ({ routeHandler }) => {
                     console.log(newPlaceObject);
                 }
 
-                // Jos data on luettu onnistuneesti, lähetetään se routeHandler-funktiolle
+                // Jos data on luettu onnistuneesti, lähetetään se dataToParent-funktiolle
                 if (excelData.length !== 0) {
                     setMessage({ type: "success", message: "Tiedosto luettu onnistuneesti!" });
-                    routeHandler(excelData);
+                 dataToParent(excelData);
 
                     const response = await fetch("http://localhost:8000/upload", {
                         method: "POST",
@@ -182,7 +182,7 @@ export const ExcelReader = ({ routeHandler }) => {
                     setMessage({ type: result.error ? "error" : "success", message: result.message });
 
                     // Päivitetään tiedot käyttöliittymässä
-                    routeHandler(excelData);
+                 dataToParent(excelData);
 
                 } else {
                     setMessage({ type: "error", message: "Tiedoston luku epäonnistui!" });

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const TableSection = ({ args }) => {
+const TableSection = ({ dataToParent }) => {
 
     const [newPickup, setNewPickup] = useState({
         name: "",
@@ -12,7 +12,7 @@ const TableSection = ({ args }) => {
     });
 
     const submitForm = () => {
-        args(newPickup);
+     dataToParent(newPickup);
     }
 
     const handleInputChange = (e) => {

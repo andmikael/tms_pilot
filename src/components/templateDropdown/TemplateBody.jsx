@@ -2,16 +2,19 @@
  * Tiputusvalikko template-komponentti.
     Käytetään seuraavalla tavalla:
     1. jos lapsikomponentille ei tarvitse antaa funktiota argumenttina:
-        <TemplateBody PropComponent={Upotettava komponentti} PropName={"luokkanimi komponentille"} PropTitle={"Otsikko tiputusvalikolle"}/>
+        <TemplateBody PropComponent={Upotettava komponentti} PropName={"luokkanimi komponentille"} PropTitle={"Otsikko tiputusvalikolle"} Expandable={true}/>
     2. jos lapsikomponentti tarvitsee funktion argumenttina, esim. halutaan palauttaa dataa omistajakomponentille:
         <TemplateBody PropComponent={Upotettava komponentti} PropName={"luokkanimi komponentille"} PropTitle={"Otsikko tiputusvalikolle"} PropFunc={funktion nimi}/>
         
-    2. vaihtoehdon toiminta vaatii, että upotettavan komponentin funktioparametrin nimi on args:
-        const Component = ({args}) => {
-            
+    2. vaihtoehdon toiminta vaatii, että upotettavan komponentin funktioparametrin nimi on datToParent:
+        const ChildComponent = ({dataToParent}) => {
+            komponentin koodi...
         }
+    
+    TÄREKÄÄ: dataToParent on geneerinen nimi funktiolle, joka palauttaa dataa ylemmälle komponentille
+    jos funktion nimeää joksikin muuksi, syntyy TypeError virhe.
 
-    Expandable argumentti muuttaa template komponentin tiputusvalikoksi
+    PropFunc ja Expandable ovat valinnaisia argumentteja. Expandable argumentti muuttaa komponentin tiputusvalikoksi
  */
 
 import React from 'react';
@@ -31,7 +34,7 @@ const TemplateBody = ({PropComponent, PropName, PropTitle, PropFunc=null, Expand
                             <ExpandableButton isOpen={isOpen} toggle={toggle}/>
                         </div>
                         <div className="template-body">
-                            {isOpen && <PropComponent args={PropFunc}/>}
+                            {isOpen && <PropComponent dataToParent={PropFunc}/>}
                         </div>
                     </div>
                 </div>
@@ -44,7 +47,7 @@ const TemplateBody = ({PropComponent, PropName, PropTitle, PropFunc=null, Expand
                             <span>{PropTitle}</span>
                         </div>
                         <div className="template-body">
-                            <PropComponent args={PropFunc}/>
+                            <PropComponent dataToParent={PropFunc}/>
                         </div>
                     </div>
                 </div>
