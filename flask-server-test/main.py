@@ -150,7 +150,7 @@ def build_distance_matrix(response):
 #     to_node = manager.IndexToNode(to_index)
 #     return data["distance_matrix"][from_node][to_node]
 
-def route_order(list_of_addresses, starts, ends, number_of_vehicles):
+def route_order(list_of_addresses, starts, ends, number_of_vehicles, forced_visits = []):
     """
     Creates optimized routes for each vehicle given list of addresses to visit 
     and start and end locations for each vehicle.
@@ -161,6 +161,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     for each vehicle and can be same as end locations.
     :param ends: list, list of ints. Indexes of the end locations for each vehicle
     :param number_of_vehicles: int, Number of vehicles available.
+    :param forced_visits: list, list of lists with indexes of the addresses given vehicle must visit
     :return vehicle_routes_with_addresses: list, list of lists with addresses for each vehicle in optimized order
     including start and end locations even if same
     """
@@ -175,6 +176,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     data['distance_matrix'] = create_distance_matrix(data)
     
     manager = pywrapcp.RoutingIndexManager(len(data['distance_matrix']), data['num_vehicles'], data["starts"], data["ends"])
+
     routing = pywrapcp.RoutingModel(manager)
 
     def distance_callback(from_index, to_index):
@@ -192,6 +194,18 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
 
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
+
+    if len(forced_visits) > 0:
+        
+        vehicle_number = 0
+        
+        for forced_visit_indexes in forced_visits:
+            
+            for index in forced_visit_indexes:
+                
+                routing.SetAllowedVehiclesForIndex([vehicle_number], index)
+            
+            vehicle_number += 1
 
     """
     Vaikka ajoneuvojen reittien pituutta ei ole varsinaisesti rajoitettu optimointi
@@ -216,16 +230,20 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
     solution = routing.SolveWithParameters(search_parameters)
     
     vehicle_routes = []
+    durations = []
     
     for vehicle_id in range(data["num_vehicles"]):
         vehicle_route = []
         index = routing.Start(vehicle_id)
+        duration = 0
         while not routing.IsEnd(index):
             vehicle_route.append(manager.IndexToNode(index))
             previous_index = index
             index = solution.Value(routing.NextVar(index))
+            duration += routing.GetArcCostForVehicle(previous_index, index, vehicle_id)
         vehicle_route.append(manager.IndexToNode(index))
         vehicle_routes.append(vehicle_route)
+        durations.append(duration)
     
     vehicle_routes_with_addresses = []
     for route in vehicle_routes:
@@ -234,7 +252,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles):
             route_addresses.append(list_of_addresses[index])
         vehicle_routes_with_addresses.append(route_addresses)
         
-    return vehicle_routes_with_addresses
+    return vehicle_routes_with_addresses, durations
 
 app = Flask(__name__) # luo app-instanssin
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -275,6 +293,7 @@ palauttaa jsonin jossa 'ordered_routes' kohdassa on lista reiteista optimoidussa
 Esim. {"adresses": ["Prannarintie+8+Kauhajoki", "Prannarintie+10+Kauhajoki", "Topeeka+26+Kauhajoki"], 
        "start_indexes": [0],
        "end_indexes": [0],
+       "must_visit": [[]],
        "number_of_vehicles": 1}
 palauttaa {"ordered_routes": [["Prannarintie+8+Kauhajoki","Topeeka+26+Kauhajoki","Prannarintie+10+Kauhajoki",
 "Prannarintie+8+Kauhajoki"]]}
@@ -288,16 +307,19 @@ def route_test():
         raise DataError("number_of_vehicles < 1")
     if len(data['start_indexes']) != data['number_of_vehicles']:
         raise DataError("Length of start_indexes doesn't equal number_of_vehicles")
-    if len(data['start_indexes']) != data['number_of_vehicles']:
+    if len(data['end_indexes']) != data['number_of_vehicles']:
         raise DataError("Length of end_indexes doesn't equal number_of_vehicles")
+    if len(data['must_visit']) > 0 and len(data['must_visit']) != data['number_of_vehicles']:
+        raise DataError("If must_visit locations are defined the length of must_visit must equal number_of_vehicles")    
     if len(data['addresses']) < 2:
         raise DataError("Less than 2 addresses provided")
+    
 
 
-    route = route_order(data['addresses'], data['start_indexes'], data['end_indexes'], data['number_of_vehicles'])
+    routes, durations = route_order(data['addresses'], data['start_indexes'], data['end_indexes'], data['number_of_vehicles'], data['must_visit'])
     return_data = {}
-    return_data['ordered_routes'] = route
-    return_data['durations'] = 'NOT YET IMPLEMENTED'
+    return_data['ordered_routes'] = routes
+    return_data['durations'] = durations
     return_data['distances'] = 'NOT YET IMPLEMENTED'
     return jsonify(return_data)
 
