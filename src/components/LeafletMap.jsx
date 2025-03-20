@@ -1,6 +1,11 @@
 import React, { useEffect, useRef } from 'react';
+import PropTypes from 'prop-types'
+import { routePropType } from '../propTypes/routePropType';
 
-const LeafletMap = () => {
+const LeafletMap = ({ dataToParent }) => {
+  if (!dataToParent) {
+    return <div>dataToParent not defined. Can't draw LeafletMap</div>;
+  }
   const mapInstanceRef = useRef(null);
 
   useEffect(() => {
@@ -13,12 +18,14 @@ const LeafletMap = () => {
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
+    const pickUpPoints = [
+      L.latLng(dataToParent.startPlace.lat, dataToParent.startPlace.lon),
+      ...dataToParent.routes.map((place) => L.latLng(place.lat, place.lon)),
+      L.latLng(dataToParent.endPlace.lat, dataToParent.endPlace.lon),
+    ];
+
     L.Routing.control({
-      waypoints: [
-        L.latLng(62.826941, 22.909949),
-        L.latLng(62.626202, 22.395327),
-        L.latLng(62.424408, 22.173556),
-      ],
+      waypoints: pickUpPoints,
     }).addTo(map);
 
     //Removes previous Map container if it already exists
@@ -28,7 +35,7 @@ const LeafletMap = () => {
         mapInstanceRef.current = null;
       }
     };
-  }, []);
+  }, [dataToParent]);
 
   return (
     <div>
@@ -37,5 +44,9 @@ const LeafletMap = () => {
     </div>
   );
 };
+
+LeafletMap.propTypes = {
+  route: routePropType.isRequired,
+}
 
 export default LeafletMap;

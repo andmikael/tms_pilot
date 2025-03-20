@@ -8,6 +8,7 @@ import { routePropType } from "../propTypes/routePropType";
 import PropTypes from "prop-types";
 import TemplateBody from "../components/templateDropdown/TemplateBody";
 import TableSection from "../components/pickupForm/Tablesection";
+import { exampleRoute } from '../utils';
 
 const PlanningPage = ({ data }) => {
   const [pickups, setNewPickups] = useState([]);
@@ -123,7 +124,7 @@ const PlanningPage = ({ data }) => {
         </div>
         
         <div>
-          <TemplateBody PropComponent={LeafletMap} PropName={"test-container"} PropTitle={"test container text"} Expandable={true}/>
+          <TemplateBody PropComponent={LeafletMap} PropName={"test-container"} PropTitle={"test container text"} PropFunc={exampleRoute} Expandable={true}/>
         </div>
       </div>
     );

@@ -6,7 +6,7 @@
     2. jos lapsikomponentti tarvitsee funktion argumenttina, esim. halutaan palauttaa dataa omistajakomponentille:
         <TemplateBody PropComponent={Upotettava komponentti} PropName={"luokkanimi komponentille"} PropTitle={"Otsikko tiputusvalikolle"} PropFunc={funktion nimi}/>
         
-    2. vaihtoehdon toiminta vaatii, että upotettavan komponentin funktioparametrin nimi on datToParent:
+    2. vaihtoehdon toiminta vaatii, että upotettavan komponentin funktioparametrin nimi on dataToParent:
         const ChildComponent = ({dataToParent}) => {
             komponentin koodi...
         }
