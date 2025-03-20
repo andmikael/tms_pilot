@@ -65,18 +65,21 @@ def create_distance_matrix(data):
     q, r = divmod(num_addresses, max_rows)
     dest_addresses = addresses
     distance_matrix = []
+    duration_matrix = []
     # Send q requests, returning max_rows rows per request.
     for i in range(q):
         origin_addresses = addresses[i * max_rows: (i + 1) * max_rows]
         response = send_request(origin_addresses, dest_addresses, API_key)
-        distance_matrix += build_distance_matrix(response)
+        distance_matrix += build_distance_matrix(response, 'distance')
+        duration_matrix += build_distance_matrix(response, 'duration')
 
     # Get the remaining remaining r rows, if necessary.
     if r > 0:
         origin_addresses = addresses[q * max_rows: q * max_rows + r]
         response = send_request(origin_addresses, dest_addresses, API_key)
-        distance_matrix += build_distance_matrix(response)
-    return distance_matrix
+        distance_matrix += build_distance_matrix(response, 'distance')
+        duration_matrix += build_distance_matrix(response, 'duration')
+    return distance_matrix, duration_matrix
 
 def send_request(origin_addresses, dest_addresses, API_key):
     """ 
@@ -120,7 +123,7 @@ def send_request(origin_addresses, dest_addresses, API_key):
 
     return response
 
-def build_distance_matrix(response):
+def build_distance_matrix(response, return_type):
     """
     Processes the google api responses to create the distance matrix for optimization
 
@@ -133,7 +136,7 @@ def build_distance_matrix(response):
         'duration' gives travel time between places in seconds, Change to 
         'distance' to get distance between places in meters
         """
-        row_list = [row['elements'][j]['duration']['value'] for j in range(len(row['elements']))]
+        row_list = [row['elements'][j][return_type]['value'] for j in range(len(row['elements']))]
         distance_matrix.append(row_list)
     return distance_matrix
 
@@ -173,9 +176,14 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, forced_visi
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends
-    data['distance_matrix'] = create_distance_matrix(data)
+    #data['distance_matrix'] = create_distance_matrix(data)
+    distance_matrix, duration_matrix = create_distance_matrix(data)
+    data['distance_matrix'] = distance_matrix
+    data['duration_matrix'] = duration_matrix
     
-    manager = pywrapcp.RoutingIndexManager(len(data['distance_matrix']), data['num_vehicles'], data["starts"], data["ends"])
+    print(data['distance_matrix'])
+
+    manager = pywrapcp.RoutingIndexManager(len(data['duration_matrix']), data['num_vehicles'], data["starts"], data["ends"])
 
     routing = pywrapcp.RoutingModel(manager)
 
@@ -190,7 +198,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, forced_visi
         # Convert from routing variable Index to distance matrix NodeIndex.
         from_node = manager.IndexToNode(from_index)
         to_node = manager.IndexToNode(to_index)
-        return data["distance_matrix"][from_node][to_node]
+        return data["duration_matrix"][from_node][to_node]
 
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
@@ -225,7 +233,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, forced_visi
 
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     #search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
-    search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
+    search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.GLOBAL_CHEAPEST_ARC)
 
     solution = routing.SolveWithParameters(search_parameters)
     
@@ -245,6 +253,16 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, forced_visi
         vehicle_routes.append(vehicle_route)
         durations.append(duration)
     
+    distances = []
+    for route in vehicle_routes:
+        distance = 0
+        for i in range(len(route)):
+            if i == 0:
+                continue
+            distance += distance_matrix[route[i-1]][route[i]]
+        distances.append(distance)
+
+    #Muutetaan takaisin osoitteiksi. Voisi palauttaa listat indekseistäkin?
     vehicle_routes_with_addresses = []
     for route in vehicle_routes:
         route_addresses = []
@@ -252,7 +270,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, forced_visi
             route_addresses.append(list_of_addresses[index])
         vehicle_routes_with_addresses.append(route_addresses)
         
-    return vehicle_routes_with_addresses, durations
+    return vehicle_routes_with_addresses, durations, distances
 
 app = Flask(__name__) # luo app-instanssin
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -316,11 +334,11 @@ def route_test():
     
 
 
-    routes, durations = route_order(data['addresses'], data['start_indexes'], data['end_indexes'], data['number_of_vehicles'], data['must_visit'])
+    routes, durations, distances = route_order(data['addresses'], data['start_indexes'], data['end_indexes'], data['number_of_vehicles'], data['must_visit'])
     return_data = {}
     return_data['ordered_routes'] = routes
     return_data['durations'] = durations
-    return_data['distances'] = 'NOT YET IMPLEMENTED'
+    return_data['distances'] = distances
     return jsonify(return_data)
 
 
