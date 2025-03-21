@@ -16,86 +16,19 @@
       },
      "distances": {
           "type": "array",
-          "description": "NOT IMPLEMENTED YET List of distances between each location",
+          "description": "Total distance traveled on each route",
           "items": {
               "type": "integer"
             }
      },
      "durations": {
           "type": "array",
-          "description": "NOT IMPLEMENTED YET List of travel durations between each location",
+          "description": "Total time traveled on each route",
           "items": {
               "type": "integer"
           }
      }
     }
   },
-  "required": ["ordered_routes", "distances", "durations"],
-  "$defs": {
-    "route": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "startPlace": {
-          "type": "array",
-          "items": {
-            "type": "integer"
-          },
-          "minItems": 1,
-          "maxItems": 1
-        },
-        "endPlace": {
-          "type": "array",
-          "items": {
-            "type": "integer"
-          },
-          "minItems": 1,
-          "maxItems": 1
-        },
-        "startTime": {
-          "type": "string"
-        },
-        "endTime": {
-          "type": "string"
-        },
-        "routes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/place"
-          }
-        }
-      },
-      "required": ["name", "startPlace", "endPlace", "startTime", "endTime", "routes"]
-    },
-    "place": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "address": {
-          "type": "string"
-        },
-        "postalCode": {
-          "type": "string"
-        },
-        "city": {
-          "type": "string"
-        },
-        "standardPickup": {
-          "type": "string",
-          "enum": ["yes", "no"]
-        },
-        "lat": {
-          "type": "number"
-        },
-        "lon": {
-          "type": "number"
-        }
-      },
-      "required": ["name", "address", "postalCode", "city", "standardPickup", "lat", "lon"]
-    }
-  }
+  "required": ["ordered_routes", "distances", "durations"]
 }
