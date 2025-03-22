@@ -153,7 +153,7 @@ def build_distance_matrix(response, return_type):
 #     to_node = manager.IndexToNode(to_index)
 #     return data["distance_matrix"][from_node][to_node]
 
-def route_order(list_of_addresses, starts, ends, number_of_vehicles, forced_visits = []):
+def route_order(list_of_addresses, starts, ends, number_of_vehicles, traffic_mode, forced_visits = []):
     """
     Creates optimized routes for each vehicle given list of addresses to visit 
     and start and end locations for each vehicle.
@@ -176,6 +176,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, forced_visi
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends
+    data['traffic_mode'] = traffic_mode
     #data['distance_matrix'] = create_distance_matrix(data)
     distance_matrix, duration_matrix = create_distance_matrix(data)
     data['distance_matrix'] = distance_matrix
@@ -308,7 +309,7 @@ def handle_exception(e):
 Testi reititysta varten. Kun laitetaan postilla json muotoa {"addresses": ["Osoite1", "Osoite2", "Osoite3"]}
 palauttaa jsonin jossa 'ordered_routes' kohdassa on lista reiteista optimoidussa jarjestyksessa.
 
-Esim. {"adresses": ["Prannarintie+8+Kauhajoki", "Prannarintie+10+Kauhajoki", "Topeeka+26+Kauhajoki"], 
+Esim. {"addresses": ["Prannarintie+8+Kauhajoki", "Prannarintie+10+Kauhajoki", "Topeeka+26+Kauhajoki"], 
        "start_indexes": [0],
        "end_indexes": [0],
        "must_visit": [[]],
@@ -328,13 +329,13 @@ def route_test():
     if len(data['end_indexes']) != data['number_of_vehicles']:
         raise DataError("Length of end_indexes doesn't equal number_of_vehicles")
     if len(data['must_visit']) > 0 and len(data['must_visit']) != data['number_of_vehicles']:
-        raise DataError("If must_visit locations are defined the length of must_visit must equal number_of_vehicles")    
+        raise DataError("If must_visit locations are defined, the length of must_visit must equal number_of_vehicles")    
     if len(data['addresses']) < 2:
         raise DataError("Less than 2 addresses provided")
-    
+    if ((data['traffic_mode'] != 'best_guess') and (data['traffic_mode'] != 'optimistic') and (data['traffic_mode'] != 'pessimistic')):
+        raise DataError("Invalid traffic mode (must be 'best_guess', 'optimistic' or 'pessimistic'")
 
-
-    routes, durations, distances = route_order(data['addresses'], data['start_indexes'], data['end_indexes'], data['number_of_vehicles'], data['must_visit'])
+    routes, durations, distances = route_order(data['addresses'], data['start_indexes'], data['end_indexes'], data['number_of_vehicles'], data['traffic_mode']  , data['must_visit'])
     return_data = {}
     return_data['ordered_routes'] = routes
     return_data['durations'] = durations
@@ -342,37 +343,6 @@ def route_test():
     return jsonify(return_data)
 
 
-"""Alla muutama esimerkki siitä, kuinka GET- ja POST-kutsut voidaan implementoida Flaskilla
-# GET
-@app.route("/api/get_test", methods = ['GET', 'POST'])
-@cross_origin()
-def get_test():
-    return jsonify(
-        {
-            "users": [
-                'test1',
-                'test2'
-            ]
-        }
-    )
-
-# POST
-@app.route('/api/post_test', methods =['POST', 'OPTIONS'])
-@cross_origin()
-def post_test():
-   data = request.json['viesti']
-   return jsonify({"Viesti": "Flask sai Reactilta viestin: "
-                                   + data})
-
-# POST
-@app.route('/api/post_test2', methods =['POST', 'OPTIONS'])
-@cross_origin()
-def post_test2():
-    data = request.get_json()
-    print(data)
-    data["Moi"] = "moimoi"
-    return data
-"""
 @app.route('/upload', methods=['POST'])
 @cross_origin()
 def upload_excel():
@@ -459,7 +429,7 @@ def get_excel_jsons():
                     excel_jsons[base_name] = {"error": str(e)}
     else:
         return jsonify({"error": "Kansiota ei löydy"}), 404
-
+    print(jsonify(excel_jsons))
     return jsonify(excel_jsons)
 
 @app.route('/api/delete_excel', methods=['DELETE'])
