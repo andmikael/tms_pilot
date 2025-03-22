@@ -28,3 +28,4 @@ cypress/
 
 .venv/
 venv/
+.env
