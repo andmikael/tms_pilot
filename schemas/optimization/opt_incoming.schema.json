@@ -19,10 +19,11 @@
 		  "description":  "Number of vehicles",
 		  "type": "integer"
 	  },
+	  
 	  "start_time": {
 		"description": "Start time of delivery",
 		"type": "string"
-	  }
+	  },
 	  
 	  "must_visit": {
 		  "description": "List of indices of the address array that MUST be visited",
@@ -32,6 +33,12 @@
 			  },
 		  "minItems": 1,
 		  "uniqueItems": false
+	  },
+
+	  "traffic_mode": {
+		"description": "Traffic mode",
+		"type": "string",
+		"enum": ["best_guess", "optimistic", "pessimistic"]
 	  },
 	  
 	  "start_indexes": {
@@ -54,6 +61,6 @@
 	  }
 	  
 	},
-	"required": ["addresses", "number_of_vehicles", "must_visit", "start_indexes", "end_indexes"]
+	"required": ["addresses", "number_of_vehicles", "start_time", "must_visit", "start_indexes", "end_indexes"]
   }
   

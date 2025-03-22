@@ -16,16 +16,16 @@
       },
      "distances": {
           "type": "array",
-          "description": "Total distance traveled on each route",
+          "description": "Total distance traveled on each route in kilometers",
           "items": {
-              "type": "integer"
+              "type": "float"
             }
      },
      "durations": {
           "type": "array",
-          "description": "Total time traveled on each route",
+          "description": "Total time traveled on each route in minutes",
           "items": {
-              "type": "integer"
+              "type": "float"
           }
      }
     }

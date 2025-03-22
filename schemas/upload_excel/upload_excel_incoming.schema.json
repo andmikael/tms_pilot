@@ -1,0 +1,49 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "routeName": {
+        "description": "Reitin nimi",
+        "type": "string"
+      },
+      "data": {
+        "type": "array",
+        "description": "Reitti määritelty listana noutopaikkoja",
+        "items": {
+          "$ref": "#/$defs/place"
+        }
+      }
+    },
+    "required": ["routeName", "data"],
+    "$defs": {
+      "place": {
+        "description": "Yksittäinen noutopaikka",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "standardPickup": {
+            "type": "string",
+            "enum": ["yes", "no"]
+          },
+          "lat": {
+            "type": ["string", "null"]
+          },
+          "lon": {
+            "type": ["string", "null"]
+          }
+        },
+        "required": ["name", "address", "postalCode", "city", "standardPickup", "lat", "lon"]
+      }
+    }
+  }

@@ -1,0 +1,20 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "",
+    "title": "Upload Excel success",
+    "description": "JSON schema for upload_excel response to successful task",
+    "type": "object",
+    "properties": {
+        "file_path": {
+            "description":  "Path to saved file",
+            "type": "string"
+        },
+      "message": {
+          "description":  "Message",
+          "type": "string"
+      }
+      
+    },
+    "required": ["file_path", "message"]
+  }
+  

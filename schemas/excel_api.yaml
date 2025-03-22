@@ -1,0 +1,84 @@
+openapi: 3.0.4
+info:
+  title: Excel API
+  description: .
+  version: 0.0.1
+paths:
+/upload_excel:
+    post:
+      summary: 
+      description: "Save information to local file in XLSX format"
+      operationId: upload_excel
+      requestBody:
+        description: 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "upload_excel_incoming.schema.json"
+    responses:
+      '200':
+        description: Success
+        content:
+          application/json:
+            schema:
+              $ref: "upload_excel_return.schema.json"
+      '500':
+        description: Fail
+        content:
+          application/json:
+            schema:
+                $ref: "upload_excel_fail.schema.json"
+
+
+/get_excel_jsons:
+    get:
+      summary: 
+      description: 
+      operationId: get_excel_jsons
+      requestBody:
+        description: 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "get_excel_jsons_incoming.schema.json"
+    responses:
+      '200':
+        description: Success
+        content:
+          application/json:
+            schema:
+              $ref: "get_excel_jsons_returnSuccess.schema.json"
+      '404':
+        description: Fail
+        content:
+          application/json:
+            schema:
+                $ref: "get_excel_jsons_returnFail.schema.json"
+
+/delete_excel:
+    delete:
+      summary: 
+      description: 
+      operationId: delete_excel
+      requestBody:
+        description: 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "delete_excel_incoming.schema.json"
+    responses:
+      '200':
+        description: Success
+        content:
+          application/json:
+            schema:
+              $ref: "delete_excel_returnSuccess.schema.json"
+      '500':
+        description: Fail
+        content:
+          application/json:
+            schema:
+                $ref: "delete_excel_returnFail.schema.json"

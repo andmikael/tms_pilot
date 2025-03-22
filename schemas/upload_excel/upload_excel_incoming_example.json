@@ -1,0 +1,32 @@
+{
+    "routeName": "Uusi reitti",
+    "data": [
+        {
+            "name": "Isojoen terveyskeskus",
+            "address": "Kristiinantie 6",
+            "postalCode": "64900",
+            "city": "Isojoki",
+            "standardPickup": "yes",
+            "lat": "0",
+            "lon": "0"
+        },
+        {
+            "name": "Isojoen avopalvelukeskus",
+            "address": "Terveystalontie 3",
+            "postalCode": "64900",
+            "city": "Isojoki",
+            "standardPickup": "no",
+            "lat": "0",
+            "lon": "0"
+        },
+        {
+            "name": "Karijoen terveysasema",
+            "address": "Keskitie 2",
+            "postalCode": "64350",
+            "city": "Karijoki",
+            "standardPickup": "yes",
+            "lat": "0",
+            "lon": "0"
+        }
+    ]
+}

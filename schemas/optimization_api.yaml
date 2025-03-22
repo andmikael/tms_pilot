@@ -15,19 +15,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "incoming.schema.json"
+              $ref: "./optimization/opt_incoming.schema.json"
     responses:
       '200':
         description: Success
         content:
           application/json:
             schema:
-              $ref: "returnSuccess.schema.json"
+              $ref: "./optimization/opt_returnSuccess.schema.json"
       '500':
         description: Fail
         content:
           application/json:
             schema:
-                $ref: "returnFail.schema.json"
+                $ref: "./optimization/opt_returnFail.schema.json"
                 example:
                   errorMsg: "Must have at least one route!"
