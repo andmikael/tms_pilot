@@ -108,6 +108,17 @@ def send_request(origin_addresses, dest_addresses, API_key):
 
     if 'error_message' in response:
         raise GoogleAPIError("Error from google API: " + response['error_message'])
+    #print("response: " + str(response), file=sys.stderr)
+
+    # Iterate over every calculated distance to find if any of them failed
+    for row in response["rows"]:
+        for element in row["elements"]:
+            if (element["status"] == "NOT_FOUND"):
+                raise GoogleAPIError("One of the locations could not be found. Check spelling and try again")
+            elif (element["status"] == "ZERO_RESULTS"):
+                raise GoogleAPIError("No valid route could be found to one or more of these places")
+            elif (element["status"] == "MAX_ROUTE_LENGTH_EXCEEDED"):
+                raise GoogleAPIError("The requested route was too long and could not be processed")
 
     """
     Jos osoitetta ei löydy google apilla on '' sen tilalla response['destination_addresses']
@@ -321,7 +332,7 @@ palauttaa {"ordered_routes": [["Prannarintie+8+Kauhajoki","Topeeka+26+Kauhajoki"
 @cross_origin()
 def route_test():
     data = request.get_json()
-    print(data)
+    #print(data)
     if data['number_of_vehicles'] < 1:
         raise DataError("number_of_vehicles < 1")
     if len(data['start_indexes']) != data['number_of_vehicles']:
