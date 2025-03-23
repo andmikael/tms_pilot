@@ -86,6 +86,36 @@ describe("Smoke tests", () => {
       )
     });
 
+    it("should order routes correctly", () => {      
+      cy.request({ 
+        method: 'POST', 
+        url: FLASK_URL + 'api/route_test', 
+        body: {
+        "addresses": [
+          "Tampere",
+          "Kuopio",
+          "Jyvaskyla",
+          "Helsinki",
+          "Turku",
+        ],
+        "start_indexes": [
+          3,
+        ],
+        "end_indexes": [
+          1,
+        ],
+        "number_of_vehicles": 1,
+        "must_visit": [[]],
+        "traffic_mode": "best_guess"
+      }
+     }).then(
+        (response) => {
+          expect(response.status).to.eq(200)
+          expect(response.body).property('ordered_routes').to.deep.equal(([["Helsinki", "Turku", "Tampere", "Jyvaskyla", "Kuopio"]]))
+        }
+      )
+    });
+
 
       it("should respond to empty request with 400 and error message", () => {      
         cy.request({ 
@@ -130,38 +160,6 @@ describe("Smoke tests", () => {
         )
       });
 
-      it("should order routes correctly", () => {      
-        cy.request({ 
-          method: 'POST', 
-          url: FLASK_URL + 'api/route_test', 
-          body: {
-          "addresses": [
-            "Teekkarinkatu+10+Tampere",
-            "Kuninkaankatu+1+Kuopio",
-            "Yliopistonkatu+5+Jyvaskyla",
-            "Bulevardi+Helsinki",
-            "Linnankatu+10+Turku",
-          ],
-          "start_indexes": [
-            3,
-          ],
-          "end_indexes": [
-            1,
-          ],
-          "number_of_vehicles": 1,
-          "must_visit": [[]],
-          "traffic_mode": "best_guess"
-        }
-       }).then(
-          (response) => {
-            expect(response.status).to.eq(200)
-            expect(response.body).property('ordered_routes').to.deep.equal(([["Bulevardi+Helsinki", "Linnankatu+10+Turku", "Teekkarinkatu+10+Tampere", "Yliopistonkatu+5+Jyvaskyla", "Kuninkaankatu+1+Kuopio"]]))
-          }
-        )
-
-      });
-
-
       it("should respond to impossible requests with error", () => {      
         cy.request({ 
           method: 'POST', 
@@ -171,6 +169,36 @@ describe("Smoke tests", () => {
             "United+States",
             "Finland",
             "Australia"
+          ],
+          "start_indexes": [
+            0,
+          ],
+          "end_indexes": [
+            2,
+          ],
+          "number_of_vehicles": 1,
+          "must_visit": [[]],
+          "traffic_mode": "best_guess"
+        },
+        failOnStatusCode: false
+       }).then(
+          (response) => {
+            expect(response.status).to.eq(400)
+            expect(response.body).to.have.property('error_message')
+          }
+        )
+
+      });
+
+      it("should respond to invalid locations with error", () => {      
+        cy.request({ 
+          method: 'POST', 
+          url: FLASK_URL + 'api/route_test', 
+          body: {
+          "addresses": [
+            "fuiewjoidj",
+            "aaaaa",
+            "9"
           ],
           "start_indexes": [
             0,
