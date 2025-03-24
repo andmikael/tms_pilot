@@ -124,7 +124,7 @@ const PlanningPage = ({ data }) => {
         </div>
         
         <div>
-          <TemplateBody PropComponent={LeafletMap} PropName={"test-container"} PropTitle={"test container text"} PropFunc={exampleRoute} Expandable={true}/>
+          <TemplateBody PropComponent={LeafletMap} PropName={"test-container"} PropTitle={"Reittiehdotus"} PropFunc={exampleRoute} Expandable={true}/>
         </div>
       </div>
     );
