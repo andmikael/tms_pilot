@@ -108,30 +108,22 @@ def send_request(origin_addresses, dest_addresses, API_key):
 
     if 'error_message' in response:
         raise GoogleAPIError("Error from google API: " + response['error_message'])
-    #print("response: " + str(response), file=sys.stderr)
 
     # Iterate over every calculated distance to find if any of them failed
     for row in response["rows"]:
         for element in row["elements"]:
             if (element["status"] == "NOT_FOUND"):
-                raise GoogleAPIError("One of the locations could not be found. Check spelling and try again")
+                location = origin_addresses[row["elements"].index(element)].replace("+", " ")
+                raise GoogleAPIError(f"Location {location} could not be found. Check spelling and try again.")
             elif (element["status"] == "ZERO_RESULTS"):
-                raise GoogleAPIError("No valid route could be found to one or more of these places")
+                start = origin_addresses[response["rows"].index(row)].replace("+", " ")
+                end = origin_addresses[row["elements"].index(element)].replace("+", " ")
+                raise GoogleAPIError(f"No valid route could be found between {start} and {end}")
             elif (element["status"] == "MAX_ROUTE_LENGTH_EXCEEDED"):
-                raise GoogleAPIError("The requested route was too long and could not be processed")
-
-    """
-    Jos osoitetta ei löydy google apilla on '' sen tilalla response['destination_addresses']
-    ja response['destination_addresses'] listoissa
-    """
-    if '' in response['destination_addresses']:
-        i = 0
-        for address in response['destination_addresses']:
-            if address == '':
-                break
-            i += 1
-        raise GoogleAPIError("Address not found: " + origin_addresses[i])
-
+                start = origin_addresses[response["rows"].index(row)].replace("+", " ")
+                end = origin_addresses[row["elements"].index(element)].replace("+", " ")
+                raise GoogleAPIError(f"The requested route between {start} and {end} was too long and could not be processed")
+    
     return response
 
 def build_distance_matrix(response, return_type):
