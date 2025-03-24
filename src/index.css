@@ -3,7 +3,7 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: normal;
+  color-scheme: light;
   color: rgb(0, 0, 0);
   background-color: #ffffff;
 
@@ -15,11 +15,18 @@
 
 body {
   margin: 0;
+  padding: 0;
+}
+
+.body-container {
   display: flex;
   flex-direction: column;
+  justify-content: left;
+  align-items: left;
   width: 100%;
-  min-height: 100vh;
-  overflow-x: hidden;
+  max-width: 800px;
+  text-align: left;
+  margin: 20px auto;
 }
 
 h1 {
@@ -83,7 +90,7 @@ label {
 }
 
 .test-container {
-  width: 1000px;
+  width: auto;
 }
 
 
@@ -106,7 +113,7 @@ label {
 
 .dropdown-header {
   padding: 10px 7px;
-  background-color: #EBEBEB;
+  background-color: #AEE0FF;
   border-radius: 0.2em;
   position: relative;
 }
@@ -121,7 +128,7 @@ label {
 }
 
 .excel-reader {
-  width: 60%;
+  width: auto;
 }
 
 .point-list-controls {
@@ -137,4 +144,23 @@ label {
 
 .point-name {
   font-size: 1.1rem;
+}
+
+#dropzone {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  width: 50%;
+  margin: 20px auto;
+}
+
+#new-excel {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-left: 30px;
 }

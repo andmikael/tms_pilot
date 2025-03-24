@@ -217,20 +217,23 @@ export const ExcelReader = ({ dataToParent }) => {
     });
 
     return (
-        <div>
-            {/* Excel tiedoston lataaminen kansionäkymästä */}
+      <div>
+        {/* Excel tiedoston lataaminen kansionäkymästä */}
             <input type="file" hidden="true" onChange={(e) => processFile(e.target.files[0])} />
 
-            {/* Dropzone toteutus */}
-            <div {...getRootProps()} style={{ border: '2px dashed #ccc', padding: '20px', textAlign: 'center', cursor: 'pointer', width: '100%' }}>
-                <input {...getInputProps()} />
+        {/* Dropzone toteutus */}
+        <div {...getRootProps()} id="dropzone">
+          <input {...getInputProps()} />
                 <p>Raahaa ja pudota Excel-tiedosto tähän tai klikkaa valitaksesi tiedoston</p>
-            </div>
-
-            {message && <p className={message.type}>{message.message}</p>}
-
-            {/* Excel pohjan lataus */}
-            <button onClick={downloadTemplate}>Uusi pohja tiedostolle</button>
         </div>
+
+        {message && <p className={message.type}>{message.message}</p>}
+
+        {/* Excel pohjan lataus */}
+        <div id="new-excel">
+        <p>Kadotitko Excel pohjan?</p>
+          <button onClick={downloadTemplate}>Lataa uusi Excel pohja</button>
+        </div>
+      </div>
     );
 };
