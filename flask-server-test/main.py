@@ -256,7 +256,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, traffic_mod
             duration += routing.GetArcCostForVehicle(previous_index, index, vehicle_id)
         vehicle_route.append(manager.IndexToNode(index))
         vehicle_routes.append(vehicle_route)
-        durations.append(duration)
+        durations.append(duration/60)
     
     distances = []
     for route in vehicle_routes:
@@ -265,7 +265,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, traffic_mod
             if i == 0:
                 continue
             distance += distance_matrix[route[i-1]][route[i]]
-        distances.append(distance)
+        distances.append(distance/1000)
 
     #Muutetaan takaisin osoitteiksi. Voisi palauttaa listat indekseistäkin?
     vehicle_routes_with_addresses = []
