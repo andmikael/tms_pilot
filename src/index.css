@@ -21,8 +21,8 @@ body {
 .body-container {
   display: flex;
   flex-direction: column;
-  justify-content: left;
-  align-items: left;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   max-width: 800px;
   text-align: left;
@@ -89,21 +89,30 @@ label {
   position: relative;
 }
 
-.test-container {
-  width: auto;
-}
-
-
 .dropdown-header > button {
-  position: absolute;
   right: 0.5em;
   padding: 0;
   border: none;
-  background: none;
-  
+  width: 100%;
+  height: 40px;
+  background-color: #AEE0FF;
 }
 
-.dropdown-header > button:hover {
+.dropdown-header > button > .button-title {
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  font-size: 16px;
+  padding-left: 8px;
+}
+
+.dropdown-header > button > .material-symbols-outlined {
+  right: 0.5rem;
+  top: 0.5rem;
+  position:absolute;
+}
+
+button:hover {
   cursor: pointer;
 }
 
@@ -111,11 +120,16 @@ label {
   width:100%;
 }
 
+.leaflet-container {
+  width: 1000px;
+}
+
 .dropdown-header {
-  padding: 10px 7px;
   background-color: #AEE0FF;
   border-radius: 0.2em;
   position: relative;
+  display: grid;
+  min-height: 24px;
 }
 
 .template-body {
@@ -146,6 +160,44 @@ label {
   font-size: 1.1rem;
 }
 
+.route-select > select {
+  width: 500px;
+  height: 40px;
+  font-size: 16px;
+  border:none;
+  padding-left: 20px;
+  background-color: #7cb5d8;
+}
+
+select:hover {
+  cursor: pointer;
+}
+
+.dropdown-header > span {
+  padding-left: 10px;
+  font-size: 18px;
+  min-height: 24px;
+  padding-top:5px;
+  padding-bottom:5px;
+}
+
+.dropdown-template {
+  padding-top: 20px;
+}
+
+.table-input-container {
+  border: solid 1px gray;
+  border-radius: 0.1em;
+  width:100%;
+}
+
+td > input {
+  border: none;
+  padding: 6px;
+  outline: none;
+  width: 96%;
+}
+
 #dropzone {
   border: 2px dashed #ccc;
   padding: 20px;
@@ -163,4 +215,44 @@ label {
   gap: 10px;
   width: 100%;
   margin-left: 30px;
+}
+
+#current-route-container {
+  padding-left: 10px;
+}
+
+.modal-box {
+  display: inline-flex;
+  flex-direction: column;
+  padding: 30px;
+  border: 0px;
+  border-radius: 0.5em;
+  min-width: 500px;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.modal-desc {
+  font-size: 1.2em;
+}
+
+.modal-action {
+  position: absolute;
+  background-color: #7cb5d8;
+  padding: 5px 10px;
+  width: fit-content;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 0.2em;
+  border: 0;
+  font-size: 1.15em;
+}
+
+.modal-action:hover {
+  background-color: #699bb9;
+  transition: 0.2s ease;
 }
