@@ -114,7 +114,7 @@ const PlanningPage = ({ data }) => {
                   </option>
                 ))}
               </select>
-              <button onClick={showModal} disabled={!selectedFile}>
+              <button onClick={deleteExcelFile} disabled={!selectedFile}>
                 Poista tiedosto
               </button>
             </div>
@@ -126,6 +126,7 @@ const PlanningPage = ({ data }) => {
           <TemplateBody PropComponent={LeafletMap} PropName={"leaflet-container"} PropTitle={"Reittikartta"} PropFunc={exampleRoute} Expandable={true}/>
         </div>
         {modalError && <ErrorModal dataToParent={setModalError}/>}
+        <button onClick={showModal}>Näytä virheilmoitus</button>
       </div>
     );
 };
