@@ -17,10 +17,15 @@ const RouteSelection = ({ dataToParent, dataToChild }) => {
         setExcelData(dataToChild);
       }
 
-    // Noutopaikkojen lisääminen Table-komponentista
+      // lisää uusi noutopaikka formsista
       const handleFormData = (idata) => {
         setNewPickups([...pickups, idata]);
       };
+
+      const returnRouteCoords= (data) => {
+         // palauta reittikoordinaatit ylemmälle komponentille
+        dataToParent(data);
+      }
     
       const formRouteSuggestion = async () => {
         var objs = []
@@ -44,21 +49,18 @@ const RouteSelection = ({ dataToParent, dataToChild }) => {
             p_text += point.name + ", ";
         }))
 
+        // poista pilkku ja välilyönti viimeisestä noutopisteestä
         p_text = p_text.substring(0, p_text.length - 2);
         para.innerHTML = p_text;
         cont.appendChild(para);
+
+
       }
     
       const removePickup = (index) => {
         const updatedPickups = pickups.filter((_, i) => i !== index);
         setNewPickups(updatedPickups);
       }
-
-      var route = exampleRoute.startPlace.name;
-
-      exampleRoute.routes.forEach((point => {
-           route += ", " + point.name
-     }))
 
      const deleteOptionalRoutes = () => {
         setSelectedOptionalPickups([]);
@@ -71,7 +73,22 @@ const RouteSelection = ({ dataToParent, dataToChild }) => {
         console.log(selectedOptionalPickups);
      }
 
-     route += ", " + exampleRoute.endPlace.name;
+     // Geneerisempi ratkaisu vakioreitin täytölle, kun excelData on routePropType muodossa
+     /**
+      *  var route = excelData.startPlace.name;
+      *  
+      * excelData.routes.forEach((point => {
+          route += ", " + point.name
+        }))
+          route += ", " + excelData.endPlace.name;
+      */
+     var route = exampleRoute.startPlace.name;
+
+     exampleRoute.routes.forEach((point => {
+          route += ", " + point.name
+    }))
+
+    route += ", " + exampleRoute.endPlace.name;
 
 
     return (
