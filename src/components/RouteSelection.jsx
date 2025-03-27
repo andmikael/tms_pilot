@@ -7,9 +7,12 @@ import React, { useState, useEffect } from 'react';
 import TemplateBody from "../components/templateDropdown/TemplateBody";
 import TableSection from "../components/pickupForm/Tablesection";
 import { exampleRoute, geocodePoints } from '../utils';
+import ErrorModal from './modals/ErrorModal';
 
 const RouteSelection = ({ dataToParent, dataToChild }) => {
       const [pickups, setNewPickups] = useState([]);
+
+      // Valitut noutopaikat jotka eivät kuulu vakioreittiin
       const [selectedOptionalPickups, setSelectedOptionalPickups] = useState([]);
       const [excelData, setExcelData] = useState([]);
 
@@ -70,7 +73,7 @@ const RouteSelection = ({ dataToParent, dataToChild }) => {
      }
 
      const showOptional = () => {
-        console.log(selectedOptionalPickups);
+        return ( <ErrorModal />)
      }
 
      // Geneerisempi ratkaisu vakioreitin täytölle, kun excelData on routePropType muodossa

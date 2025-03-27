@@ -220,3 +220,24 @@ td > input {
 #current-route-container {
   padding-left: 10px;
 }
+
+.modal-box {
+  display: inline-flex;
+  flex-direction: column;
+  padding: 30px;
+  border: 0px;
+  border-radius: 0.5em;
+  min-width: 500px;
+  align-items: center;
+}
+
+.modal-action {
+  position: absolute;
+  background-color: #7cb5d8;
+  padding: 5px 10px;
+  width: fit-content;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 0.2em;
+  border: 0;
+}

@@ -10,12 +10,19 @@ import TemplateBody from "../components/templateDropdown/TemplateBody";
 import TableSection from "../components/pickupForm/Tablesection";
 import { exampleRoute, geocodePoints } from '../utils';
 import RouteSelection from '../components/RouteSelection';
+import ErrorModal from '../components/modals/ErrorModal';
+
 
 const PlanningPage = ({ data }) => {
   const [excelData, setExcelData] = useState([]);
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [deleteMessage, setDeleteMessage] = useState("");
+  const [modalError, setModalError] = useState(false);
+
+  const showModal = () => {
+    setModalError(!modalError);
+  }
 
   // Haetaan tallennetut Excel-tiedostot palvelimelta
   useEffect(() => {
@@ -107,7 +114,7 @@ const PlanningPage = ({ data }) => {
                   </option>
                 ))}
               </select>
-              <button onClick={deleteExcelFile} disabled={!selectedFile}>
+              <button onClick={showModal} disabled={!selectedFile}>
                 Poista tiedosto
               </button>
             </div>
@@ -118,6 +125,7 @@ const PlanningPage = ({ data }) => {
           <TemplateBody PropComponent={RouteSelection} PropName={"route-selection-container"} PropTitle={"Noutopaikkojen valinta"} PropData={excelData} Expandable={true}/>
           <TemplateBody PropComponent={LeafletMap} PropName={"leaflet-container"} PropTitle={"Reittikartta"} PropFunc={exampleRoute} Expandable={true}/>
         </div>
+        {modalError && <ErrorModal dataToParent={setModalError}/>}
       </div>
     );
 };
