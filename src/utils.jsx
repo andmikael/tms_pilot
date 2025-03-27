@@ -42,4 +42,45 @@ const exampleRoute = {
   ],
 };
 
-export { exampleRoute };
+async function getCoordinates(fullPlace) {
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullPlace)}`;
+
+  try {
+      // Lähetetään HTTP-pyyntö ja odotetaan vastausta
+      const response = await fetch(url);
+      const data = await response.json();
+
+      // Jos data sisältää koordinaatit, palautetaan ne
+      if (data.length > 0) {
+          return {
+              lat: data[0].lat,
+              lon: data[0].lon
+          };
+      } else {
+          console.warn(`Koordinaatteja ei löytynyt: ${data}`);
+          return null;
+      }
+  } catch (error) {
+      console.error(`Virhe haettaessa koordinaatteja: ${data}`, error);
+      return null;
+  }
+}
+
+function geocodePoints(optionalPickups) {
+  if (optionalPickups == null) {
+    return null;
+  }
+
+  optionalPickups.forEach(async point => {
+    const fullPlace = `${point.address}, ${point.postalCode} ${point.city},`;
+    const coords = await getCoordinates(fullPlace);
+    if (coords != null) {
+      point.lat = coords.lat;
+      point.lon = coords.lon;
+    }
+  })
+
+  return optionalPickups;
+}
+
+export { exampleRoute, geocodePoints };

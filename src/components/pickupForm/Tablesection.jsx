@@ -5,8 +5,9 @@ const TableSection = ({ dataToParent }) => {
     const [newPickup, setNewPickup] = useState({
         name: "",
         address: "",
-        zipcode: "",
+        postalCode: "",
         city: "",
+        standardPickup: "no",
         lat: null,
         lon: null
     });
@@ -24,11 +25,11 @@ const TableSection = ({ dataToParent }) => {
         if (
             newPickup.name.trim() !== '' &&
             newPickup.address.trim() !== '' &&
-            newPickup.zipcode.trim() !== '' &&
+            newPickup.postalCode.trim() !== '' &&
             newPickup.city.trim() !== ''
         ) {
             submitForm(newPickup);
-            setNewPickup({ name: "", address: "", zipcode: "", city: "", lat: null, lon: null});
+            setNewPickup({ name: "", address: "", postalCode: "", city: "", standardPickup: "no", lat: null, lon: null});
         }
     };
 
@@ -39,7 +40,7 @@ const TableSection = ({ dataToParent }) => {
                 <td>
                     <label>Nimi</label>
                 </td>
-                <td>
+                <td className="table-input-container">
                 <input
                       type="text"
                       name="name"
@@ -53,7 +54,7 @@ const TableSection = ({ dataToParent }) => {
                 <td>
                     <label>Katu</label>
                 </td>
-                <td>
+                <td className="table-input-container">
                     <input
                       type="text"
                       name="address"
@@ -67,11 +68,11 @@ const TableSection = ({ dataToParent }) => {
                 <td>
                     <label>Postinumero</label>
                 </td>
-                <td>
+                <td className="table-input-container">
                     <input
                       type="text"
-                      name="zipcode"
-                      value={newPickup.zipcode}
+                      name="postalCode"
+                      value={newPickup.postalCode}
                       onChange={handleInputChange}
                       placeholder="61800"
                     />
@@ -81,7 +82,7 @@ const TableSection = ({ dataToParent }) => {
                 <td>
                     <label>Kaupunki</label>
                 </td>
-                <td>
+                <td className="table-input-container">
                     <input
                       type="text"
                       name="city"

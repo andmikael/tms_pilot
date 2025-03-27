@@ -8,13 +8,13 @@ import { routePropType } from "../propTypes/routePropType";
 import PropTypes from "prop-types";
 import TemplateBody from "../components/templateDropdown/TemplateBody";
 import TableSection from "../components/pickupForm/Tablesection";
-import { exampleRoute } from '../utils';
+import { exampleRoute, geocodePoints } from '../utils';
+import RouteSelection from '../components/RouteSelection';
 
 const PlanningPage = ({ data }) => {
-  const [pickups, setNewPickups] = useState([]);
-  const [excelData, setExcelData] = useState(null);
+  const [excelData, setExcelData] = useState([]);
   const [error, setError] = useState(null);
-  const [selectedFile, setSelectedFile] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
   const [deleteMessage, setDeleteMessage] = useState("");
 
   // Haetaan tallennetut Excel-tiedostot palvelimelta
@@ -34,16 +34,6 @@ const PlanningPage = ({ data }) => {
     fetchExcelData();
   }, []);
 
-  // Noutopaikkojen lisääminen Table-komponentista
-  const handleFormData = (idata) => {
-    setNewPickups([...pickups, idata]);
-  };
-
-  const removePickup = (index) => {
-    const updatedPickups = pickups.filter((_, i) => i !== index);
-    setNewPickups(updatedPickups);
-  };
-
   // Poistofunktio: lähettää DELETE-pyynnön palvelimelle poistamaan valitun Excel-tiedoston
   const deleteExcelFile = async () => {
     if (!selectedFile) return;
@@ -62,7 +52,7 @@ const PlanningPage = ({ data }) => {
           delete newData[selectedFile];
           return newData;
         });
-        setSelectedFile("");
+        setSelectedFile(null);
       } else {
         setDeleteMessage("Virhe: " + (result.error || result.message));
       }
@@ -70,12 +60,37 @@ const PlanningPage = ({ data }) => {
       setDeleteMessage("Poistopyynnön virhe: " + err.message);
     }
   };
+
+  if (selectedFile == null && excelData && Object.keys(excelData).length > 0) {
+    setSelectedFile(Object.keys(excelData)[0]);
+  }
+
+  //           <pre>{JSON.stringify(excelData, null, 2)}</pre>
+
     return (
       <div className="body-container">
         <div className="content">
-          Reittisuunnittelu sivu
-          <p>Järjestelmän reitit: {JSON.stringify(data)}</p>
-          <pre>{JSON.stringify(excelData, null, 2)}</pre>
+          <h3>
+            Näytettävä reitti
+          </h3>
+          <div className="current-route-selection">
+          {excelData && Object.keys(excelData).length > 0 ? (
+            <div className="route-select">
+              <select
+                value={selectedFile}
+                onChange={(e) => setSelectedFile(e.target.value)}
+              >
+                {Object.keys(excelData).map((fileName) => (
+                  <option key={fileName} value={fileName}>
+                    {fileName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <p>Ladattuja reittejä ei löytynyt</p>
+          )}
+          </div>
           {/* Dropdown Excel-tiedostojen poistoa varten */}
         <div>
           <h3>Poista tallennettu reitti</h3>
@@ -86,7 +101,6 @@ const PlanningPage = ({ data }) => {
                 value={selectedFile}
                 onChange={(e) => setSelectedFile(e.target.value)}
               >
-                <option value="">-- Valitse tiedosto --</option>
                 {Object.keys(excelData).map((fileName) => (
                   <option key={fileName} value={fileName}>
                     {fileName}
@@ -101,30 +115,8 @@ const PlanningPage = ({ data }) => {
             <p>Ei tallennettuja reittejä</p>
           )}
         </div>
-        </div>
-        <h3>Valittavat noutopisteet</h3>
-        <div className="PickupList">
-                <ul className="pointList">
-                    {pickups.map((itinerary, index) => (
-                      <li key={index} className="point">
-                        <div className="point-info">
-                          <label className="point-name">{itinerary.name}</label>
-                          <label>{itinerary.address}, {itinerary.zipcode}, {itinerary.city}</label>
-                        </div>
-                        <div className="point-list-controls">
-                          <button onClick={() => removePickup(index)} className="point-remove">Remove</button>
-                          <input type="checkbox" id="" value={itinerary.name} className="point-check"/>
-                        </div>
-                      </li>
-                    ))}
-                </ul>
-          </div>
-        <div>
-          <TemplateBody PropComponent={TableSection} PropName={"pickupform"} PropTitle={"Lisää uusi noutopaikka"} PropFunc={handleFormData} Expandable={true}/>
-        </div>
-        
-        <div>
-          <TemplateBody PropComponent={LeafletMap} PropName={"test-container"} PropTitle={"Reittiehdotus"} PropFunc={exampleRoute} Expandable={true}/>
+          <TemplateBody PropComponent={RouteSelection} PropName={"route-selection-container"} PropTitle={"Noutopaikkojen valinta"} PropData={excelData} Expandable={true}/>
+          <TemplateBody PropComponent={LeafletMap} PropName={"leaflet-container"} PropTitle={"Reittikartta"} PropFunc={exampleRoute} Expandable={true}/>
         </div>
       </div>
     );

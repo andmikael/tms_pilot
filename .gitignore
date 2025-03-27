@@ -29,3 +29,5 @@ cypress/
 .venv/
 venv/
 .env
+
+flask-server-test/__pycache__/

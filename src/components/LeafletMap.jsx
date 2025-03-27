@@ -39,8 +39,7 @@ const LeafletMap = ({ dataToParent }) => {
 
   return (
     <div>
-      <h3>Leaflet Map</h3>
-      <div id="map" style={{ height: '60vh', width: '80%' }}></div>
+      <div id="map" style={{ height: '60vh' }}></div>
     </div>
   );
 };
