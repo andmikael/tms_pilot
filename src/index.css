@@ -231,6 +231,15 @@ td > input {
   align-items: center;
 }
 
+.modal-title {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.modal-desc {
+  font-size: 1.2em;
+}
+
 .modal-action {
   position: absolute;
   background-color: #7cb5d8;
@@ -240,4 +249,10 @@ td > input {
   bottom: 10px;
   border-radius: 0.2em;
   border: 0;
+  font-size: 1.15em;
+}
+
+.modal-action:hover {
+  background-color: #699bb9;
+  transition: 0.2s ease;
 }
