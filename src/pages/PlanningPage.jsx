@@ -16,34 +16,27 @@ const PlanningPage = () => {
 
   // Ladataan excelData ja asetetaan ensimmäinen tiedosto valituksi, jos ei ole valittua tiedostoa
   useEffect(() => {
-    console.log("Excel Data fetched:", excelData);
     fetchExcelData(setExcelData, setSelectedFile, setError, selectedFile);
   }, [selectedFile]);
 
   // Ladataan reitit
   useEffect(() => {
-    console.log("Fetching Routes...");
     fetchRoutes(setRouteData, setError);
   }, []);
 
   // Asetetaan ensimmäinen tiedosto valituksi, jos valittua tiedostoa ei ole ja excelData on ladattu
   useEffect(() => {
-    console.log("Excel Data:", excelData);
     if (!selectedFile && Object.keys(excelData).length > 0) {
       const firstFile = Object.keys(excelData)[0];
-      console.log("Setting default selected file to:", firstFile);
-      setSelectedFile(firstFile); // Aseta ensimmäinen tiedosto valituksi
+      setSelectedFile(firstFile);
     }
   }, [excelData]);
 
   // Päivitetään selectedFile reitin mukaan
   useEffect(() => {
-    console.log("Selected File changed:", selectedFile);
     if (selectedFile && !routeData[selectedFile]) {
-      console.log("Selected file not in routeData, finding match...");
       const matchingFile = Object.keys(routeData).find(file => file.startsWith(selectedFile));
       if (matchingFile) {
-        console.log("Found matching file:", matchingFile);
         setSelectedFile(matchingFile);
       }
     }
@@ -78,7 +71,6 @@ const PlanningPage = () => {
   // Haetaan reitti ja muunnetaan koordinaatit numeroiksi
   let displayedRoute = null;
   if (selectedFile && routeData[selectedFile]) {
-    console.log("Displaying route for file:", selectedFile);
     displayedRoute = { ...routeData[selectedFile] };
     if (displayedRoute.startPlace) {
       displayedRoute.startPlace.lat = parseFloat(displayedRoute.startPlace.lat);
@@ -111,7 +103,6 @@ const PlanningPage = () => {
               <select
                 value={selectedFile || ""}
                 onChange={(e) => {
-                  console.log("File selected:", e.target.value);
                   setSelectedFile(e.target.value);
                 }}
               >

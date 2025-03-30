@@ -119,29 +119,3 @@ export async function fetchRoutes(setRouteData, setError) {
     setError(err.message);
   }
 }
-
-export const deleteExcelFile = async (selectedFile, setExcelData, setSelectedFile, setDeleteMessage) => {
-  if (!selectedFile) return;
-  try {
-    const response = await fetch("http://localhost:8000/api/delete_excel", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ file_name: selectedFile }),
-    });
-    const result = await response.json();
-    if (response.ok) {
-      setDeleteMessage(result.message);
-      // Päivitetään tila poistamalla poistettu tiedosto excelData-objektista
-      setExcelData(prev => {
-        const newData = { ...prev };
-        delete newData[selectedFile];
-        return newData;
-      });
-      setSelectedFile(null);
-    } else {
-      setDeleteMessage("Virhe: " + (result.error || result.message));
-    }
-  } catch (err) {
-    setDeleteMessage("Poistopyynnön virhe: " + err.message);
-  }
-};
