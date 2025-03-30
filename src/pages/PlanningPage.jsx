@@ -4,7 +4,7 @@ import TemplateBody from "../components/templateDropdown/TemplateBody";
 import RouteSelection from '../components/RouteSelection';
 import ErrorModal from '../components/modals/ErrorModal';
 import PropTypes from "prop-types";
-import { fetchExcelData, fetchRoutes, deleteExcelFile } from "../utils";
+import { fetchExcelData, fetchRoutes} from "../utils";
 
 const PlanningPage = () => {
   const [excelData, setExcelData] = useState({});
