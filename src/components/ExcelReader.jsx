@@ -71,8 +71,6 @@ const downloadTemplate = () => {
 export const ExcelReader = ({ dataToParent }) => {
     const [message, setMessage] = useState(null);
 
-    
-
     // Tiedoston prosessointi
     const processFile = async (file) => {
         setMessage({ type: "info", message: "Luetaan tiedostoa..." });
@@ -106,83 +104,124 @@ export const ExcelReader = ({ dataToParent }) => {
 
                 // Luodaan array luetulle datalle
                 const excelData = [];
+                let startLocationData = null;
+                let endLocationData = null;
+                
 
                 // Käydään jokainen rivi läpi
                 // Järjestys: nimi, osoite, postinumero, kaupunki, vakionouto
                 for (let i = 2; i < jsonData.length; i++) {
-                    
-                    // Jos ensimmäisen sarakkeen arvo sisältää "aloituspaikka", lopetetaan lukeminen
+                    // Tarkistetaan, onko kyseessä aloituspaikka
                     if (
                         jsonData[i][0] &&
                         jsonData[i][0].toString().toLowerCase().includes("aloituspaikka")
                     ) {
+                        if (i + 1 < jsonData.length) {
+                            const row = jsonData[i + 1];
+                            if (row.length < 5) {
+                                console.warn(`Puuttuvia tietoja aloituspaikan rivillä ${i + 2}, ohitetaan...`, row);
+                            } else {
+                                const startPlace = row[0].toString().trim();
+                                const street = row[1].toString().trim();
+                                const postalCode = row[2].toString().trim();
+                                const locality = row[3].toString().trim();
+                                const departureTime = row[4].toString().trim();
+                                const fullPlace = `${street}, ${postalCode} ${locality}`;
+                                const coordinates = await getCoordinates(fullPlace);
+                                startLocationData = {
+                                    name: startPlace,
+                                    address: street,
+                                    postalCode,
+                                    city: locality,
+                                    departureTime,
+                                    lat: coordinates ? coordinates.lat : null,
+                                    lon: coordinates ? coordinates.lon : null,
+                                };
+                            }
+                        }
+                        i += 2;
+                        if (
+                            i < jsonData.length &&
+                            jsonData[i][0] &&
+                            jsonData[i][0].toString().toLowerCase().includes("määräpaikka")
+                        ) {
+                            if (i + 1 < jsonData.length) {
+                                const row = jsonData[i + 1];
+                                if (row.length < 5) {
+                                    console.warn(`Puuttuvia tietoja lopetuspaikan rivillä ${i + 2}, ohitetaan...`, row);
+                                } else {
+                                    const endPlace = row[0].toString().trim();
+                                    const street = row[1].toString().trim();
+                                    const postalCode = row[2].toString().trim();
+                                    const locality = row[3].toString().trim();
+                                    const endTime = row[4].toString().trim();
+                                    const fullPlace = `${street}, ${postalCode} ${locality}`;
+                                    const coordinates = await getCoordinates(fullPlace);
+                                    endLocationData = {
+                                        name: endPlace,
+                                        address: street,
+                                        postalCode,
+                                        city: locality,
+                                        endTime,
+                                        lat: coordinates ? coordinates.lat : null,
+                                        lon: coordinates ? coordinates.lon : null,
+                                    };
+                                }
+                            }
+                        }
                         break;
+                    } else {
+                        // Käsitellään reittipiste normaalisti
+                        const row = jsonData[i].slice(0, 5);
+                        if (row.length < 4) {
+                            console.warn(`Puuttuvia tietoja rivillä ${i + 1}, ohitetaan...`, row);
+                            continue;
+                        }
+                        const name = row[0].toString().trim();
+                        const address = row[1].toString().trim();
+                        const postalCode = row[2].toString().trim();
+                        const city = row[3].toString().trim();
+                        const standardPickupColumn = row[4] ? row[4].toString().trim() : "";
+                        if (!name || !address || !postalCode || !city) {
+                            console.warn(`Puuttuvia tietoja rivillä ${i + 1}, ohitetaan...`, row);
+                            continue;
+                        }
+                        const standardPickup = standardPickupColumn.toLowerCase() === "x" 
+                            ? StandardPickup.YES : StandardPickup.NO;
+                        const fullPlace = `${address}, ${postalCode} ${city}`;
+                        const coordinates = await getCoordinates(fullPlace);
+                        const newPlaceObject = {
+                            name,
+                            address,
+                            postalCode,
+                            city,
+                            standardPickup,
+                            lat: coordinates ? coordinates.lat : null,
+                            lon: coordinates ? coordinates.lon : null,
+                        };
+                        excelData.push(newPlaceObject);
+                        console.log(newPlaceObject);
                     }
-
-                    // Otetaan vain ensimmäiset 5 saraketta (A–E)
-                    const row = jsonData[i].slice(0, 5);
-
-                    // Varmistetaan, että rivillä on vähintään 4 saraketta
-                    if (row.length < 4) {
-                        console.warn(`Puuttuvia tietoja rivillä ${i + 1}, ohitetaan...`, row);
-                        continue;
-                    }
-
-                    // Poistetaan ylimääräiset välilyönnit ja varmistetaan, että tiedot ovat olemassa.
-                    // Varmistetaan, että kaikki tieto on string muodossa.
-                    const name = row[0].toString().trim();
-                    const address = row[1].toString().trim();
-                    const postalCode = row[2].toString().trim();
-                    const city = row[3].toString().trim();
-                    const standardPickupColumn = row[4] ? row[4].toString().trim() : "";
-
-                    if (!name || !address || !postalCode || !city) {
-                        console.warn(`Puuttuvia tietoja rivillä ${i + 1}, ohitetaan...`, row);
-                        continue;
-                    }
-
-                    // Tunnistetaan, onko kyseessä vakionouto.
-                    const standardPickup = standardPickupColumn.toLowerCase() === "x" 
-                        ? StandardPickup.YES : StandardPickup.NO;
-                    
-                     // Muodostetaan täydellinen osoite hakua varten
-                    const fullPlace = `${address}, ${postalCode} ${city},`;
-
-                    const coordinates = await getCoordinates(fullPlace);
-
-                    // Tallennetaan heattu data name, address, postalCode, city ja standardPickup muotoiseksi
-                    // JSON objektiksi ja lisätään se Reactin readData arrayhin.
-                    const newPlaceObject = {
-                        name,
-                        address,
-                        postalCode,
-                        city,
-                        standardPickup, // Käyttää StandardPickup muotoa (joko yes tai no)
-                        lat: coordinates ? coordinates.lat : null,
-                        lon: coordinates ? coordinates.lon : null,
-                    };
-
-                    // Tallennetaan luettu data listaan.
-                    excelData.push(newPlaceObject);
-                    console.log(newPlaceObject);
                 }
+
 
                 // Jos data on luettu onnistuneesti, lähetetään se dataToParent-funktiolle
                 if (excelData.length !== 0) {
                     setMessage({ type: "success", message: "Tiedosto luettu onnistuneesti!" });
-                 dataToParent(excelData);
+                    dataToParent({ points: excelData, startLocation: startLocationData, endLocation: endLocationData });
 
                     const response = await fetch("http://localhost:8000/upload", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ routeName, data: excelData }),
+                        body: JSON.stringify({ routeName, data: excelData, startLocation: startLocationData, endLocation: endLocationData }),
                     });
 
                     const result = await response.json();
                     setMessage({ type: result.error ? "error" : "success", message: result.message });
+                    
 
                     // Päivitetään tiedot käyttöliittymässä
-                 dataToParent(excelData);
+                    dataToParent({ points: excelData, startLocation: startLocationData, endLocation: endLocationData });
 
                 } else {
                     setMessage({ type: "error", message: "Tiedoston luku epäonnistui!" });
@@ -218,9 +257,6 @@ export const ExcelReader = ({ dataToParent }) => {
 
     return (
       <div>
-        {/* Excel tiedoston lataaminen kansionäkymästä */}
-            <input type="file" hidden="true" onChange={(e) => processFile(e.target.files[0])} />
-
         {/* Dropzone toteutus */}
         <div {...getRootProps()} id="dropzone">
           <input {...getInputProps()} />

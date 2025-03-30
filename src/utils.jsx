@@ -84,3 +84,64 @@ function geocodePoints(optionalPickups) {
 }
 
 export { exampleRoute, geocodePoints };
+
+export async function fetchExcelData(setExcelData, setSelectedFile, setError, selectedFile) {
+  try {
+    const response = await fetch("http://localhost:8000/api/get_excel_files");
+    if (!response.ok) throw new Error("Excel-tiedostojen haku epäonnistui");
+    const data = await response.json();
+    setExcelData(data);
+    
+    const files = Object.keys(data);
+    if (files.length > 0 && !selectedFile) {
+      setSelectedFile(files[0]);
+    }
+  } catch (err) {
+    setError(err.message);
+  }
+}
+
+export async function fetchRoutes(setRouteData, setError) {
+  try {
+    const response = await fetch("http://localhost:8000/api/get_route");
+    if (!response.ok) throw new Error("Reittidatan haku epäonnistui");
+    const data = await response.json();
+    
+    const validRoutes = Object.entries(data)
+      .filter(([_, value]) => !value.error)
+      .reduce((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {});
+    
+    setRouteData(validRoutes);
+  } catch (err) {
+    setError(err.message);
+  }
+}
+
+export const deleteExcelFile = async (selectedFile, setExcelData, setSelectedFile, setDeleteMessage) => {
+  if (!selectedFile) return;
+  try {
+    const response = await fetch("http://localhost:8000/api/delete_excel", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ file_name: selectedFile }),
+    });
+    const result = await response.json();
+    if (response.ok) {
+      setDeleteMessage(result.message);
+      // Päivitetään tila poistamalla poistettu tiedosto excelData-objektista
+      setExcelData(prev => {
+        const newData = { ...prev };
+        delete newData[selectedFile];
+        return newData;
+      });
+      setSelectedFile(null);
+    } else {
+      setDeleteMessage("Virhe: " + (result.error || result.message));
+    }
+  } catch (err) {
+    setDeleteMessage("Poistopyynnön virhe: " + err.message);
+  }
+};
