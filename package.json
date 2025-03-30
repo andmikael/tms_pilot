@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "npm install && concurrently \"npm run dev\" \"npm run flask-backend\"",
+    "flask-backend": "cd flask-server-test && python -m venv venv && venv\\Scripts\\activate && pip install -r requirements.txt && python main.py",
     "lint": "eslint .",
     "preview": "vite preview",
     "leaflet-backend": "node index.cjs",
@@ -13,6 +15,7 @@
     "test:unit": "vitest"
   },
   "dependencies": {
+    "concurrently": "^9.1.2",
     "express": "^4.21.2",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
@@ -29,7 +32,6 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
-    "concurrently": "^9.1.2",
     "cypress": "^14.1.0",
     "eslint": "^9.19.0",
     "eslint-plugin-react": "^7.37.4",
