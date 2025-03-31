@@ -4,7 +4,7 @@ import TemplateBody from "../components/templateDropdown/TemplateBody";
 import RouteSelection from '../components/RouteSelection';
 import ErrorModal from '../components/modals/ErrorModal';
 import PropTypes from "prop-types";
-import { fetchExcelData, fetchRoutes} from "../utils";
+import { fetchExcelData, fetchRoutes } from "../utils";
 
 const PlanningPage = () => {
   const [excelData, setExcelData] = useState({});
@@ -14,35 +14,47 @@ const PlanningPage = () => {
   const [modalError, setModalError] = useState(false);
   const [error, setError] = useState(null);
 
-  // Ladataan excelData ja asetetaan ensimmäinen tiedosto valituksi, jos ei ole valittua tiedostoa
   useEffect(() => {
     fetchExcelData(setExcelData, setSelectedFile, setError, selectedFile);
-  }, [selectedFile]);
+  }, []);
 
-  // Ladataan reitit
   useEffect(() => {
     fetchRoutes(setRouteData, setError);
   }, []);
 
-  // Asetetaan ensimmäinen tiedosto valituksi, jos valittua tiedostoa ei ole ja excelData on ladattu
   useEffect(() => {
     if (!selectedFile && Object.keys(excelData).length > 0) {
       const firstFile = Object.keys(excelData)[0];
       setSelectedFile(firstFile);
     }
-  }, [excelData]);
+  }, [excelData, selectedFile]);
 
-  // Päivitetään selectedFile reitin mukaan
-  useEffect(() => {
-    if (selectedFile && !routeData[selectedFile]) {
-      const matchingFile = Object.keys(routeData).find(file => file.startsWith(selectedFile));
-      if (matchingFile) {
-        setSelectedFile(matchingFile);
-      }
+  const routeKey = selectedFile && routeData[selectedFile]
+    ? selectedFile
+    : selectedFile
+      ? (Object.keys(routeData).find(file => file.startsWith(selectedFile)) || selectedFile)
+      : null;
+
+  let displayedRoute = null;
+  if (routeKey && routeData[routeKey]) {
+    displayedRoute = { ...routeData[routeKey] };
+    if (displayedRoute.startPlace) {
+      displayedRoute.startPlace.lat = parseFloat(displayedRoute.startPlace.lat);
+      displayedRoute.startPlace.lon = parseFloat(displayedRoute.startPlace.lon);
     }
-  }, [selectedFile, routeData]);
+    if (displayedRoute.endPlace) {
+      displayedRoute.endPlace.lat = parseFloat(displayedRoute.endPlace.lat);
+      displayedRoute.endPlace.lon = parseFloat(displayedRoute.endPlace.lon);
+    }
+    if (displayedRoute.routes) {
+      displayedRoute.routes = displayedRoute.routes.map(route => ({
+        ...route,
+        lat: parseFloat(route.lat),
+        lon: parseFloat(route.lon),
+      }));
+    }
+  }
 
-  // Poistetaan valittu tiedosto
   const deleteExcelFile = async () => {
     if (!selectedFile) return;
     try {
@@ -67,27 +79,6 @@ const PlanningPage = () => {
       setDeleteMessage("Poistopyynnön virhe: " + err.message);
     }
   };
-
-  // Haetaan reitti ja muunnetaan koordinaatit numeroiksi
-  let displayedRoute = null;
-  if (selectedFile && routeData[selectedFile]) {
-    displayedRoute = { ...routeData[selectedFile] };
-    if (displayedRoute.startPlace) {
-      displayedRoute.startPlace.lat = parseFloat(displayedRoute.startPlace.lat);
-      displayedRoute.startPlace.lon = parseFloat(displayedRoute.startPlace.lon);
-    }
-    if (displayedRoute.endPlace) {
-      displayedRoute.endPlace.lat = parseFloat(displayedRoute.endPlace.lat);
-      displayedRoute.endPlace.lon = parseFloat(displayedRoute.endPlace.lon);
-    }
-    if (displayedRoute.routes) {
-      displayedRoute.routes = displayedRoute.routes.map(route => ({
-        ...route,
-        lat: parseFloat(route.lat),
-        lon: parseFloat(route.lon),
-      }));
-    }
-  }
 
   const showModal = () => {
     setModalError(!modalError);
@@ -124,8 +115,10 @@ const PlanningPage = () => {
           {Object.keys(excelData).length > 0 ? (
             <div>
               <select
-                value={selectedFile}
-                onChange={(e) => setSelectedFile(e.target.value)}
+                value={selectedFile || ""}
+                onChange={(e) => {
+                  setSelectedFile(e.target.value);
+                }}
               >
                 {Object.keys(excelData).map((fileName) => (
                   <option key={fileName} value={fileName}>
