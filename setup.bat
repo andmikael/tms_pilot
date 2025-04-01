@@ -14,9 +14,23 @@ if %errorlevel% NEQ 0 (
     echo Node.js is already installed. No action needed.
 )
 
-:: Step 2: Setup .env file
+:: Step 2: Check that Python is installed properly (not just a Windows Store alias)
 echo.
-echo Step 2: Checking if .env file has been set up...
+echo Step 2: Checking if Python is installed...
+python --version >nul 2>&1
+if %errorlevel% NEQ 0 (
+    echo Python is not installed or is only available via the Microsoft Store.
+    echo Please install Python manually from https://www.python.org/downloads/ and re-run setup.bat script.
+    echo.
+    pause
+    exit /b 0
+) else (
+    echo Python is already installed. No action needed.
+)
+
+:: Step 3: Setup .env file
+echo.
+echo Step 3: Checking if .env file has been set up...
 if exist .env (
     echo .env file already exists.
 ) else (
