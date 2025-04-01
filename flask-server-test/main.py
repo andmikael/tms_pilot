@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 import sys, os
 from excelFunctionality import excel_bp
 
+STOPPING_TIME = 10 * 60 #pysähdys kestää 10 minuuttia
+
 load_dotenv()
 
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
@@ -253,10 +255,10 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, traffic_mod
             vehicle_route.append(manager.IndexToNode(index))
             previous_index = index
             index = solution.Value(routing.NextVar(index))
-            duration += routing.GetArcCostForVehicle(previous_index, index, vehicle_id)
+            duration += routing.GetArcCostForVehicle(previous_index, index, vehicle_id) + STOPPING_TIME
         vehicle_route.append(manager.IndexToNode(index))
         vehicle_routes.append(vehicle_route)
-        durations.append(duration/60)
+        durations.append((duration - STOPPING_TIME)/60) #Vähennetään 1x STOPPING_TIME koska viimeisessä kohteessa ei ole "pysähdystä".
     
     distances = []
     for route in vehicle_routes:
