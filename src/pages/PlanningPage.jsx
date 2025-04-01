@@ -1,49 +1,63 @@
-/*
-* Pääsivu (reittisuunnittelu): Voidaan tarkastella tallennettuja reittejä, lisätä noutopaikkoja niihin
-* ja muodostaa reittisuunnitelmia.
-*/ 
 import React, { useState, useEffect } from 'react';
 import LeafletMap from "../components/LeafletMap";
-import { routePropType } from "../propTypes/routePropType";
-import PropTypes from "prop-types";
 import TemplateBody from "../components/templateDropdown/TemplateBody";
-import TableSection from "../components/pickupForm/Tablesection";
-import { exampleRoute, geocodePoints } from '../utils';
 import RouteSelection from '../components/RouteSelection';
 import ErrorModal from '../components/modals/ErrorModal';
 import { testi, getOptimizedRoutes } from '../utils';
 
+import PropTypes from "prop-types";
+import { fetchExcelData, fetchRoutes } from "../utils";
 
-const PlanningPage = ({ data }) => {
-  const [excelData, setExcelData] = useState([]);
-  const [error, setError] = useState(null);
+const PlanningPage = () => {
+  const [excelData, setExcelData] = useState({});
+  const [routeData, setRouteData] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
   const [deleteMessage, setDeleteMessage] = useState("");
   const [modalError, setModalError] = useState(false);
   const [optimizedRoutes, setOptimizedRoutes] = useState([]);
+  const [error, setError] = useState(null);
 
-  const showModal = () => {
-    setModalError(!modalError);
-  }
-
-  // Haetaan tallennetut Excel-tiedostot palvelimelta
   useEffect(() => {
-    async function fetchExcelData() {
-      try {
-        const response = await fetch("http://localhost:8000/api/get_excel_jsons");
-        if (!response.ok) {
-          throw new Error("Excel-tiedostojen haku epäonnistui");
-        }
-        const fetchedData = await response.json();
-        setExcelData(fetchedData);
-      } catch (err) {
-        setError(err.message);
-      }
-    }
-    fetchExcelData();
+    fetchExcelData(setExcelData, setSelectedFile, setError, selectedFile);
   }, []);
 
-  // Poistofunktio: lähettää DELETE-pyynnön palvelimelle poistamaan valitun Excel-tiedoston
+  useEffect(() => {
+    fetchRoutes(setRouteData, setError);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedFile && Object.keys(excelData).length > 0) {
+      const firstFile = Object.keys(excelData)[0];
+      setSelectedFile(firstFile);
+    }
+  }, [excelData, selectedFile]);
+
+  const routeKey = selectedFile && routeData[selectedFile]
+    ? selectedFile
+    : selectedFile
+      ? (Object.keys(routeData).find(file => file.startsWith(selectedFile)) || selectedFile)
+      : null;
+
+  let displayedRoute = null;
+  if (routeKey && routeData[routeKey]) {
+    displayedRoute = { ...routeData[routeKey] };
+    if (displayedRoute.startPlace) {
+      displayedRoute.startPlace.lat = parseFloat(displayedRoute.startPlace.lat);
+      displayedRoute.startPlace.lon = parseFloat(displayedRoute.startPlace.lon);
+    }
+    if (displayedRoute.endPlace) {
+      displayedRoute.endPlace.lat = parseFloat(displayedRoute.endPlace.lat);
+      displayedRoute.endPlace.lon = parseFloat(displayedRoute.endPlace.lon);
+    }
+    if (displayedRoute.routes) {
+      displayedRoute.routes = displayedRoute.routes.map(route => ({
+        ...route,
+        lat: parseFloat(route.lat),
+        lon: parseFloat(route.lon),
+      }));
+    }
+  }
+
   const deleteExcelFile = async () => {
     if (!selectedFile) return;
     try {
@@ -55,7 +69,6 @@ const PlanningPage = ({ data }) => {
       const result = await response.json();
       if (response.ok) {
         setDeleteMessage(result.message);
-        // Päivitetään tila poistamalla poistettu tiedosto excelData-objektista
         setExcelData(prev => {
           const newData = { ...prev };
           delete newData[selectedFile];
@@ -70,25 +83,23 @@ const PlanningPage = ({ data }) => {
     }
   };
 
-  if (selectedFile == null && excelData && Object.keys(excelData).length > 0) {
-    setSelectedFile(Object.keys(excelData)[0]);
-  }
+  const showModal = () => {
+    setModalError(!modalError);
+  };
 
-  //           <pre>{JSON.stringify(excelData, null, 2)}</pre>
-
-    return (
-      <div className="body-container">
-        <div className="content">
-          <h3>
-            Näytettävä reitti
-          </h3>
-          <div>{console.log(getOptimizedRoutes(exampleRoute.startPlace, exampleRoute.endPlace, exampleRoute.routes, 1, "best_guess"))}</div> {/*HEIDI: to be removed*/}
-          <div className="current-route-selection">
-          {excelData && Object.keys(excelData).length > 0 ? (
+  return (
+    <div className="body-container">
+      <div className="content">
+        <h3>Näytettävä reitti</h3>
+        <div>{console.log(getOptimizedRoutes(exampleRoute.startPlace, exampleRoute.endPlace, exampleRoute.routes, 1, "best_guess"))}</div> {/*HEIDI: to be removed*/}
+        <div className="current-route-selection">
+          {Object.keys(excelData).length > 0 ? (
             <div className="route-select">
               <select
-                value={selectedFile}
-                onChange={(e) => setSelectedFile(e.target.value)}
+                value={selectedFile || ""}
+                onChange={(e) => {
+                  setSelectedFile(e.target.value);
+                }}
               >
                 {Object.keys(excelData).map((fileName) => (
                   <option key={fileName} value={fileName}>
@@ -100,16 +111,18 @@ const PlanningPage = ({ data }) => {
           ) : (
             <p>Ladattuja reittejä ei löytynyt</p>
           )}
-          </div>
-          {/* Dropdown Excel-tiedostojen poistoa varten */}
+        </div>
+
         <div>
           <h3>Poista tallennettu reitti</h3>
           {deleteMessage && <p>{deleteMessage}</p>}
-          {excelData && Object.keys(excelData).length > 0 ? (
+          {Object.keys(excelData).length > 0 ? (
             <div>
               <select
-                value={selectedFile}
-                onChange={(e) => setSelectedFile(e.target.value)}
+                value={selectedFile || ""}
+                onChange={(e) => {
+                  setSelectedFile(e.target.value);
+                }}
               >
                 {Object.keys(excelData).map((fileName) => (
                   <option key={fileName} value={fileName}>
@@ -125,18 +138,35 @@ const PlanningPage = ({ data }) => {
             <p>Ei tallennettuja reittejä</p>
           )}
         </div>
-          <TemplateBody PropComponent={RouteSelection} PropName={"route-selection-container"} PropTitle={"Noutopaikkojen valinta"} PropData={excelData} Expandable={true}/>
-          <TemplateBody PropComponent={LeafletMap} PropName={"leaflet-container"} PropTitle={"Reittikartta"} PropFunc={exampleRoute} Expandable={true}/>
-        </div>
-        {modalError && <ErrorModal dataToParent={setModalError}/>}
-        <button onClick={showModal}>Näytä virheilmoitus</button>
+
+        <TemplateBody
+          PropComponent={RouteSelection}
+          PropName={"route-selection-container"}
+          PropTitle={"Noutopaikkojen valinta"}
+          PropData={excelData}
+          Expandable={true}
+        />
+
+        {displayedRoute ? (
+          <TemplateBody
+            PropComponent={LeafletMap}
+            PropName={"leaflet-container"}
+            PropTitle={"Reittikartta"}
+            PropFunc={displayedRoute}
+            Expandable={true}
+          />
+        ) : (
+          <div>Ladataan reittikarttaa…</div>
+        )}
       </div>
-    );
+      {modalError && <ErrorModal dataToParent={setModalError} />}
+      <button onClick={showModal}>Näytä virheilmoitus</button>
+    </div>
+  );
 };
 
-// Määritellään sivun data eli järjestelmän reitit noudattamaan routesPropTypeä, joka on määritelty propTypes/routesPropType.js tiedostossa.
 PlanningPage.propTypes = {
-  data: PropTypes.arrayOf(routePropType),
+  data: PropTypes.array,
 };
 
 export default PlanningPage;

@@ -215,3 +215,38 @@ async function testi () {
 }
 
 export { exampleRoute, geocodePoints, testi, getOptimizedRoutes, transformAddress };
+
+export async function fetchExcelData(setExcelData, setSelectedFile, setError, selectedFile) {
+  try {
+    const response = await fetch("http://localhost:8000/api/get_excel_files");
+    if (!response.ok) throw new Error("Excel-tiedostojen haku epäonnistui");
+    const data = await response.json();
+    setExcelData(data);
+    
+    const files = Object.keys(data);
+    if (files.length > 0 && !selectedFile) {
+      setSelectedFile(files[0]);
+    }
+  } catch (err) {
+    setError(err.message);
+  }
+}
+
+export async function fetchRoutes(setRouteData, setError) {
+  try {
+    const response = await fetch("http://localhost:8000/api/get_route");
+    if (!response.ok) throw new Error("Reittidatan haku epäonnistui");
+    const data = await response.json();
+    
+    const validRoutes = Object.entries(data)
+      .filter(([_, value]) => !value.error)
+      .reduce((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {});
+    
+    setRouteData(validRoutes);
+  } catch (err) {
+    setError(err.message);
+  }
+}
