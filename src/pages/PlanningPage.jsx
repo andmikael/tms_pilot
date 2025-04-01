@@ -11,6 +11,7 @@ import TableSection from "../components/pickupForm/Tablesection";
 import { exampleRoute, geocodePoints } from '../utils';
 import RouteSelection from '../components/RouteSelection';
 import ErrorModal from '../components/modals/ErrorModal';
+import { testi, getOptimizedRoutes } from '../utils';
 
 
 const PlanningPage = ({ data }) => {
@@ -19,6 +20,7 @@ const PlanningPage = ({ data }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [deleteMessage, setDeleteMessage] = useState("");
   const [modalError, setModalError] = useState(false);
+  const [optimizedRoutes, setOptimizedRoutes] = useState([]);
 
   const showModal = () => {
     setModalError(!modalError);
@@ -80,6 +82,7 @@ const PlanningPage = ({ data }) => {
           <h3>
             Näytettävä reitti
           </h3>
+          <div>{console.log(getOptimizedRoutes(exampleRoute.startPlace, exampleRoute.endPlace, exampleRoute.routes, 1, "best_guess"))}</div> {/*HEIDI: to be removed*/}
           <div className="current-route-selection">
           {excelData && Object.keys(excelData).length > 0 ? (
             <div className="route-select">
