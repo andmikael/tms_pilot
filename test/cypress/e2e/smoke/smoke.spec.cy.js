@@ -2,8 +2,6 @@
  * Smoke tests for verifying that the page loads and the most crucial functionality works.
 */
 
-
-
 const BASE_URL = "http://localhost:3000/";
 const FLASK_URL = "http://0.0.0.0:8000/";
 
@@ -69,8 +67,18 @@ describe("Smoke tests", () => {
   });
 
 
-  context('Optimization backend', () => {
-
+  context('Flask backend', () => {
+    
+    it("should respond to OPTIONS request with 200 OK", () => {
+      cy.request({
+        method: 'OPTIONS',
+        url: FLASK_URL + 'api/route_test'
+      }).then(
+        (response) => {
+          expect(response.status).to.eq(200)
+        }
+      )
+    });
   });
 
 
