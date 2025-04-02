@@ -13,6 +13,7 @@ const PlanningPage = () => {
   const [deleteMessage, setDeleteMessage] = useState("");
   const [modalError, setModalError] = useState(false);
   const [error, setError] = useState(null);
+  
 
   useEffect(() => {
     fetchExcelData(setExcelData, setSelectedFile, setError, selectedFile);
@@ -68,6 +69,7 @@ const PlanningPage = () => {
   const showModal = () => {
     setModalError(!modalError);
   };
+  console.log("PlanningPage selectedRoute:", selectedRoute);
 
   return (
     <div className="body-container">
@@ -120,25 +122,27 @@ const PlanningPage = () => {
           )}
         </div>
 
-        <TemplateBody
-          PropComponent={RouteSelection}
-          PropName={'route-selection-container'}
-          PropTitle={'Noutopaikkojen valinta'}
-          PropData={excelData}
-          Expandable={true}
-        />
-
         {selectedRoute ? (
-          <TemplateBody
-            PropComponent={LeafletMap}
-            PropName={'leaflet-container'}
-            PropTitle={'Reittikartta'}
-            PropFunc={selectedRoute}
-            Expandable={true}
-          />
-        ) : (
-          <div>Reittiä ei ole valittu. Reittikarttaa ei voida piirtää.</div>
-        )}
+  <>
+    <TemplateBody
+      PropComponent={RouteSelection}
+      PropName={'route-selection-container'}
+      PropTitle={'Noutopaikkojen valinta'}
+      PropData={excelData}
+      PropFunc={selectedRoute}
+      Expandable={true}
+    />
+    <TemplateBody
+      PropComponent={LeafletMap}
+      PropName={'leaflet-container'}
+      PropTitle={'Reittikartta'}
+      PropFunc={selectedRoute}
+      Expandable={true}
+    />
+  </>
+) : (
+  <div>Reittiä ei ole valittu. Reittikarttaa ei voida piirtää.</div>
+)}
       </div>
       {modalError && <ErrorModal dataToParent={setModalError} />}
       <button onClick={showModal}>Näytä virheilmoitus</button>
