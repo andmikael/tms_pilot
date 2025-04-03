@@ -1,0 +1,16 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "",
+    "title": "delete_excel request",
+    "description": "JSON schema for delete_excel request",
+    "type": "object",
+    "properties": {
+      "file_name": {
+        "description": "File to be deleted",
+        "type": "string"
+      }
+    },
+    "required": [
+      "file_name"
+    ]
+  }

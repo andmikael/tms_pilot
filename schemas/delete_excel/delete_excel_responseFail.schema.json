@@ -1,0 +1,20 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "",
+    "title": "delete_excel response fail",
+    "description": "JSON schema for delete_excel response to failed task",
+    "type": "object",
+    "properties": {
+      "error": {
+        "description": "Whether error happened",
+        "type": "boolean"
+      }, 
+      "message": {
+        "description": "Error message",
+        "type": "string"
+      }
+    },
+    "required": [
+      "error", "message"
+    ]
+  }

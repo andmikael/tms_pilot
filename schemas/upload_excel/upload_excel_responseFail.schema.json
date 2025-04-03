@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "",
+  "title": "Upload Excel fail",
+  "description": "JSON schema for upload_excel response to failed task",
+  "type": "object",
+  "properties": {
+    "error": {
+      "description": "Whether error happened (true if happened)",
+      "type": "boolean"
+    },
+    "message": {
+      "description": "Error message",
+      "type": "string"
+    }
+  },
+  "required": [
+    "error",
+    "message"
+  ]
+}

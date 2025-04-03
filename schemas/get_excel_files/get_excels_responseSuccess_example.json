@@ -1,0 +1,10 @@
+{
+    "Reitti": {
+      "file_name": "Reitti.xlsx",
+      "path": ".secret\\ExcelFiles\\Reitti.xlsx"
+    },
+    "Uusi reitti": {
+      "file_name": "Uusi reitti.xlsx",
+      "path": ".secret\\ExcelFiles\\Uusi reitti.xlsx"
+    }
+  }
