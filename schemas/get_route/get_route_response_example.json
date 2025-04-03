@@ -1,0 +1,84 @@
+{
+  "Reitti.xlsx": {
+    "endPlace": {
+      "address": "Korkeakoulunkatu 6",
+      "city": "Tampere",
+      "lat": "61.44869322268551",
+      "lon": "23.859398648697006",
+      "name": "Konetalo",
+      "postalCode": "33720",
+      "standardPickup": "yes"
+    },
+    "endTime": "12:00",
+    "name": "Reitti_0",
+    "routes": [
+      {
+        "address": "Korkeakoulunkatu 1",
+        "city": "Tampere",
+        "lat": "61.44979009607303",
+        "lon": "23.85576846213571",
+        "name": "Tietotalo",
+        "postalCode": "33720",
+        "standardPickup": "no"
+      }
+    ],
+    "startPlace": {
+      "address": "Yliopistonkatu 55",
+      "city": "Tampere",
+      "lat": "61.49592890697636",
+      "lon": "23.78160833411916",
+      "name": "Tampere-talo",
+      "postalCode": "33100",
+      "standardPickup": "yes"
+    },
+    "startTime": "9:00"
+  },
+
+  "Reitti2.xlsx":{
+    "endPlace": {
+      "address": "Hautausmaankatu 6",
+      "city": "Tampere",
+      "lat": "61.49414978402336",
+      "lon": "23.79445300417724",
+      "name": "Kalevankankaan hautausmaa",
+      "postalCode": "33100",
+      "standardPickup": "yes"
+    },
+    "endTime": "15:00",
+    "name": "Reitti2_0",
+    "routes": [
+      {
+        "address": "Hämeenkatu 17",
+        "city": "Tampere",
+        "lat": "61.497566532566104",
+        "lon": "23.75944429822519",
+        "name": "Ravintola Vanha Monttu",
+        "postalCode": "33200",
+        "standardPickup": "no"
+      },
+      {
+        "address": "Korkeakoulunkatu 12",
+        "city": "Tampere",
+        "lat": "61.450774474107426",
+        "lon": "23.86245482628995",
+        "name": "Bommari",
+        "postalCode": "33720",
+        "standardPickup": "no"
+      }
+    ],
+    "startPlace": {
+      "address": "Elämänaukio 2",
+      "city": "Tampere",
+      "lat": "61.50514787190443",
+      "lon": "23.814886457776886",
+      "name": "TAYS",
+      "postalCode": "33520",
+      "standardPickup": "yes"
+    },
+    "startTime": "12:00"
+  },
+  "Reitti3.xlsx": {
+      "error": true,
+      "message": "IOError"
+    }
+}

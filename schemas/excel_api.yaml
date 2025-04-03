@@ -22,45 +22,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "upload_excel_return.schema.json"
+              $ref: "upload_excel/upload_excel_responseSuccess.schema.json"
       '500':
         description: Fail
         content:
           application/json:
             schema:
-                $ref: "upload_excel_fail.schema.json"
+                $ref: "upload_excel/upload_excel_responseFail.schema.json"
 
 
-/get_excel_jsons:
+/get_excel_files:
     get:
       summary: 
-      description: 
+      description: "Get all saved Excel data"
       operationId: get_excel_jsons
-      requestBody:
-        description: 
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "get_excel_jsons_incoming.schema.json"
     responses:
       '200':
         description: Success
         content:
           application/json:
             schema:
-              $ref: "get_excel_jsons_returnSuccess.schema.json"
+              $ref: "get_excel_files/get_excels_responseSuccess.schema.json"
       '404':
         description: Fail
         content:
           application/json:
             schema:
-                $ref: "get_excel_jsons_returnFail.schema.json"
+              $ref: "get_excel_files/get_excels_responseFail.schema.json"
 
 /delete_excel:
     delete:
       summary: 
-      description: 
+      description: "Delete an Excel file"
       operationId: delete_excel
       requestBody:
         description: 
@@ -68,17 +61,36 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "delete_excel_incoming.schema.json"
+              $ref: "delete_excel/delete_excel_request.schema.json"
     responses:
       '200':
         description: Success
         content:
           application/json:
             schema:
-              $ref: "delete_excel_returnSuccess.schema.json"
+              $ref: "delete_excel/delete_excel_responseSuccess.schema.json"
       '500':
-        description: Fail
+        description: Deletion failed
         content:
           application/json:
             schema:
-                $ref: "delete_excel_returnFail.schema.json"
+              $ref: "delete_excel/delete_excel_responseFail.schema.json"
+      '404':
+        description: File not found
+        content:
+          application/json:
+            schema:
+              $ref: "delete_excel/delete_excel_responseFail.schema.json"
+
+/get_route:
+    get:
+      summary: 
+      description: "Get all saved routes"
+      operationId: get_excel_routes
+    responses:
+      '200':
+        description: Success
+        content:
+          application/json:
+            schema:
+              $ref: "get_excel_files/get_route_response.schema.json"

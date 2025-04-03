@@ -16,6 +16,7 @@ const PlanningPage = () => {
   const [modalError, setModalError] = useState(false);
   const [optimizedRoutes, setOptimizedRoutes] = useState([]);
   const [error, setError] = useState(null);
+  
 
   useEffect(() => {
     fetchExcelData(setExcelData, setSelectedFile, setError, selectedFile);
@@ -38,24 +39,9 @@ const PlanningPage = () => {
       ? (Object.keys(routeData).find(file => file.startsWith(selectedFile)) || selectedFile)
       : null;
 
-  let displayedRoute = null;
+  let selectedRoute = null;
   if (routeKey && routeData[routeKey]) {
-    displayedRoute = { ...routeData[routeKey] };
-    if (displayedRoute.startPlace) {
-      displayedRoute.startPlace.lat = parseFloat(displayedRoute.startPlace.lat);
-      displayedRoute.startPlace.lon = parseFloat(displayedRoute.startPlace.lon);
-    }
-    if (displayedRoute.endPlace) {
-      displayedRoute.endPlace.lat = parseFloat(displayedRoute.endPlace.lat);
-      displayedRoute.endPlace.lon = parseFloat(displayedRoute.endPlace.lon);
-    }
-    if (displayedRoute.routes) {
-      displayedRoute.routes = displayedRoute.routes.map(route => ({
-        ...route,
-        lat: parseFloat(route.lat),
-        lon: parseFloat(route.lon),
-      }));
-    }
+    selectedRoute =  { ...routeData[routeKey] };
   }
 
   const deleteExcelFile = async () => {
@@ -86,6 +72,7 @@ const PlanningPage = () => {
   const showModal = () => {
     setModalError(!modalError);
   };
+  console.log("PlanningPage selectedRoute:", selectedRoute);
 
   return (
     <div className="body-container">
@@ -96,7 +83,7 @@ const PlanningPage = () => {
           {Object.keys(excelData).length > 0 ? (
             <div className="route-select">
               <select
-                value={selectedFile || ""}
+                value={selectedFile || ''}
                 onChange={(e) => {
                   setSelectedFile(e.target.value);
                 }}
@@ -119,7 +106,7 @@ const PlanningPage = () => {
           {Object.keys(excelData).length > 0 ? (
             <div>
               <select
-                value={selectedFile || ""}
+                value={selectedFile || ''}
                 onChange={(e) => {
                   setSelectedFile(e.target.value);
                 }}
@@ -139,25 +126,27 @@ const PlanningPage = () => {
           )}
         </div>
 
-        <TemplateBody
-          PropComponent={RouteSelection}
-          PropName={"route-selection-container"}
-          PropTitle={"Noutopaikkojen valinta"}
-          PropData={excelData}
-          Expandable={true}
-        />
-
-        {displayedRoute ? (
-          <TemplateBody
-            PropComponent={LeafletMap}
-            PropName={"leaflet-container"}
-            PropTitle={"Reittikartta"}
-            PropFunc={displayedRoute}
-            Expandable={true}
-          />
-        ) : (
-          <div>Ladataan reittikarttaa…</div>
-        )}
+        {selectedRoute ? (
+  <>
+    <TemplateBody
+      PropComponent={RouteSelection}
+      PropName={'route-selection-container'}
+      PropTitle={'Noutopaikkojen valinta'}
+      PropData={excelData}
+      PropFunc={selectedRoute}
+      Expandable={true}
+    />
+    <TemplateBody
+      PropComponent={LeafletMap}
+      PropName={'leaflet-container'}
+      PropTitle={'Reittikartta'}
+      PropFunc={selectedRoute}
+      Expandable={true}
+    />
+  </>
+) : (
+  <div>Reittiä ei ole valittu. Reittikarttaa ei voida piirtää.</div>
+)}
       </div>
       {modalError && <ErrorModal dataToParent={setModalError} />}
       <button onClick={showModal}>Näytä virheilmoitus</button>

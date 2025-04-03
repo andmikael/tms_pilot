@@ -18,15 +18,38 @@ const LeafletMap = ({ dataToParent }) => {
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
-    const pickUpPoints = [
-      L.latLng(dataToParent.startPlace.lat, dataToParent.startPlace.lon),
-      ...dataToParent.routes.map((place) => L.latLng(place.lat, place.lon)),
-      L.latLng(dataToParent.endPlace.lat, dataToParent.endPlace.lon),
+    const pickUpPointObjects = [
+      dataToParent.startPlace,
+      ...dataToParent.routes,
+      dataToParent.endPlace,
     ];
 
     L.Routing.control({
-      waypoints: pickUpPoints,
+      waypoints: pickUpPointObjects.map((point) => L.latLng(point.lat, point.lon)),
+      showAlternatives: false,
     }).addTo(map);
+
+    pickUpPointObjects.forEach((point, index, array) => {
+      let label;
+
+      if (index === 0) {
+        label = "Aloituspaikka:";
+      } else if (index === array.length - 1) {
+        label = "Lopetuspaikka";
+      } else {
+        label = index.toString() + '.';
+      }
+      L.marker([point.lat, point.lon])
+        .addTo(map)
+        .bindTooltip(`${label} ${point.name}`, { permanent: true, direction: 'right' })
+        .openTooltip()
+        .bindPopup(
+          `${point.name}<br>
+          ${point.address}<br>
+          ${point.city}, ${point.postalCode}<br>
+          Vakionouto: ${point.standardPickup == 'yes' ? 'Kyllä' : 'Ei'}`
+        );
+    });
 
     //Removes previous Map container if it already exists
     return () => {
