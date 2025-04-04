@@ -10,29 +10,27 @@ const RouteSelection = ({ dataToParent }) => {
   const [optionalPickups, setOptionalPickups] = useState([]);
   const [standardPickups, setStandardPickups] = useState([]);
   const [optimizedRoutes, setOptimizedRoutes] = useState([]);
+  const [routeData, setRouteData] = useState(null);
 
   useEffect(() => {
-    console.log("RouteSelection dataToParent:", dataToParent);
+    if (dataToParent) {
+      setRouteData(dataToParent);
+    }
   }, [dataToParent]);
 
   useEffect(() => {
-    const standardPickupArray = Array.isArray(dataToParent.routes) 
-    ? dataToParent.routes.filter(place => place.standardPickup === 'yes') 
-    : [];
-  
-    const optionalPickupArray = Array.isArray(dataToParent.routes) 
-    ? dataToParent.routes.filter(place => place.standardPickup === 'no') 
-    : [];
+    if (routeData && Array.isArray(routeData.routes)) {
+      const standardPickupArray = routeData.routes.filter(place => place.standardPickup === 'yes');
+      const optionalPickupArray = routeData.routes.filter(place => place.standardPickup === 'no');
 
-    setStandardPickups(standardPickupArray);
-    setOptionalPickups(optionalPickupArray);
-  }, []); 
+      setStandardPickups(standardPickupArray);
+      setOptionalPickups(optionalPickupArray);
+    }
+  }, [routeData]);
 
-  if (!dataToParent || !dataToParent.name) {
+  if (!routeData || !routeData.name) {
     return <div>Reittidataa ei ole saatavilla.</div>;
   }
-
-  const routeData = dataToParent;
 
   const handleFormData = async (idata) => {
     const newPickup = await geocodePoints(idata);
@@ -100,8 +98,8 @@ const RouteSelection = ({ dataToParent }) => {
         <p><strong>Aikataulu:</strong> {routeData.startTime} - {routeData.endTime}</p>
         <p><strong>Vakioreitin noutopaikat:</strong> {standardPickups.length > 0 ? (
           standardPickups.map((place, index) => (
-            `${place.name}` + (index < standardPickups.length - 1 ? ', ' : '')
-          )).join('')
+            `${place.name}` + (index < standardPickups.length - 1 ? ', ' : ''))
+          ).join('') 
         ) : (
           <span>Ei vakionoutopaikkoja reitillä.</span>
         )} 
@@ -112,7 +110,7 @@ const RouteSelection = ({ dataToParent }) => {
           </button>
         )}
       </div>
-      {optionalPickups.length > 0  && (
+      {optionalPickups.length > 0 && (
         <div className="PickupList">
           <ul className="pointList">
             {optionalPickups.map((itinerary, index) => (
@@ -147,8 +145,7 @@ const RouteSelection = ({ dataToParent }) => {
         Muodosta reittiehdotus
       </button></p>
 
-    {/* For showing optimized routes*/}
-    <TemplateBody
+      <TemplateBody
         PropComponent={RouteSuggestion}
         PropName={'route-suggestion-container'}
         PropTitle={'Reittiehdotus'}
