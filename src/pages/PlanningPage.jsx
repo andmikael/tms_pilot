@@ -12,6 +12,7 @@ const PlanningPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [deleteMessage, setDeleteMessage] = useState("");
   const [modalError, setModalError] = useState(false);
+  const [modalErrorDesc, setModalErrorDesc] = useState(null);
   const [error, setError] = useState(null);
   
 
@@ -142,12 +143,10 @@ const PlanningPage = () => {
   </>
 ) : (
   <div>Reittiä ei ole valittu. Reittikarttaa ei voida piirtää.</div>
-)}
-      </div>
-      {modalError && <ErrorModal dataToParent={setModalError} />}
-      <button onClick={showModal}>Näytä virheilmoitus</button>
-    </div>
-  );
+  )}
+  </div>
+  </div>
+  )
 };
 
 PlanningPage.propTypes = {

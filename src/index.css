@@ -24,7 +24,7 @@ body {
   justify-content: center;
   align-items: center;
   width: 100%;
-  max-width: 800px;
+  max-width: 1280px;
   text-align: left;
   margin: 20px auto;
 }
@@ -51,15 +51,16 @@ h1 {
 
 #form-route-btn {
   padding: 10px;
-  background-color:#699bb9;
+  background-color:#2294FF;
   color: white;
   font-weight: bold;
   font-size: 15px;
-  border: outset;
+  border:none;
+  border-radius: 0.3em;
 }
 
 #form-route-btn:hover {
-  padding: 10px;
+  transition: 0.1s ease;
   background-color:#AEE0FF;
 }
 
@@ -87,7 +88,8 @@ label {
   background-color: #fef7ff;
   /*background-color: #c272cc;*/
   display: inline-block;
-  width: 500px;
+  max-width: 500px;
+  width: 100%;
 }
 
 .pointList {
@@ -134,10 +136,6 @@ button:hover {
   width:100%;
 }
 
-.leaflet-container {
-  width: 1000px;
-}
-
 .dropdown-header {
   background-color: #AEE0FF;
   border-radius: 0.2em;
@@ -175,7 +173,8 @@ button:hover {
 }
 
 .route-select > select {
-  width: 500px;
+  width: 100%;
+  max-width: 500px;
   height: 40px;
   font-size: 16px;
   border:none;
@@ -269,4 +268,37 @@ td > input {
 .modal-action:hover {
   background-color: #699bb9;
   transition: 0.2s ease;
+}
+
+#vehicles-select {
+  margin: 0 0.6em;
+  padding: 0.3em;
+  font-size: 0.9em;
+  border-radius:0.2em;
+}
+
+#traffic-pred {
+  margin: 0 0.6em;
+  padding: 0.3em;
+  font-size: 0.9em;
+  border-radius: 0.2em;
+}
+
+#route-options {
+  padding-left: 10px;
+  padding-top: 10px;
+}
+
+.button-save {
+  padding: 10px;
+  background-color:#2294FF;
+  color: white;
+  font-weight: bold;
+  border:none;
+  border-radius: 0.3em;
+}
+
+.button-save:hover {
+  transition: 0.1s ease;
+  background-color:#AEE0FF;
 }
