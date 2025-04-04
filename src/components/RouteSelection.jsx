@@ -3,10 +3,13 @@ import TemplateBody from "../components/templateDropdown/TemplateBody";
 import TableSection from "../components/pickupForm/Tablesection";
 import { geocodePoints } from '../utils';
 import ErrorModal from './modals/ErrorModal';
+import RouteSuggestion from '../components/RouteSuggestion';
+import { getOptimizedRoutes } from '../utils';
 
 const RouteSelection = ({ dataToParent }) => {
   const [pickups, setNewPickups] = useState([]);
   const [selectedOptionalPickups, setSelectedOptionalPickups] = useState([]);
+  const [optimizedRoutes, setOptimizedRoutes] = useState([]);
 
   useEffect(() => {
     console.log("RouteSelection dataToParent:", dataToParent);
@@ -17,6 +20,9 @@ const RouteSelection = ({ dataToParent }) => {
   }
 
   const routeData = dataToParent;
+  const standardPickups = Array.isArray(dataToParent.routes) 
+  ? dataToParent.routes.filter(place => place.standardPickup === 'yes') 
+  : [];
 
   const handleFormData = (idata) => {
     setNewPickups([...pickups, idata]);
@@ -46,6 +52,18 @@ const RouteSelection = ({ dataToParent }) => {
     p_text = p_text.slice(0, -2);
     para.innerHTML = p_text;
     cont.appendChild(para);
+
+    // Adding pickups to the routes array to be optimized.
+    //setRoutesForOptimization({...routeData, 'selectedPickups': selectedOptionalPickups});
+
+    // TODO: Korvaa nämä käyttöliittymästä saatavalla datalla, kun ajoneuvojen määrä ja trafficmode valinnat on toteutettu:
+    const amountOfVehicles = 1;
+    const trafficMode = "best_guess";
+
+    const response = await getOptimizedRoutes(routeData.startPlace, routeData.endPlace, 
+      standardPickups, selectedOptionalPickups, amountOfVehicles, trafficMode); 
+    setOptimizedRoutes(response);
+
   };
 
   const removePickup = (index) => {
@@ -66,10 +84,18 @@ const RouteSelection = ({ dataToParent }) => {
   return (
     <div>
       <div id="current-route-container">
-        <p>Valittu reitti: {routeData.name}</p>
-        <p>Lähtöpaikka: {routeData.startPlace.name}</p>
-        <p>Määräpaikka: {routeData.endPlace.name}</p>
-        <p>Aikataulu: {routeData.startTime} - {routeData.endTime}</p>
+        <p><strong>Valittu reitti:</strong> {routeData.name}</p>
+        <p><strong>Lähtöpaikka:</strong> {routeData.startPlace.name}</p>
+        <p><strong>Määräpaikka:</strong> {routeData.endPlace.name}</p>
+        <p><strong>Aikataulu:</strong> {routeData.startTime} - {routeData.endTime}</p>
+        <p><strong>Vakioreitin noutopaikat:</strong> {standardPickups.length > 0 ? (
+          standardPickups.map((place, index) => (
+            `${place.name}` + (index < standardPickups.length - 1 ? ', ' : '')
+          )).join('')
+        ) : (
+          <span>Ei vakionoutopaikkoja reitillä.</span>
+        )} 
+        </p>
         {document.getElementById("optional-route") && (
           <button id="optional-route-delete-btn" onClick={deleteOptionalRoutes}>
             Poista lisätyt reitit
@@ -108,6 +134,15 @@ const RouteSelection = ({ dataToParent }) => {
         PropName={"pickupform"}
         PropTitle={"Lisää uusi noutopaikka"}
         PropFunc={handleFormData}
+        Expandable={true}
+      />
+
+    {/* For showing optimized routes*/}
+    <TemplateBody
+        PropComponent={RouteSuggestion}
+        PropName={'route-suggestion-container'}
+        PropTitle={'Reittiehdotus'}
+        PropData={optimizedRoutes}
         Expandable={true}
       />
     </div>

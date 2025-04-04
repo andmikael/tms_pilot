@@ -3,8 +3,6 @@ import LeafletMap from "../components/LeafletMap";
 import TemplateBody from "../components/templateDropdown/TemplateBody";
 import RouteSelection from '../components/RouteSelection';
 import ErrorModal from '../components/modals/ErrorModal';
-import { testi, getOptimizedRoutes } from '../utils';
-
 import PropTypes from "prop-types";
 import { fetchExcelData, fetchRoutes } from "../utils";
 
@@ -14,7 +12,6 @@ const PlanningPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [deleteMessage, setDeleteMessage] = useState("");
   const [modalError, setModalError] = useState(false);
-  const [optimizedRoutes, setOptimizedRoutes] = useState([]);
   const [error, setError] = useState(null);
   
 
@@ -78,7 +75,6 @@ const PlanningPage = () => {
     <div className="body-container">
       <div className="content">
         <h3>Näytettävä reitti</h3>
-        <div>{console.log(getOptimizedRoutes(exampleRoute.startPlace, exampleRoute.endPlace, exampleRoute.routes, 1, "best_guess"))}</div> {/*HEIDI: to be removed*/}
         <div className="current-route-selection">
           {Object.keys(excelData).length > 0 ? (
             <div className="route-select">
@@ -134,7 +130,7 @@ const PlanningPage = () => {
       PropTitle={'Noutopaikkojen valinta'}
       PropData={excelData}
       PropFunc={selectedRoute}
-      Expandable={true}
+      Expandable={false}
     />
     <TemplateBody
       PropComponent={LeafletMap}

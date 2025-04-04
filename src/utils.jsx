@@ -85,12 +85,16 @@ function geocodePoints(optionalPickups) {
   return optionalPickups;
 }
 /*
-* mandatoryAddresses = Runkoreitti, standard pickup addresses
+* getOptimizedRoutes function sends a request for Flask route optimization endpoint (api/route_test).
+* Function modifies routes to the form that Flask endpoint accepts them. Flask responds with ordered routes, distances and durations.
+* Explanations for some of the parameters:
+* mandatoryAddresses = Array of standard pickup addresses (runkoreitti)
 * pickUpAdresses = Array of all the additional addresses what need to be visited (pickup places)
 */
-async function getOptimizedRoutes(startPlace, endPlace, routes, amountOfVehicles, trafficMode) {
-  const addressesMap = new Map(); // Most of the operations are O(1).
-  const addresses = [];
+async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pickUpAdresses, amountOfVehicles, trafficMode) {
+  const placesMap = new Map(); // Saving all the addresses which are sent to Flask as a key connected with rest of their information.
+  // Most of the map operations are O(1).
+  let addresses = [];
 
   if (startPlace === null || endPlace === null ) {
     console.error(`Start or end place has not been defined. startplace: ${startPlace}, endPlace: ${endPlace}`);
@@ -106,24 +110,68 @@ async function getOptimizedRoutes(startPlace, endPlace, routes, amountOfVehicles
     return null;
   }
 
+  // TODO: Ask about this, doesn't work now with two vehicles etc.
+  // Setting up start and end addresses and indexes for Flask.
   addresses.push(startAddress, endAddress);
-  const start_indexes = Array(amountOfVehicles).fill(0);
-  const end_indexes = Array(amountOfVehicles).fill(1);
+  //const start_indexes = Array(amountOfVehicles).fill(0);
+  const start_indexes = Array.from({ length: amountOfVehicles }, (_, index) => 
+    index === 0 ? 0 : ""
+  );
+  //const end_indexes = Array(amountOfVehicles).fill(1);
+  const end_indexes = Array.from({ length: amountOfVehicles }, (_, index) => 
+    index === 0 ? 1 : ""
+  );
 
-  // Adding standardPickUp addresses to the addresses array.
+  // Saving these to the map.
+  placesMap.set(startAddress, startPlace);
+  placesMap.set(endAddress, endPlace);
+
+  // Adding standardPickUp addresses to the addresses array and defining indexes for must_visit places.
+  const mustVisitIndexes = [];
+  if (Array.isArray(mandatoryAddresses) && mandatoryAddresses.length > 0) {
+    let mustVisitIndex = 2;
+    for (const place of mandatoryAddresses) {
+      let address = transformAddress(place.address, place.city);
+      if (address !== null) {
+        addresses.push(address);
+        mustVisitIndexes.push(mustVisitIndex);
+        mustVisitIndex += 1;
+
+        // Saving this to the map.
+        placesMap.set(address, place);
+      }
+    }
+  }
+  const must_visit = Array.from({ length: amountOfVehicles }, (_, index) => 
+    index === 0 ? mustVisitIndexes : []
+  );
   
+  // Adding selected pickup places to the addresses array.
+  console.log('pickup: ', pickUpAdresses);
+  if (Array.isArray(pickUpAdresses) && pickUpAdresses.length > 0) {
+    for (const place of pickUpAdresses) {
+      let address = transformAddress(place.address, place.city);
+      if (address !== null) {
+        addresses.push(address);
 
-  const body = {
+        // Saving this to the map.
+        placesMap.set(address, place);
+      }
+    }
+  }
+
+  const requestBody = {
     "addresses": addresses,
     "start_indexes": start_indexes,
     "end_indexes": end_indexes,
     "number_of_vehicles": amountOfVehicles,
-    "must_visit": [[]],
-    "traffic_mode": "best_guess"
+    "must_visit": must_visit,
+    "traffic_mode": trafficMode,
   };
-  console.log(body);
+  console.log('requestBody: ', requestBody);
 
-  // Esimerkkimuoto.
+  // TODO:
+  // Esimerkkimuoto. Kysy tästä?
   const body1 = {
     "addresses": [
       "Teekkarinkatu+10+Tampere",
@@ -139,11 +187,12 @@ async function getOptimizedRoutes(startPlace, endPlace, routes, amountOfVehicles
     "traffic_mode": "best_guess"
   };
 
+
   try {
     const response = await fetch(`${FLASK_URL}api/route_test`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -151,18 +200,44 @@ async function getOptimizedRoutes(startPlace, endPlace, routes, amountOfVehicles
       return null;
     }
 
-    const data = await response.json();
-    //console.log(data);
-    return data;
+    const responseData = await response.json()
+  
+    console.log('Response from flask: ', responseData);
+
+    // Going through all the suggested routes and saving them to an array.
+    let routeSuggestions = [];
+    for (let i = 0; i < responseData.ordered_routes.length; i++) {
+      let ordered_routes = [];
+      for (const address of responseData.ordered_routes[i]) {
+        const place = placesMap.get(address);
+        if (place !== undefined) { // If returned address was matched with rest of the data.
+          ordered_routes.push(place);
+        }
+      }
+
+      const routeSuggestion = {
+        "distances": responseData.distances[i],
+        "durations": responseData.durations[i],
+        "ordered_routes": ordered_routes,
+      }
+
+      routeSuggestions.push(routeSuggestion);
+    }
+    
+    return routeSuggestions;
 
   } catch (error) {
       console.error("Virhe reittioptimoinnissa:", error);
+      return null;
   }
-
 }
 
-// Transforms addresses form from "address 1" and "Kauhajoki" to "address+1+Kauhajoki".
-// Returns null if there are no address or city.
+
+/*
+* Transforms addresses form from "address 1" and "Kauhajoki" to "address+1+Kauhajoki".
+*
+* Returns: fulladdress in a form address+city and null if there are no address or city.
+*/
 function transformAddress(address, city) {
   if (address === null || city === null) {
     console.error(`Virhe osoitteessa, osoite: ${address} ja kaupunki: ${city}`, error);
@@ -173,48 +248,7 @@ function transformAddress(address, city) {
   return fullAddress;
 }
 
-
-// HEIDI: to be removed later...
-async function testi () {
-  const body1 = {
-    "addresses": [
-      "Teekkarinkatu+10+Tampere",
-      "Nekalantie+1+Tampere",
-      "Kalevantie+1+Tampere",
-      "Tampereen+valtatie+8+Tampere",
-      "Pirkankatu+8+Tampere"
-    ],
-    "start_indexes": [0, 0],
-    "end_indexes": [3, 4],
-    "number_of_vehicles": 2,
-    "must_visit": [[], []],
-    "traffic_mode": "best_guess"
-  };
-
-  try {
-    const response = await fetch(`${FLASK_URL}api/route_test`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body1),
-    });
-
-    if (!response.ok) {
-      console.error(`Virhe reittioptimoinnissa: ${response.status}`);
-      return null;
-
-      // TODO: lisää tähän mahdolliset responset.
-    }
-
-    const data = await response.json();
-    //console.log(data);
-    return data;
-
-  } catch (error) {
-      console.error("Virhe reittioptimoinnissa:", error);
-  }
-}
-
-export { exampleRoute, geocodePoints, testi, getOptimizedRoutes, transformAddress };
+export { exampleRoute, geocodePoints, getOptimizedRoutes };
 
 export async function fetchExcelData(setExcelData, setSelectedFile, setError, selectedFile) {
   try {
