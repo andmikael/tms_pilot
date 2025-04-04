@@ -44,15 +44,17 @@ const exampleRoute = {
   ],
 };
 
-async function getCoordinates(fullPlace) {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullPlace)}`;
+export const StandardPickup = Object.freeze({
+  YES: "yes",
+  NO: "no"
+});
 
+// Funktio koordinaattien hakemiseen OpenStreetMapista
+export async function getCoordinates(fullPlace) {
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullPlace)}`;
   try {
-      // Lähetetään HTTP-pyyntö ja odotetaan vastausta
       const response = await fetch(url);
       const data = await response.json();
-
-      // Jos data sisältää koordinaatit, palautetaan ne
       if (data.length > 0) {
           return {
               lat: data[0].lat,
@@ -63,10 +65,42 @@ async function getCoordinates(fullPlace) {
           return null;
       }
   } catch (error) {
-      console.error(`Virhe haettaessa koordinaatteja: ${data}`, error);
+      console.error(`Virhe haettaessa koordinaatteja: ${error}`);
       return null;
   }
 }
+
+export const appendPlaceToExcel = async (filename, pickupData) => {
+  try {
+    const response = await fetch("http://localhost:8000/api/append_to_excel", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        filename: filename,
+        data: {
+          name: pickupData.name,
+          address: pickupData.address,
+          postalCode: pickupData.postalCode,
+          city: pickupData.city,
+          standardPickup: "no",
+          lat: pickupData.lat,
+          lon: pickupData.lon,
+        },
+      }),
+    });
+
+    if (response.ok) {
+      return { success: true, message: "Paikka lisätty onnistuneesti!" };
+    } else {
+      const error = await response.json();
+      return { success: false, message: error?.error || "Tuntematon virhe." };
+    }
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
 
 /**
  * Adds coordinates for new pickup place.
