@@ -11,6 +11,8 @@ const RouteSelection = ({ dataToParent }) => {
   const [standardPickups, setStandardPickups] = useState([]);
   const [optimizedRoutes, setOptimizedRoutes] = useState([]);
   const [routeData, setRouteData] = useState(null);
+  const [amountOfVehicles, setAmountOfVehicles] = useState(1);
+  const [trafficMode, setTrafficMode] = useState("best-guess");
 
   useEffect(() => {
     if (dataToParent) {
@@ -65,11 +67,6 @@ const RouteSelection = ({ dataToParent }) => {
 
     console.log('Selected pickup points: ', selectedPickups);
 
-    // Route optimization:
-    // TODO: Korvaa nämä käyttöliittymästä saatavalla datalla, kun ajoneuvojen määrä ja trafficmode valinnat on toteutettu:
-    const amountOfVehicles = 1;
-    const trafficMode = "best_guess";
-
     const response = await getOptimizedRoutes(routeData.startPlace, routeData.endPlace, 
       standardPickups, selectedPickups, amountOfVehicles, trafficMode); 
     setOptimizedRoutes(response);
@@ -83,10 +80,6 @@ const RouteSelection = ({ dataToParent }) => {
   const deleteOptionalRoutes = () => {
     const btn = document.getElementById("optional-route");
     if (btn) btn.remove();
-  };
-
-  const showOptional = () => {
-    return <ErrorModal />;
   };
 
   return (
@@ -141,10 +134,28 @@ const RouteSelection = ({ dataToParent }) => {
         Expandable={true}
       />
 
-      <p><button id="form-route-btn" onClick={formRouteSuggestion}>
-        Muodosta reittiehdotus
-      </button></p>
-
+    <div id="route-options">
+    <span>Ajoneuvojen määrä</span>
+              <select id="vehicles-select"
+                value={amountOfVehicles} 
+                onChange={(e) => {
+                  setAmountOfVehicles(parseInt(e.target.value))}}>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+              <span>Liikenteen määrä</span>
+              <select id="traffic-pred"
+                value={trafficMode} 
+                onChange={(e) => {
+                setTrafficMode(e.target.value)}}>
+                <option value="optimistic">optimistinen</option>
+                <option value="best-guess">paras arvaus</option>
+                <option value="pessimistic">pessimistinen</option>
+              </select>
+              <button id="form-route-btn" onClick={formRouteSuggestion}>Muodosta reittiehdotus</button>
+    </div>  
       <TemplateBody
         PropComponent={RouteSuggestion}
         PropName={'route-suggestion-container'}

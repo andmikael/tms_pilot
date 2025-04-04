@@ -9,7 +9,9 @@ const FilesPage = ({routeHandler}) => {
 
     return (
       <div className="body-container">
+        <div className="content">
           <TemplateBody PropComponent={ExcelReader} PropName={"excel-reader"} PropTitle={"Lisää uusi tiedosto"} PropFunc={routeHandler}/>
+        </div>
       </div>
     );
 };
