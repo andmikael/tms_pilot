@@ -68,29 +68,39 @@ async function getCoordinates(fullPlace) {
   }
 }
 
-function geocodePoints(optionalPickups) {
-  if (optionalPickups == null) {
+/**
+ * Adds coordinates for new pickup place.
+ * 
+ * @param {Object} optionalPickup Place for which coordinates are needed.
+ * @returns Object with added coordinates.
+ */
+async function geocodePoints(optionalPickup) {
+  if (optionalPickup == null) {
     return null;
   }
 
-  optionalPickups.forEach(async point => {
-    const fullPlace = `${point.address}, ${point.postalCode} ${point.city},`;
-    const coords = await getCoordinates(fullPlace);
-    if (coords != null) {
-      point.lat = coords.lat;
-      point.lon = coords.lon;
-    }
-  })
+  const fullPlace = `${optionalPickup.address}, ${optionalPickup.postalCode} ${optionalPickup.city},`;
+  const coords = await getCoordinates(fullPlace);
+  if (coords != null) {
+    optionalPickup.lat = coords.lat;
+    optionalPickup.lon = coords.lon;
+  }
 
-  return optionalPickups;
+  return optionalPickup;
 }
-/*
-* getOptimizedRoutes function sends a request for Flask route optimization endpoint (api/route_test).
-* Function modifies routes to the form that Flask endpoint accepts them. Flask responds with ordered routes, distances and durations.
-* Explanations for some of the parameters:
-* mandatoryAddresses = Array of standard pickup addresses (runkoreitti)
-* pickUpAdresses = Array of all the additional addresses what need to be visited (pickup places)
-*/
+
+/**
+ * Sends a request for Flask route optimization endpoint (api/route_test) to get optimizated routes.
+ * Function modifies routes data to the form that Flask endpoint accepts it. Flask responds with ordered routes, distances and durations.
+ * 
+ * @param {Object} startPlace Details of route's starting place, in the form of placePropType.
+ * @param {Object} endPlace Details of route's ending place, in the form of placePropType.
+ * @param {Array} mandatoryAddresses Array of standard pickup addresses (runkoreitti)
+ * @param {Array} pickUpAdresses Array of all the additional addresses what need to be visited (pickup places)
+ * @param {Number} amountOfVehicles Amount of vehicles for which route suggestions are needed.
+ * @param {String} trafficMode Either "best_guess", "optimistic" or "pessimistic".
+ * @returns Array of routesuggestions, in which each item consists of "distances", "durations" and "ordered_routes".
+ */
 async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pickUpAdresses, amountOfVehicles, trafficMode) {
   const placesMap = new Map(); // Saving all the addresses which are sent to Flask as a key connected with rest of their information.
   // Most of the map operations are O(1).
@@ -147,7 +157,6 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   );
   
   // Adding selected pickup places to the addresses array.
-  console.log('pickup: ', pickUpAdresses);
   if (Array.isArray(pickUpAdresses) && pickUpAdresses.length > 0) {
     for (const place of pickUpAdresses) {
       let address = transformAddress(place.address, place.city);
@@ -171,7 +180,7 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   console.log('requestBody: ', requestBody);
 
   // TODO:
-  // Esimerkkimuoto. Kysy tästä?
+  // Esimerkkimuoto. Kysy tästä? Poista, kun selkeä.
   const body1 = {
     "addresses": [
       "Teekkarinkatu+10+Tampere",
@@ -186,7 +195,6 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
     "must_visit": [[], []],
     "traffic_mode": "best_guess"
   };
-
 
   try {
     const response = await fetch(`${FLASK_URL}api/route_test`, {
@@ -232,12 +240,13 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   }
 }
 
-
-/*
-* Transforms addresses form from "address 1" and "Kauhajoki" to "address+1+Kauhajoki".
-*
-* Returns: fulladdress in a form address+city and null if there are no address or city.
-*/
+/**
+ * Transforms addresses form from "address 1" and "Kauhajoki" to "address+1+Kauhajoki". Used for modifying data to Flask endpoint.
+ * 
+ * @param {String} address Address of the place, for example "street 1"
+ * @param {String} city City of the place, for example "Helsinki"
+ * @returns fulladdress in a form address+city and null if there are no address or city.
+ */
 function transformAddress(address, city) {
   if (address === null || city === null) {
     console.error(`Virhe osoitteessa, osoite: ${address} ja kaupunki: ${city}`, error);

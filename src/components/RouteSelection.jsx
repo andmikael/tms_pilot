@@ -7,37 +7,49 @@ import RouteSuggestion from '../components/RouteSuggestion';
 import { getOptimizedRoutes } from '../utils';
 
 const RouteSelection = ({ dataToParent }) => {
-  const [pickups, setNewPickups] = useState([]);
-  const [selectedOptionalPickups, setSelectedOptionalPickups] = useState([]);
+  const [optionalPickups, setOptionalPickups] = useState([]);
+  const [standardPickups, setStandardPickups] = useState([]);
   const [optimizedRoutes, setOptimizedRoutes] = useState([]);
 
   useEffect(() => {
     console.log("RouteSelection dataToParent:", dataToParent);
   }, [dataToParent]);
 
+  useEffect(() => {
+    const standardPickupArray = Array.isArray(dataToParent.routes) 
+    ? dataToParent.routes.filter(place => place.standardPickup === 'yes') 
+    : [];
+  
+    const optionalPickupArray = Array.isArray(dataToParent.routes) 
+    ? dataToParent.routes.filter(place => place.standardPickup === 'no') 
+    : [];
+
+    setStandardPickups(standardPickupArray);
+    setOptionalPickups(optionalPickupArray);
+  }, []); 
+
   if (!dataToParent || !dataToParent.name) {
     return <div>Reittidataa ei ole saatavilla.</div>;
   }
 
   const routeData = dataToParent;
-  const standardPickups = Array.isArray(dataToParent.routes) 
-  ? dataToParent.routes.filter(place => place.standardPickup === 'yes') 
-  : [];
 
-  const handleFormData = (idata) => {
-    setNewPickups([...pickups, idata]);
+  const handleFormData = async (idata) => {
+    const newPickup = await geocodePoints(idata);
+    setOptionalPickups([...optionalPickups, newPickup]);
+    console.log(newPickup);
   };
 
   const formRouteSuggestion = async () => {
-    const objs = [];
+    const selectedPickups = [];
     const optionalIdxs = document.getElementsByClassName("point-check");
     Array.from(optionalIdxs).forEach((checkbox) => {
       if (checkbox.checked) {
-        objs.push(pickups[checkbox.id.substring(8)]);
+        selectedPickups.push(optionalPickups[checkbox.id.substring(8)]);
         checkbox.checked = false;
       }
     });
-    setSelectedOptionalPickups(await geocodePoints(objs));
+
     const cont = document.getElementById("current-route-container");
     let para = document.getElementById("optional-route");
     if (!para) {
@@ -46,33 +58,31 @@ const RouteSelection = ({ dataToParent }) => {
     }
 
     let p_text = "Lisätyt noutopaikat: ";
-    objs.forEach((point) => {
+    selectedPickups.forEach((point) => {
       p_text += point.name + ", ";
     });
     p_text = p_text.slice(0, -2);
     para.innerHTML = p_text;
     cont.appendChild(para);
 
-    // Adding pickups to the routes array to be optimized.
-    //setRoutesForOptimization({...routeData, 'selectedPickups': selectedOptionalPickups});
+    console.log('Selected pickup points: ', selectedPickups);
 
+    // Route optimization:
     // TODO: Korvaa nämä käyttöliittymästä saatavalla datalla, kun ajoneuvojen määrä ja trafficmode valinnat on toteutettu:
     const amountOfVehicles = 1;
     const trafficMode = "best_guess";
 
     const response = await getOptimizedRoutes(routeData.startPlace, routeData.endPlace, 
-      standardPickups, selectedOptionalPickups, amountOfVehicles, trafficMode); 
+      standardPickups, selectedPickups, amountOfVehicles, trafficMode); 
     setOptimizedRoutes(response);
-
   };
 
   const removePickup = (index) => {
-    const updatedPickups = pickups.filter((_, i) => i !== index);
-    setNewPickups(updatedPickups);
+    const updatedPickups = optionalPickups.filter((_, i) => i !== index);
+    setOptionalPickups(updatedPickups);
   };
 
   const deleteOptionalRoutes = () => {
-    setSelectedOptionalPickups([]);
     const btn = document.getElementById("optional-route");
     if (btn) btn.remove();
   };
@@ -102,10 +112,10 @@ const RouteSelection = ({ dataToParent }) => {
           </button>
         )}
       </div>
-      {pickups.length > 0 && (
+      {optionalPickups.length > 0  && (
         <div className="PickupList">
           <ul className="pointList">
-            {pickups.map((itinerary, index) => (
+            {optionalPickups.map((itinerary, index) => (
               <li key={index} className="point">
                 <div className="point-info">
                   <label className="point-name">{itinerary.name}</label>
@@ -124,11 +134,7 @@ const RouteSelection = ({ dataToParent }) => {
           </ul>
         </div>
       )}
-      {pickups.length > 0 && (
-        <button id="form-route-btn" onClick={formRouteSuggestion}>
-          Muodosta reittiehdotus
-        </button>
-      )}
+    
       <TemplateBody
         PropComponent={TableSection}
         PropName={"pickupform"}
@@ -136,6 +142,10 @@ const RouteSelection = ({ dataToParent }) => {
         PropFunc={handleFormData}
         Expandable={true}
       />
+
+      <p><button id="form-route-btn" onClick={formRouteSuggestion}>
+        Muodosta reittiehdotus
+      </button></p>
 
     {/* For showing optimized routes*/}
     <TemplateBody

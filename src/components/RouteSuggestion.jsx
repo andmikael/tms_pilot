@@ -4,6 +4,7 @@ const KM_PRICE = 2; // TODO: Muuta env. variableksi?
 
 const RouteSuggestion = ({ dataToChild }) => {
   
+    // Can be removed later. Only used for debugging.
     useEffect(() => {
       console.log("RouteSuggestion dataToChild:", dataToChild);
     }, [dataToChild]);
@@ -19,7 +20,7 @@ const RouteSuggestion = ({ dataToChild }) => {
       <div>
         {routeSuggestions.map((suggestion, index) => (
             <div key={index} id="route-suggestion">
-            <p><h4>Reittiehdotus {index + 1}</h4></p>
+            <h4>Reittiehdotus {index + 1}</h4>
             <p><strong>Aika-arvio: {suggestion.durations.toFixed(2)} min | Kustannusarvio: {(suggestion.distances * KM_PRICE).toFixed(2)} e </strong></p>
             <p><strong>Optimoitu reitti:&nbsp;</strong>
                 {suggestion.ordered_routes.length > 0 ? (

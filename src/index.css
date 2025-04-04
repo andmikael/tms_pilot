@@ -49,6 +49,20 @@ h1 {
   width:225px;
 }
 
+#form-route-btn {
+  padding: 10px;
+  background-color:#699bb9;
+  color: white;
+  font-weight: bold;
+  font-size: 15px;
+  border: outset;
+}
+
+#form-route-btn:hover {
+  padding: 10px;
+  background-color:#AEE0FF;
+}
+
 label {
   display: inline-block;
   padding: 0px 10px;
