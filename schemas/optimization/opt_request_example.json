@@ -1,7 +1,7 @@
-{"addresses": ["Prannarintie+8+Kauhajoki", "Prannarintie+10+Kauhajoki", "Topeeka+26+Kauhajoki"],
-       "start_indexes": [0],
-       "end_indexes": [0],
+{"addresses": ["Prannarintie+8+Kauhajoki", "Prannarintie+10+Kauhajoki", "Topeeka+26+Kauhajoki", "Elamanaukio+2+Tampere", "Puijonlaaksontie+2+Kuopio"],
+       "start_indexes": [0, 1],
+       "end_indexes": [0, 2],
        "start_time": "9:00",
-       "must_visit": [3],
+       "must_visit": [[1], [3]],
        "traffic_mode": "best_guess",
        "number_of_vehicles": 2}
