@@ -64,6 +64,15 @@ h1 {
   background-color:#AEE0FF;
 }
 
+#route-suggestion-title {
+  color: #000000;
+  text-decoration: underline;
+}
+
+#route-suggestion-error {
+  color: red;
+}
+
 label {
   display: inline-block;
   padding: 0px 10px;

@@ -154,17 +154,10 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
     return null;
   }
 
-  // TODO: Ask about this, doesn't work now with two vehicles etc.
   // Setting up start and end addresses and indexes for Flask.
   addresses.push(startAddress, endAddress);
-  //const start_indexes = Array(amountOfVehicles).fill(0);
-  const start_indexes = Array.from({ length: amountOfVehicles }, (_, index) => 
-    index === 0 ? 0 : ""
-  );
-  //const end_indexes = Array(amountOfVehicles).fill(1);
-  const end_indexes = Array.from({ length: amountOfVehicles }, (_, index) => 
-    index === 0 ? 1 : ""
-  );
+  const start_indexes = Array(amountOfVehicles).fill(0);
+  const end_indexes = Array(amountOfVehicles).fill(1);
 
   // Saving these to the map.
   placesMap.set(startAddress, startPlace);
@@ -186,10 +179,12 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
       }
     }
   }
+
+  // Saving indexes of must visit (mandatory addresses) places.
   const must_visit = Array.from({ length: amountOfVehicles }, (_, index) => 
     index === 0 ? mustVisitIndexes : []
   );
-  
+
   // Adding selected pickup places to the addresses array.
   if (Array.isArray(pickUpAdresses) && pickUpAdresses.length > 0) {
     for (const place of pickUpAdresses) {
@@ -211,24 +206,7 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
     "must_visit": must_visit,
     "traffic_mode": trafficMode,
   };
-  console.log('requestBody: ', requestBody);
-
-  // TODO:
-  // Esimerkkimuoto. Kysy tästä? Poista, kun selkeä.
-  const body1 = {
-    "addresses": [
-      "Teekkarinkatu+10+Tampere",
-      "Nekalantie+1+Tampere",
-      "Kalevantie+1+Tampere",
-      "Tampereen+valtatie+8+Tampere",
-      "Pirkankatu+8+Tampere"
-    ],
-    "start_indexes": [0, 0],
-    "end_indexes": [3, 4],
-    "number_of_vehicles": 2,
-    "must_visit": [[], []],
-    "traffic_mode": "best_guess"
-  };
+  console.log('requestBody to Flask: ', requestBody);
 
   try {
     const response = await fetch(`${FLASK_URL}api/route_test`, {

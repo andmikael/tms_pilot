@@ -12,12 +12,24 @@ const RouteSelection = ({ dataToParent }) => {
   const [optimizedRoutes, setOptimizedRoutes] = useState([]);
   const [routeData, setRouteData] = useState(null);
   const [amountOfVehicles, setAmountOfVehicles] = useState(1);
-  const [trafficMode, setTrafficMode] = useState("best-guess");
+  const [trafficMode, setTrafficMode] = useState("best_guess");
+
+  const unselectRoutes = () => {
+    const optionalIdxs = document.getElementsByClassName("point-check");
+    Array.from(optionalIdxs).forEach((checkbox) => {
+      if (checkbox.checked) {
+        checkbox.checked = false;
+      }
+    });
+  };
 
   useEffect(() => {
     if (dataToParent) {
       setRouteData(dataToParent);
     }
+    // Removing previous route suggestions and emptying checked boxes.
+    setOptimizedRoutes([]);
+    unselectRoutes();
   }, [dataToParent]);
 
   useEffect(() => {
@@ -46,9 +58,10 @@ const RouteSelection = ({ dataToParent }) => {
     Array.from(optionalIdxs).forEach((checkbox) => {
       if (checkbox.checked) {
         selectedPickups.push(optionalPickups[checkbox.id.substring(8)]);
-        checkbox.checked = false;
       }
     });
+
+    /* Commented out, not needed at the moment but can be modified to show selected pickup points for the done route suggestions.
 
     const cont = document.getElementById("current-route-container");
     let para = document.getElementById("optional-route");
@@ -64,8 +77,7 @@ const RouteSelection = ({ dataToParent }) => {
     p_text = p_text.slice(0, -2);
     para.innerHTML = p_text;
     cont.appendChild(para);
-
-    console.log('Selected pickup points: ', selectedPickups);
+    */
 
     const response = await getOptimizedRoutes(routeData.startPlace, routeData.endPlace, 
       standardPickups, selectedPickups, amountOfVehicles, trafficMode); 
@@ -75,11 +87,6 @@ const RouteSelection = ({ dataToParent }) => {
   const removePickup = (index) => {
     const updatedPickups = optionalPickups.filter((_, i) => i !== index);
     setOptionalPickups(updatedPickups);
-  };
-
-  const deleteOptionalRoutes = () => {
-    const btn = document.getElementById("optional-route");
-    if (btn) btn.remove();
   };
 
   return (
@@ -97,11 +104,9 @@ const RouteSelection = ({ dataToParent }) => {
           <span>Ei vakionoutopaikkoja reitillä.</span>
         )} 
         </p>
-        {document.getElementById("optional-route") && (
-          <button id="optional-route-delete-btn" onClick={deleteOptionalRoutes}>
-            Poista lisätyt reitit
-          </button>
-        )}
+        <button id="optional-route-unselect-btn" onClick={unselectRoutes}>
+        Poista noutopaikkojen valinnat
+        </button>
       </div>
       {optionalPickups.length > 0 && (
         <div className="PickupList">
@@ -140,10 +145,10 @@ const RouteSelection = ({ dataToParent }) => {
                 value={amountOfVehicles} 
                 onChange={(e) => {
                   setAmountOfVehicles(parseInt(e.target.value))}}>
-                <option value="0">0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
+                <option value="4">4</option>
               </select>
               <span>Liikenteen määrä</span>
               <select id="traffic-pred"
@@ -151,7 +156,7 @@ const RouteSelection = ({ dataToParent }) => {
                 onChange={(e) => {
                 setTrafficMode(e.target.value)}}>
                 <option value="optimistic">optimistinen</option>
-                <option value="best-guess">paras arvaus</option>
+                <option value="best_guess">paras arvaus</option>
                 <option value="pessimistic">pessimistinen</option>
               </select>
               <button id="form-route-btn" onClick={formRouteSuggestion}>Muodosta reittiehdotus</button>
