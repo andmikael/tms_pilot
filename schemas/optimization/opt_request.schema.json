@@ -5,62 +5,69 @@
 	"description": "Information about places to be visited and vehicles",
 	"type": "object",
 	"properties": {
-	  "addresses": {
-		 "description": "List of addresses to be visited",
-		 "type": "array",
-		 "items": {
-		  "type": "string"
-		  },
-		  "minItems": 1,
-		  "uniqueItems": true
-		  
-	  },
-	  "number_of_vehicles": {
-		  "description":  "Number of vehicles",
-		  "type": "integer"
-	  },
-	  
-	  "start_time": {
-		"description": "Start time of delivery",
-		"type": "string"
-	  },
-	  
-	  "must_visit": {
-		  "description": "List of indices of the address array that MUST be visited",
-		  "type": "array",
-		  "items": {
-			  "type": "integer"
-			  },
-		  "minItems": 1,
-		  "uniqueItems": false
-	  },
-
-	  "traffic_mode": {
-		"description": "Traffic mode",
-		"type": "string",
-		"enum": ["best_guess", "optimistic", "pessimistic"]
-	  },
-	  
-	  "start_indexes": {
-		  "description": "List of start locations of each vehicle in order, defined as indices of the list of addresses",
-		  "type": "array",
-		  "items": {
-			  "type": "integer"
-			  },
-		  "minItems": 1,
-		  "uniqueItems": false
-	  },
-		  "end_indexes": {
-		  "description": "List of end locations of each vehicle in order, defined as indices of the list of addresses",
-		  "type": "array",
-		  "items": {
-			  "type": "integer"
-			  },
-		  "minItems": 1,
-		  "uniqueItems": false
-	  }
-	  
+		"addresses": {
+			"description": "List of addresses to be visited",
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"minItems": 1,
+			"uniqueItems": true
+		},
+		"number_of_vehicles": {
+			"description": "Number of vehicles",
+			"type": "integer"
+		},
+		"start_time": {
+			"description": "Start time of delivery",
+			"type": "string"
+		},
+		"must_visit": {
+			"description": "List of lists of indices of the address array that MUST be visited, one for each vehicle",
+			"type": "array",
+			"items": {
+				"type": "array",
+				"items": {
+					"type": "integer"
+				}
+			},
+			"minItems": 1,
+			"uniqueItems": false
+		},
+		"traffic_mode": {
+			"description": "Traffic mode",
+			"type": "string",
+			"enum": [
+				"best_guess",
+				"optimistic",
+				"pessimistic"
+			]
+		},
+		"start_indexes": {
+			"description": "List of start locations of each vehicle in order, defined as indices of the list of addresses",
+			"type": "array",
+			"items": {
+				"type": "integer"
+			},
+			"minItems": 1,
+			"uniqueItems": false
+		},
+		"end_indexes": {
+			"description": "List of end locations of each vehicle in order, defined as indices of the list of addresses",
+			"type": "array",
+			"items": {
+				"type": "integer"
+			},
+			"minItems": 1,
+			"uniqueItems": false
+		}
 	},
-	"required": ["addresses", "number_of_vehicles", "start_time", "must_visit", "start_indexes", "end_indexes"]
-  }
-  
+	"required": [
+		"addresses",
+		"number_of_vehicles",
+		"start_time",
+		"must_visit",
+		"start_indexes",
+		"end_indexes"
+	]
+}
