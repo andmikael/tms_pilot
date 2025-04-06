@@ -2,121 +2,97 @@ import { expect, test } from 'vitest';
 
 const FLASK_URL = 'http://0.0.0.0:8000/';
 
-test("should successfully respond to upload_excel request", async () => {
-  const body = {
-    "routeName": "Reitti",
-    "endLocation": {
-      "name": "Konetalo",
-      "address": "Korkeakoulunkatu 6",
-      "postalCode": "33720",
-      "city": "Tampere",
-      "standardPickup": "yes",
-      "lat": "61.44869322268551",
-      "lon": "23.859398648697006",
-      "endTime": "12:00"
-    },
-    "startLocation": {
-      "name": "Tampere-talo",
-      "address": "Yliopistonkatu 55",
-      "postalCode": "33100",
-      "city": "Tampere",
-      "standardPickup": "yes",
-      "lat": "61.49592890697636",
-      "lon": "23.78160833411916",
-      "departureTime": "9:00"
-    },
-    "data": [
-      {
-        "name": "Tietotalo",
-        "address": "Korkeakoulunkatu 1",
-        "postalCode": "33720",
-        "city": "Tampere",
-        "standardPickup": "no",
-        "lat": "61.44979009607303",
-        "lon": "23.85576846213571"
-      },
-    ],
-  };
-
-  const response = await fetch(`${FLASK_URL}upload`, {
+async function sendRequest(body, failOnStatusCode = true) {
+  const response = await fetch(`${FLASK_URL}api/route_test`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    body: JSON.stringify(body)
   });
-  const data = await response.json();
 
-  expect(response.status).toBe(200);
-  expect(data.message).toContain("Tiedosto tallennettu onnistuneesti");
+  const responseBody = await response.json();
+  return { status: response.status, body: responseBody };
+}
 
-});
-
-test("should successfully respond to Excel get_route request", async () => {
-  const response = await fetch(`${FLASK_URL}api/get_route`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' }
-  });
-  const data = await response.json();
-
-  expect(response.status).toBe(200);
-  expect(data["Reitti.xlsx"]).toStrictEqual({
-    "endPlace": {
-      "address": "Korkeakoulunkatu 6",
-      "city": "Tampere",
-      "lat": "61.44869322268551",
-      "lon": "23.859398648697006",
-      "name": "Konetalo",
-      "postalCode": "33720",
-      "standardPickup": "yes"
-    },
-    "endTime": "12:00",
-    "name": "Reitti_0",
-    "routes": [
-      {
-        "address": "Korkeakoulunkatu 1",
-        "city": "Tampere",
-        "lat": "61.44979009607303",
-        "lon": "23.85576846213571",
-        "name": "Tietotalo",
-        "postalCode": "33720",
-        "standardPickup": "no"
-      }
+test("should successfully respond to optimization request", async () => {
+  const response = await sendRequest({
+    "addresses": [
+      "Teekkarinkatu+10+Tampere",
+      "Nekalantie+1+Tampere",
+      "Kalevantie+1+Tampere",
+      "Tampereen+valtatie+8+Tampere",
+      "Pirkankatu+8+Tampere"
     ],
-    "startPlace": {
-      "address": "Yliopistonkatu 55",
-      "city": "Tampere",
-      "lat": "61.49592890697636",
-      "lon": "23.78160833411916",
-      "name": "Tampere-talo",
-      "postalCode": "33100",
-      "standardPickup": "yes"
-    },
-    "startTime": "9:00"
-  })
+    "start_indexes": [0, 0],
+    "end_indexes": [3, 4],
+    "number_of_vehicles": 2,
+    "must_visit": [[], []],
+    "traffic_mode": "best_guess"
+  });
+  console.log(response)
+  expect(response.status).toBe(200);
+  expect(response.body).toHaveProperty('ordered_routes');
 });
 
-test("should successfully respond to Excel get_files request", async () => {
-  const response = await fetch(`${FLASK_URL}api/get_excel_files`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' }
+test("should order routes correctly", async () => {
+  const response = await sendRequest({
+    "addresses": ["Tampere", "Kuopio", "Jyvaskyla", "Helsinki", "Turku"],
+    "start_indexes": [3],
+    "end_indexes": [1],
+    "number_of_vehicles": 1,
+    "must_visit": [[]],
+    "traffic_mode": "best_guess"
   });
-  const data = await response.json();
 
   expect(response.status).toBe(200);
-  expect(data.Reitti.file_name).toStrictEqual("Reitti.xlsx")
+  expect(response.body).toHaveProperty('ordered_routes');
+  expect(response.body.ordered_routes).toEqual([["Helsinki", "Turku", "Tampere", "Jyvaskyla", "Kuopio"]]);
 });
 
-test("should successfully respond to delete_excel request", async () => {
-  const body = {
-    "file_name": "Reitti"
-  };
+test("should respond to empty request with 400 and error message", async () => {
+  const response = await sendRequest({}, false);
+  
+  expect(response.status).toBe(400);
+  expect(response.body).toHaveProperty('error_message');
+});
 
-  const response = await fetch(`${FLASK_URL}api/delete_excel`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  const data = await response.json();
+test("should respond to request with no addresses with correct error message", async () => {
+  const response = await sendRequest({
+    "addresses": [],
+    "start_indexes": [0, 0],
+    "end_indexes": [3, 4],
+    "number_of_vehicles": 2,
+    "must_visit": [[], []],
+    "traffic_mode": "best_guess"
+  }, false);
 
-  expect(response.status).toBe(200);
-  expect(data.message).toContain("Tiedosto poistettu onnistuneesti");
+  expect(response.status).toBe(400);
+  expect(response.body.error_message).toBe("DataError: Less than 2 addresses provided");
+});
+
+test("should respond to impossible requests with error", async () => {
+  const response = await sendRequest({
+    "addresses": ["United+States", "Finland", "Australia"],
+    "start_indexes": [0],
+    "end_indexes": [2],
+    "number_of_vehicles": 1,
+    "must_visit": [[]],
+    "traffic_mode": "best_guess"
+  }, false);
+
+  expect(response.status).toBe(400);
+  expect(response.body).toHaveProperty('error_message');
+});
+
+test("should respond to invalid locations with error", async () => {
+  const response = await sendRequest({
+    "addresses": ["fuiewjoidj", "aaaaa", "9"],
+    "start_indexes": [0],
+    "end_indexes": [2],
+    "number_of_vehicles": 1,
+    "must_visit": [[]],
+    "traffic_mode": "best_guess"
+  }, false);
+
+  expect(response.status).toBe(400);
+  expect(response.body).toHaveProperty('error_message');
 });
