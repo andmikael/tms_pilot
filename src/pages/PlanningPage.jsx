@@ -4,7 +4,7 @@ import TemplateBody from "../components/templateDropdown/TemplateBody";
 import RouteSelection from '../components/RouteSelection';
 import ErrorModal from '../components/modals/ErrorModal';
 import PropTypes from "prop-types";
-import { fetchExcelData, fetchRoutes } from "../utils";
+import { fetchExcelData, fetchRoutes, deleteExcelFile } from "../utils";
 
 const PlanningPage = () => {
   const [excelData, setExcelData] = useState({});
@@ -42,35 +42,25 @@ const PlanningPage = () => {
     selectedRoute =  { ...routeData[routeKey] };
   }
 
-  const deleteExcelFile = async () => {
+  const handleDeleteExcelFile = async () => {
     if (!selectedFile) return;
-    try {
-      const response = await fetch("http://localhost:8000/api/delete_excel", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ file_name: selectedFile }),
+    const result = await deleteExcelFile(selectedFile);
+    if (!result.error) {
+      setDeleteMessage(result.message);
+      setExcelData(prev => {
+        const newData = { ...prev };
+        delete newData[selectedFile];
+        return newData;
       });
-      const result = await response.json();
-      if (response.ok) {
-        setDeleteMessage(result.message);
-        setExcelData(prev => {
-          const newData = { ...prev };
-          delete newData[selectedFile];
-          return newData;
-        });
-        setSelectedFile(null);
-      } else {
-        setDeleteMessage("Virhe: " + (result.error || result.message));
-      }
-    } catch (err) {
-      setDeleteMessage("Poistopyynnön virhe: " + err.message);
+      setSelectedFile(null);
+    } else {
+      setDeleteMessage("Virhe: " + (result.error || result.message));
     }
   };
 
   const showModal = () => {
     setModalError(!modalError);
   };
-  console.log("PlanningPage selectedRoute:", selectedRoute);
 
   return (
     <div className="body-container">
@@ -114,7 +104,7 @@ const PlanningPage = () => {
                   </option>
                 ))}
               </select>
-              <button onClick={deleteExcelFile} disabled={!selectedFile}>
+              <button onClick={handleDeleteExcelFile} disabled={!selectedFile}>
                 Poista tiedosto
               </button>
             </div>

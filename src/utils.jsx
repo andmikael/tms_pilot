@@ -305,3 +305,37 @@ export async function fetchRoutes(setRouteData, setError) {
     setError(err.message);
   }
 }
+
+export const removePlaceFromExcel = async (filename, pickupData) => {
+  try {
+    const response = await fetch('http://localhost:8000/api/remove_from_excel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename, data: pickupData }),
+    });
+    const text = await response.text();
+    let result = {};
+    try {
+      result = JSON.parse(text);
+    } catch (e) {
+      console.error('Vastaus ei ole validia JSONia:', text);
+    }
+    return result;
+  } catch (error) {
+    return { error: true, message: error.message };
+  }
+};
+
+export const deleteExcelFile = async (fileName) => {
+  try {
+    const response = await fetch("http://localhost:8000/api/delete_excel", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ file_name: fileName }),
+    });
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    return { error: true, message: "Poistopyynnön virhe: " + err.message };
+  }
+};

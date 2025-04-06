@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import TemplateBody from "../components/templateDropdown/TemplateBody";
 import TableSection from "../components/pickupForm/Tablesection";
-import { geocodePoints } from '../utils';
+import { geocodePoints, getOptimizedRoutes, appendPlaceToExcel, removePlaceFromExcel } from '../utils';
 import ErrorModal from './modals/ErrorModal';
 import RouteSuggestion from '../components/RouteSuggestion';
-import { getOptimizedRoutes } from '../utils';
 
 const RouteSelection = ({ dataToParent }) => {
   const [optionalPickups, setOptionalPickups] = useState([]);
@@ -48,10 +47,14 @@ const RouteSelection = ({ dataToParent }) => {
 
   const handleFormData = async (idata) => {
     const newPickup = await geocodePoints(idata);
-    setOptionalPickups([...optionalPickups, newPickup]);
-    console.log(newPickup);
+    const excelFilename = routeData.name;
+    const result = await appendPlaceToExcel(excelFilename, newPickup);
+    if (!result.error) {
+      setOptionalPickups([...optionalPickups, newPickup]);
+    } else {
+      alert(result.message);
+    }
   };
-
   const formRouteSuggestion = async () => {
     const selectedPickups = [];
     const optionalIdxs = document.getElementsByClassName("point-check");
@@ -84,11 +87,17 @@ const RouteSelection = ({ dataToParent }) => {
     setOptimizedRoutes(response);
   };
 
-  const removePickup = (index) => {
-    const updatedPickups = optionalPickups.filter((_, i) => i !== index);
-    setOptionalPickups(updatedPickups);
+  const removePickup = async (index) => {
+    const pickupToRemove = optionalPickups[index];
+    const excelFilename = routeData.name;
+    const result = await removePlaceFromExcel(excelFilename, pickupToRemove);
+    if (!result.error) {
+      const updatedPickups = optionalPickups.filter((_, i) => i !== index);
+      setOptionalPickups(updatedPickups);
+    } else {
+      alert(result.message || 'Noutopaikan poistaminen epäonnistui.');
+    }
   };
-
   return (
     <div>
       <div id="current-route-container">

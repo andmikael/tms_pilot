@@ -11,6 +11,7 @@ excel_bp = Blueprint('excel', __name__)
 def upload_excel():
     data = request.get_json()
     route_name = data.get("routeName", "Uusi_reitti")
+    file_name = data.get("fileName", "Tuntematon_tiedostonimi")
     excel_data = data.get("data", [])
     start_location = data.get("startLocation", {})
     end_location = data.get("endLocation", {})
@@ -26,13 +27,16 @@ def upload_excel():
 
     file_path = os.path.join(save_dir, f"{route_name}.xlsx")
     file_counter = 1
-    while os.path.exists(file_path):
-        file_path = os.path.join(save_dir, f"{route_name}_{file_counter}.xlsx")
-        file_counter += 1
-
+    if os.path.exists(file_path):
+        while os.path.exists(file_path):
+            file_path = os.path.join(save_dir, f"{route_name} {file_counter}.xlsx")
+            file_counter += 1
+    
+    final_file_name = os.path.splitext(os.path.basename(file_path))[0]
     # Päivitetään B1 soluun sama numero kuin tiedoston nimeen
     ws["A1"] = "Reitin nimi:"
-    ws["B1"] = f"{route_name}_{file_counter-1}"
+    ws["B1"] = final_file_name
+    ws["C1"] = file_name
 
     header = ["Nimi", "Osoite", "Postinumero", "Kaupunki", "Vakionouto", "Lat", "Lon"]
     ws.append(header)
@@ -201,3 +205,81 @@ def get_excel_routes():
                 excel_routes[file_name] = {"error": str(e)}
     
     return jsonify(excel_routes)
+
+@excel_bp.route('/api/append_to_excel', methods=['POST'])
+@cross_origin()
+def append_to_excel():
+    data = request.get_json()
+    filename = data.get("filename")
+    pickup = data.get("data")
+
+    required_fields = ["name", "address", "postalCode", "city", "standardPickup", "lat", "lon"]
+    if not filename or not all(field in pickup for field in required_fields):
+        return jsonify({"error": "Puuttuvia kenttiä datasta."}), 400
+
+    file_path = os.path.join(".secret", "ExcelFiles", f"{filename}.xlsx")
+    if not os.path.exists(file_path):
+        return jsonify({"error": "Excel-tiedostoa ei löydy."}), 404
+
+    wb = load_workbook(file_path)
+    ws = wb.active
+
+    ws.append([
+        pickup["name"],
+        pickup["address"],
+        pickup["postalCode"],
+        pickup["city"],
+        pickup["standardPickup"],
+        pickup["lat"],
+        pickup["lon"]
+    ])
+
+    try:
+        wb.save(file_path)
+        return jsonify({"message": "Paikka lisätty onnistuneesti."}), 200
+    except Exception as e:
+        return jsonify({"error": True, "message": f"Tiedoston tallennus epäonnistui: {e}"}),
+
+@excel_bp.route('/api/remove_from_excel', methods=['POST'])
+@cross_origin()
+def remove_from_excel():
+    data = request.get_json()
+    filename = data.get("filename")
+    pickup = data.get("data")
+
+    required_fields = ["name", "address", "postalCode", "city", "standardPickup", "lat", "lon"]
+    if not filename or not pickup or not all(field in pickup for field in required_fields):
+        return jsonify({"error": "Puuttuvia kenttiä datasta."}), 400
+
+    file_path = os.path.join(".secret", "ExcelFiles", f"{filename}.xlsx")
+    if not os.path.exists(file_path):
+        return jsonify({"error": "Excel-tiedostoa ei löydy."}), 404
+
+    wb = load_workbook(file_path)
+    ws = wb.active
+
+    found = False
+    for row in ws.iter_rows(min_row=3, max_col=7):
+        values = [cell.value for cell in row]
+        if (
+            str(values[0]) == str(pickup["name"]) and
+            str(values[1]) == str(pickup["address"]) and
+            str(values[2]) == str(pickup["postalCode"]) and
+            str(values[3]) == str(pickup["city"]) and
+            str(values[4]) == str(pickup["standardPickup"]) and
+            str(values[5]) == str(pickup["lat"]) and
+            str(values[6]) == str(pickup["lon"])
+        ):
+            row_index = row[0].row
+            ws.delete_rows(row_index, 1)
+            found = True
+            break
+
+    if not found:
+        return jsonify({"error": "Noutopaikkaa ei löytynyt Excel-tiedostosta."}), 404
+
+    try:
+        wb.save(file_path)
+        return jsonify({"message": "Noutopaikka poistettu onnistuneesti Excel-tiedostosta."}), 200
+    except Exception as e:
+        return jsonify({"error": True, "message": f"Tiedoston tallennus epäonnistui: {e}"}), 500
