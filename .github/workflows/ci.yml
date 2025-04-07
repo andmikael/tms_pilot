@@ -19,7 +19,7 @@ jobs:
       - name: Setting up Flask backend
         working-directory: flask-server-test
         run: |
-          echo "GOOGLE_API_KEY=${{ secrets.SECRET_GOOGLE_API_KEY }}" > .env
+          echo "ORS_API_KEY=${{ secrets.SECRET_OPENROUTE_SERVICE_KEY }}" > .env
           python -m venv venv
           source venv/bin/activate
           pip install -r requirements.txt

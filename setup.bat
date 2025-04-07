@@ -35,9 +35,9 @@ if exist .env (
     echo .env file already exists.
 ) else (
     echo .env file not found. Creating it now...
-    echo GOOGLE_API_KEY='' > .env
+    echo ORS_API_KEY='' > .env
     echo .env file has been created.
-    echo Please open the .env file with notepad and fill in your Google API key inside the quotation marks ''. Re-run this script afterwards.
+    echo Please open the .env file with notepad and fill in your openrouteservice API key inside the quotation marks ''. Re-run this script afterwards.
     echo.
     pause ;;
     exit /b 0
