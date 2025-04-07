@@ -6,10 +6,10 @@
 	"type": "object",
 	"properties": {
 		"addresses": {
-			"description": "List of addresses to be visited",
+			"description": "List of coordinates to be visited",
 			"type": "array",
 			"items": {
-				"type": "string"
+				"type": "float"
 			},
 			"minItems": 1,
 			"uniqueItems": true

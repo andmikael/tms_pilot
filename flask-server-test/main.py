@@ -7,12 +7,15 @@ import json
 from dotenv import load_dotenv
 import sys, os
 from excelFunctionality import excel_bp
+import requests
 
 STOPPING_TIME = 10 * 60 #pysähdys kestää 10 minuuttia
 
 load_dotenv()
 
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+OPENROUTESERVICE_API_KEY = os.getenv('ORS_API_KEY')
+
 if not GOOGLE_API_KEY:
     raise ValueError("Google api key not found in .env file")
 
@@ -49,6 +52,25 @@ import os
 import pandas as pd
 from openpyxl import Workbook, load_workbook
 
+def create_distance_matrix_ors(data):
+
+    body = {"locations":data["addresses"],"metrics":["duration","distance"]}
+
+    headers = {
+        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+        'Authorization': OPENROUTESERVICE_API_KEY,
+        'Content-Type': 'application/json; charset=utf-8'
+    }
+
+    call = requests.post('https://api.openrouteservice.org/v2/matrix/driving-car', json=body, headers=headers)
+
+    call_json = json.loads(call.text)
+    print(call_json)
+
+    distance_matrix = call_json["distances"]
+    duration_matrix = call_json["durations"]
+
+    return distance_matrix, duration_matrix
 
 def create_distance_matrix(data):
     """
@@ -184,7 +206,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, traffic_mod
     data['ends'] = ends
     data['traffic_mode'] = traffic_mode
     #data['distance_matrix'] = create_distance_matrix(data)
-    distance_matrix, duration_matrix = create_distance_matrix(data)
+    distance_matrix, duration_matrix = create_distance_matrix_ors(data)
     data['distance_matrix'] = distance_matrix
     data['duration_matrix'] = duration_matrix
     
