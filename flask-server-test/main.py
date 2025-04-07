@@ -69,8 +69,12 @@ def create_distance_matrix_ors(data):
     call_json = json.loads(call.text)
     print(call_json)
 
-    distance_matrix = call_json["distances"]
-    duration_matrix = call_json["durations"]
+
+
+    distance_matrix = [[int(distance) for distance in row] for row in call_json["distances"]]
+    print(distance_matrix)
+    duration_matrix = [[int(duration) for duration in row] for row in call_json["durations"]]
+    print(duration_matrix)
 
 
 
@@ -214,7 +218,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, traffic_mod
     data['distance_matrix'] = distance_matrix
     data['duration_matrix'] = duration_matrix
     
-    print(data['distance_matrix'])
+    #print(data['distance_matrix'])
 
     manager = pywrapcp.RoutingIndexManager(len(data['duration_matrix']), data['num_vehicles'], data["starts"], data["ends"])
 
