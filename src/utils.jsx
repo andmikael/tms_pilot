@@ -136,7 +136,10 @@ async function geocodePoints(optionalPickup) {
  * @returns Array of routesuggestions, in which each item consists of "distances", "durations" and "ordered_routes".
  */
 async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pickUpAdresses, amountOfVehicles, trafficMode) {
-  const placesMap = new Map(); // Saving all the addresses which are sent to Flask as a key connected with rest of their information.
+  // Saving all the addresses which are sent to Flask as a key connected with rest of their information.
+  // Key is string representation of coordinates, e.g. "23.123456,62.123456".
+  // Value is the object with all the information about the place.
+  const placesMap = new Map();
   // Most of the map operations are O(1).
   let addresses = [];
 
@@ -159,9 +162,9 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   const start_indexes = Array(amountOfVehicles).fill(0);
   const end_indexes = Array(amountOfVehicles).fill(1);
 
-  // Saving these to the map.
-  placesMap.set(startAddress, startPlace);
-  placesMap.set(endAddress, endPlace);
+  // Save startPlace and endPlace with string keys
+  placesMap.set(`${startAddress[0]},${startAddress[1]}`, startPlace);
+  placesMap.set(`${endAddress[0]},${endAddress[1]}`, endPlace);
 
   // Adding standardPickUp addresses to the addresses array and defining indexes for must_visit places.
   const mustVisitIndexes = [];
@@ -175,7 +178,7 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
         mustVisitIndex += 1;
 
         // Saving this to the map.
-        placesMap.set(address, place);
+        placesMap.set(`${address[0]},${address[1]}`, place);
       }
     }
   }
@@ -193,7 +196,7 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
         addresses.push(address);
 
         // Saving this to the map.
-        placesMap.set(address, place);
+        placesMap.set(`${address[0]},${address[1]}`, place);
       }
     }
   }
@@ -229,7 +232,10 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
     for (let i = 0; i < responseData.ordered_routes.length; i++) {
       let ordered_routes = [];
       for (const address of responseData.ordered_routes[i]) {
-        const place = placesMap.get(address);
+        // The key must be created from the coordinates gotten from Flask
+        // E.g. [23.123456, 62.123456] => "23.123456,62.123456"
+        const key = address.join(',');
+        const place = placesMap.get(key);
         if (place !== undefined) { // If returned address was matched with rest of the data.
           ordered_routes.push(place);
         }
