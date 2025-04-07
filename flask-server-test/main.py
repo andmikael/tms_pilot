@@ -72,6 +72,8 @@ def create_distance_matrix_ors(data):
     distance_matrix = call_json["distances"]
     duration_matrix = call_json["durations"]
 
+
+
     return distance_matrix, duration_matrix
 
 def create_distance_matrix(data):
