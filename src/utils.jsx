@@ -147,8 +147,8 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
 
   // Adding startPlace and endPlace to the addresses array and defining start and end indexes.
   // StartPlace is always on the index 0 and endPlace on the index 1.
-  const startAddress = [startPlace.lat, startPlace.lon];
-  const endAddress = [endPlace.lat, endPlace.lon];
+  const startAddress = [startPlace.lon, startPlace.lat];
+  const endAddress = [endPlace.lon, endPlace.lat];
 
   if (startAddress === null || endAddress === null ) {
     return null;
@@ -168,7 +168,7 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   if (Array.isArray(mandatoryAddresses) && mandatoryAddresses.length > 0) {
     let mustVisitIndex = 2;
     for (const place of mandatoryAddresses) {
-      let address = [place.lat, place.lon];
+      let address = [place.lon, place.lat];
       if (address !== null) {
         addresses.push(address);
         mustVisitIndexes.push(mustVisitIndex);
@@ -188,7 +188,7 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   // Adding selected pickup places to the addresses array.
   if (Array.isArray(pickUpAdresses) && pickUpAdresses.length > 0) {
     for (const place of pickUpAdresses) {
-      let address = [place.lat, place.lon];
+      let address = [place.lon, place.lat];
       if (address !== null) {
         addresses.push(address);
 
