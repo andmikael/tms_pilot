@@ -23,7 +23,7 @@ paths:
           application/json:
             schema:
               $ref: "./optimization/opt_returnSuccess.schema.json"
-      '500':
+      '400':
         description: Fail
         content:
           application/json:
