@@ -19,9 +19,7 @@ const LeafletMap = ({ dataToParent }) => {
     }).addTo(map);
 
     const pickUpPointObjects = [
-      dataToParent.startPlace,
-      ...dataToParent.routes,
-      dataToParent.endPlace,
+      ...dataToParent
     ];
 
     L.Routing.control({

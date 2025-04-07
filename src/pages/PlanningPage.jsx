@@ -123,13 +123,6 @@ const PlanningPage = () => {
       PropFunc={selectedRoute}
       Expandable={false}
     />
-    <TemplateBody
-      PropComponent={LeafletMap}
-      PropName={'leaflet-container'}
-      PropTitle={'Reittikartta'}
-      PropFunc={selectedRoute}
-      Expandable={true}
-    />
   </>
 ) : (
   <div>Reittiä ei ole valittu. Reittikarttaa ei voida piirtää.</div>
