@@ -13,12 +13,14 @@ STOPPING_TIME = 10 * 60 #pysähdys kestää 10 minuuttia
 
 load_dotenv()
 
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+# GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 OPENROUTESERVICE_API_KEY = os.getenv('ORS_API_KEY')
 
-if not GOOGLE_API_KEY:
-    raise ValueError("Google api key not found in .env file")
+# if not GOOGLE_API_KEY:
+#     raise ValueError("Google api key not found in .env file")
 
+if not OPENROUTESERVICE_API_KEY:
+    raise ValueError("Open route service api key not found in .env file")
 
 class DataError(Exception):
     """Exception raised for incorrect routing input data
