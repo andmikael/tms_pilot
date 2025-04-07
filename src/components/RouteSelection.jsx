@@ -12,6 +12,7 @@ const RouteSelection = ({ dataToParent }) => {
   const [routeData, setRouteData] = useState(null);
   const [amountOfVehicles, setAmountOfVehicles] = useState(1);
   const [trafficMode, setTrafficMode] = useState("best_guess");
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const unselectRoutes = () => {
     const optionalIdxs = document.getElementsByClassName("point-check");
@@ -98,9 +99,10 @@ const RouteSelection = ({ dataToParent }) => {
       alert(result.message || 'Noutopaikan poistaminen epäonnistui.');
     }
   };
+
   return (
     <div>
-      <div id="current-route-container">
+      <div id="current-route-container" className="dropdown-content-padding">
         <p><strong>Valittu reitti:</strong> {routeData.name}</p>
         <p><strong>Lähtöpaikka:</strong> {routeData.startPlace.name}</p>
         <p><strong>Määräpaikka:</strong> {routeData.endPlace.name}</p>
@@ -113,13 +115,27 @@ const RouteSelection = ({ dataToParent }) => {
           <span>Ei vakionoutopaikkoja reitillä.</span>
         )} 
         </p>
-        <button id="optional-route-unselect-btn" onClick={unselectRoutes}>
-        Poista noutopaikkojen valinnat
-        </button>
       </div>
       {optionalPickups.length > 0 && (
         <div className="PickupList">
-          <ul className="pointList">
+          <div className="row-center">
+            <h4 className="dropdown-content-padding">Valinnaiset noutopaikat:</h4>
+            <button id="edit-pickup-btn"onClick={() => setIsEditMode(!isEditMode)}>
+              {isEditMode ? "Valmis" : "Muokkaa noutopaikkoja"}
+            </button>
+          </div>
+
+          {isEditMode && (
+            <TemplateBody
+              PropComponent={TableSection}
+              PropName={"pickupform dropdown-content-padding"}
+              PropTitle={"Lisää uusi noutopaikka"}
+              PropFunc={handleFormData}
+              Expandable={true}
+            />
+          )}
+        
+          <ul className="pointList dropdown-content-padding">
             {optionalPickups.map((itinerary, index) => (
               <li key={index} className="point">
                 <div className="point-info">
@@ -129,26 +145,24 @@ const RouteSelection = ({ dataToParent }) => {
                   </label>
                 </div>
                 <div className="point-list-controls">
-                  <button onClick={() => removePickup(index)} className="point-remove">
-                    Poista
-                  </button>
-                  <input type="checkbox" id={"checkbox" + index} className="point-check" />
+                  <input type="checkbox" id={"checkbox" + index} className="point-check"/>
+
+                  {isEditMode && (
+                      <button onClick={() => removePickup(index)} className="point-remove-btn">
+                        Poista
+                      </button>
+                  )}
                 </div>
               </li>
             ))}
           </ul>
+        <button id="optional-route-unselect-btn" onClick={unselectRoutes}>
+          Poista noutopaikkojen valinnat
+        </button>
         </div>
       )}
-    
-      <TemplateBody
-        PropComponent={TableSection}
-        PropName={"pickupform"}
-        PropTitle={"Lisää uusi noutopaikka"}
-        PropFunc={handleFormData}
-        Expandable={true}
-      />
 
-    <div id="route-options">
+    <div id="route-options" className="dropdown-content-padding">
     <span>Ajoneuvojen määrä</span>
               <select id="vehicles-select"
                 value={amountOfVehicles} 

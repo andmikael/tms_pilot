@@ -259,9 +259,9 @@ export const ExcelReader = ({ dataToParent }) => {
           <p>Raahaa ja pudota Excel-tiedosto tähän tai klikkaa valitaksesi tiedoston</p>
         </div>
 
-        {message && <pre className={message.type}>{message.message}</pre>}
+        {message && <pre className={`${message.type} dropdown-content-padding`}>{message.message}</pre>}
 
-        <div id="new-excel">
+        <div id="new-excel" className="dropdown-content-padding">
           <p>Kadotitko Excel-pohjan?</p>
           <button onClick={downloadTemplate}>Lataa uusi Excel pohja</button>
         </div>
