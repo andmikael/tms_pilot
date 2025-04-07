@@ -202,7 +202,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, traffic_mod
     #Ei välttämättä tarvitsisi tehdä dictionarya, mutta nyt se on tälleen
     data = {}
     data['addresses'] = list_of_addresses
-    data['API_key'] = GOOGLE_API_KEY
+    data['API_key'] = OPENROUTESERVICE_API_KEY
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends

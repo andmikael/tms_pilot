@@ -147,8 +147,8 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
 
   // Adding startPlace and endPlace to the addresses array and defining start and end indexes.
   // StartPlace is always on the index 0 and endPlace on the index 1.
-  const startAddress = transformAddress(startPlace.address, startPlace.city);
-  const endAddress = transformAddress(endPlace.address, endPlace.city);
+  const startAddress = [startPlace.lat, startPlace.lon];
+  const endAddress = [endPlace.lat, endPlace.lon];
 
   if (startAddress === null || endAddress === null ) {
     return null;
@@ -168,7 +168,7 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   if (Array.isArray(mandatoryAddresses) && mandatoryAddresses.length > 0) {
     let mustVisitIndex = 2;
     for (const place of mandatoryAddresses) {
-      let address = transformAddress(place.address, place.city);
+      let address = [place.lat, place.lon];
       if (address !== null) {
         addresses.push(address);
         mustVisitIndexes.push(mustVisitIndex);
@@ -188,7 +188,7 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   // Adding selected pickup places to the addresses array.
   if (Array.isArray(pickUpAdresses) && pickUpAdresses.length > 0) {
     for (const place of pickUpAdresses) {
-      let address = transformAddress(place.address, place.city);
+      let address = [place.lat, place.lon];
       if (address !== null) {
         addresses.push(address);
 
@@ -250,23 +250,6 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
       console.error("Virhe reittioptimoinnissa:", error);
       return null;
   }
-}
-
-/**
- * Transforms addresses form from "address 1" and "Kauhajoki" to "address+1+Kauhajoki". Used for modifying data to Flask endpoint.
- * 
- * @param {String} address Address of the place, for example "street 1"
- * @param {String} city City of the place, for example "Helsinki"
- * @returns fulladdress in a form address+city and null if there are no address or city.
- */
-function transformAddress(address, city) {
-  if (address === null || city === null) {
-    console.error(`Virhe osoitteessa, osoite: ${address} ja kaupunki: ${city}`, error);
-    return null;
-  }
-  const newAddress = address.split(" ").join("+");
-  const fullAddress = newAddress + "+" + city;
-  return fullAddress;
 }
 
 export { exampleRoute, geocodePoints, getOptimizedRoutes };
