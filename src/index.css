@@ -436,3 +436,7 @@ td > input {
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+.warning-text {
+  color: #ff4d4d;
+}
