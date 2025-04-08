@@ -7,15 +7,20 @@ import json
 from dotenv import load_dotenv
 import sys, os
 from excelFunctionality import excel_bp
+import requests
 
 STOPPING_TIME = 10 * 60 #pysähdys kestää 10 minuuttia
 
 load_dotenv()
 
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
-if not GOOGLE_API_KEY:
-    raise ValueError("Google api key not found in .env file")
+# GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+OPENROUTESERVICE_API_KEY = os.getenv('ORS_API_KEY')
 
+# if not GOOGLE_API_KEY:
+#     raise ValueError("Google api key not found in .env file")
+
+if not OPENROUTESERVICE_API_KEY:
+    raise ValueError("Open route service api key not found in .env file")
 
 class DataError(Exception):
     """Exception raised for incorrect routing input data
@@ -49,6 +54,31 @@ import os
 import pandas as pd
 from openpyxl import Workbook, load_workbook
 
+def create_distance_matrix_ors(data):
+
+    body = {"locations":data["addresses"],"metrics":["duration","distance"]}
+
+    headers = {
+        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+        'Authorization': OPENROUTESERVICE_API_KEY,
+        'Content-Type': 'application/json; charset=utf-8'
+    }
+
+    call = requests.post('https://api.openrouteservice.org/v2/matrix/driving-car', json=body, headers=headers)
+
+    call_json = json.loads(call.text)
+    print(call_json)
+
+
+
+    distance_matrix = [[int(distance) for distance in row] for row in call_json["distances"]]
+    print(distance_matrix)
+    duration_matrix = [[int(duration) for duration in row] for row in call_json["durations"]]
+    print(duration_matrix)
+
+
+
+    return distance_matrix, duration_matrix
 
 def create_distance_matrix(data):
     """
@@ -178,17 +208,17 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, traffic_mod
     #Ei välttämättä tarvitsisi tehdä dictionarya, mutta nyt se on tälleen
     data = {}
     data['addresses'] = list_of_addresses
-    data['API_key'] = GOOGLE_API_KEY
+    data['API_key'] = OPENROUTESERVICE_API_KEY
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends
     data['traffic_mode'] = traffic_mode
     #data['distance_matrix'] = create_distance_matrix(data)
-    distance_matrix, duration_matrix = create_distance_matrix(data)
+    distance_matrix, duration_matrix = create_distance_matrix_ors(data)
     data['distance_matrix'] = distance_matrix
     data['duration_matrix'] = duration_matrix
     
-    print(data['distance_matrix'])
+    #print(data['distance_matrix'])
 
     manager = pywrapcp.RoutingIndexManager(len(data['duration_matrix']), data['num_vehicles'], data["starts"], data["ends"])
 

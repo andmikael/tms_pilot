@@ -136,7 +136,10 @@ async function geocodePoints(optionalPickup) {
  * @returns Array of routesuggestions, in which each item consists of "distances", "durations" and "ordered_routes".
  */
 async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pickUpAdresses, amountOfVehicles, trafficMode) {
-  const placesMap = new Map(); // Saving all the addresses which are sent to Flask as a key connected with rest of their information.
+  // Saving all the addresses which are sent to Flask as a key connected with rest of their information.
+  // Key is string representation of coordinates, e.g. "23.123456,62.123456".
+  // Value is the object with all the information about the place.
+  const placesMap = new Map();
   // Most of the map operations are O(1).
   let addresses = [];
 
@@ -147,8 +150,8 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
 
   // Adding startPlace and endPlace to the addresses array and defining start and end indexes.
   // StartPlace is always on the index 0 and endPlace on the index 1.
-  const startAddress = transformAddress(startPlace.address, startPlace.city);
-  const endAddress = transformAddress(endPlace.address, endPlace.city);
+  const startAddress = [startPlace.lon, startPlace.lat];
+  const endAddress = [endPlace.lon, endPlace.lat];
 
   if (startAddress === null || endAddress === null ) {
     return null;
@@ -159,23 +162,23 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   const start_indexes = Array(amountOfVehicles).fill(0);
   const end_indexes = Array(amountOfVehicles).fill(1);
 
-  // Saving these to the map.
-  placesMap.set(startAddress, startPlace);
-  placesMap.set(endAddress, endPlace);
+  // Save startPlace and endPlace with string keys
+  placesMap.set(`${startAddress[0]},${startAddress[1]}`, startPlace);
+  placesMap.set(`${endAddress[0]},${endAddress[1]}`, endPlace);
 
   // Adding standardPickUp addresses to the addresses array and defining indexes for must_visit places.
   const mustVisitIndexes = [];
   if (Array.isArray(mandatoryAddresses) && mandatoryAddresses.length > 0) {
     let mustVisitIndex = 2;
     for (const place of mandatoryAddresses) {
-      let address = transformAddress(place.address, place.city);
+      let address = [place.lon, place.lat];
       if (address !== null) {
         addresses.push(address);
         mustVisitIndexes.push(mustVisitIndex);
         mustVisitIndex += 1;
 
         // Saving this to the map.
-        placesMap.set(address, place);
+        placesMap.set(`${address[0]},${address[1]}`, place);
       }
     }
   }
@@ -188,12 +191,12 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   // Adding selected pickup places to the addresses array.
   if (Array.isArray(pickUpAdresses) && pickUpAdresses.length > 0) {
     for (const place of pickUpAdresses) {
-      let address = transformAddress(place.address, place.city);
+      let address = [place.lon, place.lat];
       if (address !== null) {
         addresses.push(address);
 
         // Saving this to the map.
-        placesMap.set(address, place);
+        placesMap.set(`${address[0]},${address[1]}`, place);
       }
     }
   }
@@ -229,7 +232,10 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
     for (let i = 0; i < responseData.ordered_routes.length; i++) {
       let ordered_routes = [];
       for (const address of responseData.ordered_routes[i]) {
-        const place = placesMap.get(address);
+        // The key must be created from the coordinates gotten from Flask
+        // E.g. [23.123456, 62.123456] => "23.123456,62.123456"
+        const key = address.join(',');
+        const place = placesMap.get(key);
         if (place !== undefined) { // If returned address was matched with rest of the data.
           ordered_routes.push(place);
         }
@@ -250,23 +256,6 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
       console.error("Virhe reittioptimoinnissa:", error);
       return null;
   }
-}
-
-/**
- * Transforms addresses form from "address 1" and "Kauhajoki" to "address+1+Kauhajoki". Used for modifying data to Flask endpoint.
- * 
- * @param {String} address Address of the place, for example "street 1"
- * @param {String} city City of the place, for example "Helsinki"
- * @returns fulladdress in a form address+city and null if there are no address or city.
- */
-function transformAddress(address, city) {
-  if (address === null || city === null) {
-    console.error(`Virhe osoitteessa, osoite: ${address} ja kaupunki: ${city}`, error);
-    return null;
-  }
-  const newAddress = address.split(" ").join("+");
-  const fullAddress = newAddress + "+" + city;
-  return fullAddress;
 }
 
 export { exampleRoute, geocodePoints, getOptimizedRoutes };
