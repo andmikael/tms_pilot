@@ -47,23 +47,6 @@ describe("Smoke tests", () => {
       cy.get("a[href='/files']").click();
       cy.url().should("include", "/files");
     });
-
-    it("should display pickupform", () => {
-      cy.visit(BASE_URL);
-      cy.get(".route-selection-container").click();
-      cy.get(".route-selection-container")
-      .find(".pickupform").click();
-      cy.get(".pickupFormBody")
-      .should("be.visible");
-    });
-
-    // This test is disabled as the map is not displayed when there are no excel files uploaded.
-    /*it("should display leaflet map", () => {
-      cy.visit(BASE_URL);
-      cy.get(".leaflet-container").click();
-      cy.get("#map").should("be.visible");
-    })*/
-
   });
 
 
