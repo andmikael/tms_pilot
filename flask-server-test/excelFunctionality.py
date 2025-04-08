@@ -25,18 +25,18 @@ def upload_excel():
     if not os.path.exists(save_dir):
         os.makedirs(save_dir, exist_ok=True)
 
-    file_path = os.path.join(save_dir, f"{route_name}.xlsx")
+    original_file_name = os.path.splitext(file_name)[0]
+    file_path = os.path.join(save_dir, f"{route_name} ({original_file_name}).xlsx")
     file_counter = 1
     if os.path.exists(file_path):
         while os.path.exists(file_path):
-            file_path = os.path.join(save_dir, f"{route_name} {file_counter}.xlsx")
+            file_path = os.path.join(save_dir, f"{route_name} {file_counter} ({original_file_name}).xlsx")
             file_counter += 1
     
-    final_file_name = os.path.splitext(os.path.basename(file_path))[0]
-    # Päivitetään B1 soluun sama numero kuin tiedoston nimeen
+    
+    final_file_name = os.path.splitext(os.path.basename(file_path))[0] + " (" + original_file_name + ")"
     ws["A1"] = "Reitin nimi:"
     ws["B1"] = final_file_name
-    ws["C1"] = file_name
 
     header = ["Nimi", "Osoite", "Postinumero", "Kaupunki", "Vakionouto", "Lat", "Lon"]
     ws.append(header)
