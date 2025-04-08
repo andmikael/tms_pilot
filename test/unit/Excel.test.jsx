@@ -5,6 +5,7 @@ const FLASK_URL = 'http://0.0.0.0:8000/';
 test("should successfully respond to upload_excel request", async () => {
   const body = {
     "routeName": "Reitti",
+    "fileName": "Testireitti",
     "endLocation": {
       "name": "Konetalo",
       "address": "Korkeakoulunkatu 6",
@@ -58,7 +59,7 @@ test("should successfully respond to Excel get_route request", async () => {
   const data = await response.json();
 
   expect(response.status).toBe(200);
-  expect(data["Reitti.xlsx"]).toStrictEqual({
+  expect(data["Reitti (Testireitti).xlsx"]).toStrictEqual({
     "endPlace": {
       "address": "Korkeakoulunkatu 6",
       "city": "Tampere",
@@ -69,7 +70,7 @@ test("should successfully respond to Excel get_route request", async () => {
       "standardPickup": "yes"
     },
     "endTime": "12:00",
-    "name": "Reitti_0",
+    "name": "Reitti (Testireitti)",
     "routes": [
       {
         "address": "Korkeakoulunkatu 1",
@@ -102,12 +103,12 @@ test("should successfully respond to Excel get_files request", async () => {
   const data = await response.json();
 
   expect(response.status).toBe(200);
-  expect(data.Reitti.file_name).toStrictEqual("Reitti.xlsx")
+  expect(data["Reitti (Testireitti)"].file_name).toStrictEqual("Reitti (Testireitti).xlsx")
 });
 
 test("should successfully respond to delete_excel request", async () => {
   const body = {
-    "file_name": "Reitti"
+    "file_name": "Reitti (Testireitti)"
   };
 
   const response = await fetch(`${FLASK_URL}api/delete_excel`, {

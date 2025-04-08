@@ -6,23 +6,32 @@ import PropTypes from "prop-types";
 import { fetchExcelData, fetchRoutes, deleteExcelFile } from "../utils";
 
 const PlanningPage = () => {
-  const [excelData, setExcelData] = useState({});
-  const [routeData, setRouteData] = useState({});
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [deleteMessage, setDeleteMessage] = useState("");
+  // Initialize component state
+  const [excelData, setExcelData] = useState({});  // Data for loaded Excel files
+  const [routeData, setRouteData] = useState({});  // Data for routes
+  const [selectedFile, setSelectedFile] = useState(null);  // Selected file
+  const [deleteMessage, setDeleteMessage] = useState("");  // Message after file deletion
   const [modalError, setModalError] = useState(false);
   const [modalErrorDesc, setModalErrorDesc] = useState(null);
   const [error, setError] = useState(null);
   
-
+  /**
+   * Loads the Excel data when the component is first rendered
+   */
   useEffect(() => {
     fetchExcelData(setExcelData, setSelectedFile, setError, selectedFile);
   }, []);
 
+  /**
+   * Loads the route data when the component is first rendered
+   */
   useEffect(() => {
     fetchRoutes(setRouteData, setError);
   }, []);
 
+  /**
+   * If no file is selected, set the first loaded file as the selected one
+   */
   useEffect(() => {
     if (!selectedFile && Object.keys(excelData).length > 0) {
       const firstFile = Object.keys(excelData)[0];
@@ -30,6 +39,7 @@ const PlanningPage = () => {
     }
   }, [excelData, selectedFile]);
 
+  // Determine the route key based on the selected file and available route data
   const routeKey = selectedFile && routeData[selectedFile]
     ? selectedFile
     : selectedFile
@@ -41,6 +51,9 @@ const PlanningPage = () => {
     selectedRoute =  { ...routeData[routeKey] };
   }
 
+  /**
+   * Deletes the selected Excel file and updates the state accordingly
+   */
   const handleDeleteExcelFile = async () => {
     if (!selectedFile) return;
     const result = await deleteExcelFile(selectedFile);
@@ -80,37 +93,14 @@ const PlanningPage = () => {
                   </option>
                 ))}
               </select>
-            </div>
-          ) : (
-            <p>TMS ei ole ladattu reittejä. Voit mennä "Tiedostot" -välilehdelle ja ladata uuden tiedoston järjestelmään.<br/>
-              Ladatut tiedostot tulevat näkymään tässä.
-            </p>
-          )}
-        </div>
-
-        <div>
-          {deleteMessage && <p>{deleteMessage}</p>}
-          {Object.keys(excelData).length > 0 ? (
-            <div>
-              <h3>Poista tallennettu reitti</h3>
-              <select
-                value={selectedFile || ''}
-                onChange={(e) => {
-                  setSelectedFile(e.target.value);
-                }}
-              >
-                {Object.keys(excelData).map((fileName) => (
-                  <option key={fileName} value={fileName}>
-                    {fileName}
-                  </option>
-                ))}
-              </select>
               <button onClick={handleDeleteExcelFile} disabled={!selectedFile}>
                 Poista tiedosto
               </button>
             </div>
           ) : (
-            <div></div>
+            <p>TMS ei ole ladattu reittejä. Voit ladata uuden tiedoston järjestelmään "Tiedostot" -välilehdeltä.<br/>
+              Ladatut tiedostot tulevat näkymään tässä.
+            </p>
           )}
         </div>
 

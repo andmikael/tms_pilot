@@ -4,44 +4,63 @@ import pandas as pd
 from openpyxl import Workbook, load_workbook
 from flask_cors import cross_origin
 
+# Create a Blueprint object for Excel-related functions
 excel_bp = Blueprint('excel', __name__)
 
+
+"""
+Handles the upload of route data and saves it into a new Excel file.
+
+:param route_name: str, name of the route to be saved
+:param file_name: str, original file name for the route data
+:param excel_data: list, list of dictionaries containing route data
+:param start_location: dict, dictionary with the start location details
+:param end_location: dict, dictionary with the end location details
+:return: JSON response, success or failure message
+"""
 @excel_bp.route('/upload', methods=['POST'])
 @cross_origin()
 def upload_excel():
+    # Parse JSON data from the request body
     data = request.get_json()
+    # Retrieve route name, file name, Excel data, start, and end locations from the request.
     route_name = data.get("routeName", "Uusi_reitti")
     file_name = data.get("fileName", "Tuntematon_tiedostonimi")
     excel_data = data.get("data", [])
     start_location = data.get("startLocation", {})
     end_location = data.get("endLocation", {})
 
+    # Create a new Excel workbook and set the active worksheet title.
     wb = Workbook()
     ws = wb.active
     ws.title = "Luetut paikat"
 
-    # Tarkistetaan, onko tiedosto jo olemassa ja lisätään numerointi
+    # Determine the save directory and create it if it does not exist.
     save_dir = os.path.join(".secret", "ExcelFiles")
     if not os.path.exists(save_dir):
         os.makedirs(save_dir, exist_ok=True)
 
-    file_path = os.path.join(save_dir, f"{route_name}.xlsx")
+    # Remove extension from file_name for reuse in constructing the final file name.
+    original_file_name = os.path.splitext(file_name)[0]
+    file_path = os.path.join(save_dir, f"{route_name} ({original_file_name}).xlsx")
     file_counter = 1
+    # If a file with this name exists, increment the counter until a unique file name is created.
     if os.path.exists(file_path):
         while os.path.exists(file_path):
-            file_path = os.path.join(save_dir, f"{route_name} {file_counter}.xlsx")
+            file_path = os.path.join(save_dir, f"{route_name} {file_counter} ({original_file_name}).xlsx")
             file_counter += 1
     
+    # Construct final file name to be written into the Excel file.
     final_file_name = os.path.splitext(os.path.basename(file_path))[0]
-    # Päivitetään B1 soluun sama numero kuin tiedoston nimeen
+    # Write the route name in cell B1 with a label in A1.
     ws["A1"] = "Reitin nimi:"
     ws["B1"] = final_file_name
-    ws["C1"] = file_name
 
+    # Set up header for the Excel sheet.
     header = ["Nimi", "Osoite", "Postinumero", "Kaupunki", "Vakionouto", "Lat", "Lon"]
     ws.append(header)
 
-    # Kirjoitetaan aloituspaikan tiedot solusta I1 alkaen, jos tiedot ovat saatavilla
+    # If start_location data exists, write it to predefined cells starting from I1.
     if start_location:
         ws["I1"] = start_location.get("name")
         ws["J1"] = start_location.get("address")
@@ -52,6 +71,7 @@ def upload_excel():
         ws["O1"] = start_location.get("lat")
         ws["P1"] = start_location.get("lon")
 
+    # If end_location data exists, write it to predefined cells starting from I2.
     if end_location:
         ws["I2"] = end_location.get("name")
         ws["J2"] = end_location.get("address")
@@ -62,7 +82,7 @@ def upload_excel():
         ws["O2"] = end_location.get("lat")
         ws["P2"] = end_location.get("lon")
 
-    # Lisätään muut reitin pisteet
+    # Write each additional route point starting from row 3.
     row_num = 3
     for item in excel_data:
         ws.cell(row=row_num, column=1, value=item.get("name"))
@@ -75,42 +95,61 @@ def upload_excel():
         row_num += 1
 
     try:
+        # Save the workbook to the specified file path.
         wb.save(file_path)
         return jsonify({"message": "Tiedosto tallennettu onnistuneesti", "file_path": file_path}), 200
     except Exception as e:
+        # Return an error response if saving fails.
         return jsonify({"error": True, "message": f"Tiedoston tallennus epäonnistui: {e}"}), 500
-    
+
+"""
+Retrieves the list of all Excel files stored in the server directory.
+
+:return: JSON response, dictionary containing filenames and paths of all .xlsx files
+"""
 @excel_bp.route('/api/get_excel_files', methods=['GET'])
 @cross_origin()
 def get_excel_jsons():
+    # Define the folder where Excel files are stored.
     folder = os.path.join(".secret", "ExcelFiles")
     excel_jsons = {}
     
     if os.path.exists(folder):
+        # List and process every Excel file in the folder.
         for file_name in os.listdir(folder):
             if file_name.endswith(".xlsx"):
                 file_path = os.path.join(folder, file_name)
                 try:
-                    # Lue tiedoston nimi ilman laajennusta
+                    # Get the base name of the file (without extension).
                     base_name = os.path.splitext(file_name)[0]
                     excel_jsons[base_name] = {"file_name": file_name, "path": file_path}
                 except Exception as e:
-                    print(f"Virhe tiedostoa {file_name} lukiessa: {e}")
+                    print(f"Error reading file {file_name}: {e}")
                     base_name = os.path.splitext(file_name)[0]
                     excel_jsons[base_name] = {"error": str(e)}
     else:
+        # If the folder does not exist, return a 404 error.
         return jsonify({"error": "Kansiota ei löydy"}), 404
     
+    # Return the JSON object containing file data.
     return jsonify(excel_jsons)
 
+"""
+Deletes a specified Excel file from the server.
+
+:param file_name: str, the name of the Excel file to be deleted
+:return: JSON response, success or failure message
+"""
 @excel_bp.route('/api/delete_excel', methods=['DELETE'])
 @cross_origin()
 def delete_excel():
     data = request.get_json()
     file_name = data.get("file_name")
+    # Check if file_name parameter is provided.
     if not file_name:
         return jsonify({"error": "file_name not provided"}), 400
 
+    # Ensure the file name ends with ".xlsx"
     if not file_name.endswith(".xlsx"):
         file_name_full = file_name + ".xlsx"
     else:
@@ -119,35 +158,46 @@ def delete_excel():
     folder = os.path.join(".secret", "ExcelFiles")
     file_path = os.path.join(folder, file_name_full)
     
+    # Return error if file does not exist.
     if not os.path.exists(file_path):
         return jsonify({"error": "Tiedostoa ei löytynyt"}), 404
 
     try:
+        # Attempt to remove the file.
         os.remove(file_path)
         return jsonify({"message": "Tiedosto poistettu onnistuneesti", "file_name": file_name_full}), 200
     except Exception as e:
+        # Return error if deletion fails.
         return jsonify({"error": True, "message": f"Tiedoston poisto epäonnistui: {e}"}), 500
-    
+
+"""
+Reads and returns the content of a specified Excel file, including route details.
+
+:return: JSON response, dictionary containing route information from the Excel file
+"""
 @excel_bp.route('/api/get_route', methods=['GET'])
 @cross_origin()
 def get_excel_routes():
     folder = os.path.join(".secret", "ExcelFiles")
     excel_routes = {}
     
+    # Check if the designated folder exists.
     if not os.path.exists(folder):
         return jsonify({"error": "Kansiota ei löydy"}), 404
     
+    # Iterate over each Excel file in the folder.
     for file_name in os.listdir(folder):
         if file_name.endswith(".xlsx"):
             file_path = os.path.join(folder, file_name)
             try:
+                # Load the workbook and select the active worksheet.
                 wb = load_workbook(file_path, data_only=True)
                 ws = wb.active
 
-                # Lue reitin nimi solusta B1
+                # Read the route name from cell B1.
                 route_name = ws["B1"].value
 
-                # Lue aloituspaikan tiedot solusta I1 - P1
+                # Read the start location from cells I1 to P1.
                 startPlace = {
                     "name": ws["I1"].value,
                     "address": ws["J1"].value,
@@ -158,7 +208,7 @@ def get_excel_routes():
                     "lon": ws["P1"].value,
                 }
                 
-                # Lue loppupisteen tiedot solusta I2 - P2
+                # Read the end location from cells I2 to P2.
                 endPlace = {
                     "name": ws["I2"].value,
                     "address": ws["J2"].value,
@@ -169,28 +219,29 @@ def get_excel_routes():
                     "lon": ws["P2"].value,
                 }
                 
-                # Aloitus- ja lopetusajat solusta N1 ja N2
+                # Get start and end times from cells N1 and N2.
                 startTime = ws["N1"].value
                 endTime = ws["N2"].value
 
-                # Reitit alkavat riviltä 3.
+                # Read all route entries starting from row 3.
                 routes = []
-                # Oletuksena solut A-G sisältävät reittien tiedot.
+                # It is assumed that columns A to G hold the route data.
                 for row in ws.iter_rows(min_row=3, max_col=7):
-                    # Tarkistetaan, ettei rivi ole kokonaan tyhjä
+                    # Skip the row if it is completely empty.
                     if not any(cell.value for cell in row):
                         continue
                     route_entry = {
-                        "name": row[0].value,        # A-solu
-                        "address": row[1].value,     # B-solu
-                        "postalCode": row[2].value,  # C-solu
-                        "city": row[3].value,        # D-solu
-                        "standardPickup": row[4].value,  # E-solu
-                        "lat": row[5].value,         # F-solu
-                        "lon": row[6].value,         # G-solu
+                        "name": row[0].value,        # Column A
+                        "address": row[1].value,     # Column B
+                        "postalCode": row[2].value,  # Column C
+                        "city": row[3].value,        # Column D
+                        "standardPickup": row[4].value,  # Column E
+                        "lat": row[5].value,         # Column F
+                        "lon": row[6].value,         # Column G
                     }
                     routes.append(route_entry)
                 
+                # Construct a JSON object for the route.
                 route_json = {
                     "name": route_name,
                     "startPlace": startPlace,
@@ -199,13 +250,23 @@ def get_excel_routes():
                     "endTime": endTime,
                     "routes": routes,
                 }
+                # Add this route info using the file name as the key.
                 excel_routes[file_name] = route_json
                 
             except Exception as e:
+                # In case of errors, add an error message for the specific file.
                 excel_routes[file_name] = {"error": str(e)}
     
+    # Return all the parsed routes in JSON format.
     return jsonify(excel_routes)
 
+"""
+Appends a new pickup point to an existing Excel file.
+
+:param filename: str, the name of the Excel file to be updated
+:param pickup: dict, dictionary containing pickup point details
+:return: JSON response, success or failure message
+"""
 @excel_bp.route('/api/append_to_excel', methods=['POST'])
 @cross_origin()
 def append_to_excel():
@@ -213,17 +274,21 @@ def append_to_excel():
     filename = data.get("filename")
     pickup = data.get("data")
 
+    # Validate that all required fields are present in the pickup data.
     required_fields = ["name", "address", "postalCode", "city", "standardPickup", "lat", "lon"]
     if not filename or not all(field in pickup for field in required_fields):
         return jsonify({"error": "Puuttuvia kenttiä datasta."}), 400
 
+    # Construct the file path of the Excel file.
     file_path = os.path.join(".secret", "ExcelFiles", f"{filename}.xlsx")
     if not os.path.exists(file_path):
         return jsonify({"error": "Excel-tiedostoa ei löydy."}), 404
 
+    # Load the workbook and select the active worksheet.
     wb = load_workbook(file_path)
     ws = wb.active
 
+    # Append the new pickup row to the worksheet.
     ws.append([
         pickup["name"],
         pickup["address"],
@@ -235,11 +300,20 @@ def append_to_excel():
     ])
 
     try:
+        # Save the updated workbook.
         wb.save(file_path)
         return jsonify({"message": "Paikka lisätty onnistuneesti."}), 200
     except Exception as e:
+        # Return error message in case saving fails.
         return jsonify({"error": True, "message": f"Tiedoston tallennus epäonnistui: {e}"}),
 
+"""
+Removes a specified pickup point from an Excel file.
+
+:param filename: str, the name of the Excel file to be modified
+:param pickup: dict, dictionary containing pickup point details to be removed
+:return: JSON response, success or failure message
+"""
 @excel_bp.route('/api/remove_from_excel', methods=['POST'])
 @cross_origin()
 def remove_from_excel():
@@ -247,20 +321,26 @@ def remove_from_excel():
     filename = data.get("filename")
     pickup = data.get("data")
 
+    # Validate required fields in the pickup data.
     required_fields = ["name", "address", "postalCode", "city", "standardPickup", "lat", "lon"]
     if not filename or not pickup or not all(field in pickup for field in required_fields):
         return jsonify({"error": "Puuttuvia kenttiä datasta."}), 400
 
+    # Construct the file path of the Excel file.
     file_path = os.path.join(".secret", "ExcelFiles", f"{filename}.xlsx")
     if not os.path.exists(file_path):
         return jsonify({"error": "Excel-tiedostoa ei löydy."}), 404
 
+    # Load the workbook and select the active worksheet.
     wb = load_workbook(file_path)
     ws = wb.active
 
     found = False
+    # Iterate over route rows starting from row 3
     for row in ws.iter_rows(min_row=3, max_col=7):
+        # Convert cell values into a list for comparison.
         values = [cell.value for cell in row]
+        # Check if the current row matches the pickup data.
         if (
             str(values[0]) == str(pickup["name"]) and
             str(values[1]) == str(pickup["address"]) and
@@ -270,16 +350,20 @@ def remove_from_excel():
             str(values[5]) == str(pickup["lat"]) and
             str(values[6]) == str(pickup["lon"])
         ):
+            # Delete the row if a match is found.
             row_index = row[0].row
             ws.delete_rows(row_index, 1)
             found = True
             break
 
     if not found:
+        # Return an error if the pickup location was not found.
         return jsonify({"error": "Noutopaikkaa ei löytynyt Excel-tiedostosta."}), 404
 
     try:
+        # Save the workbook after deletion.
         wb.save(file_path)
         return jsonify({"message": "Noutopaikka poistettu onnistuneesti Excel-tiedostosta."}), 200
     except Exception as e:
+        # Return an error message if save fails.
         return jsonify({"error": True, "message": f"Tiedoston tallennus epäonnistui: {e}"}), 500
