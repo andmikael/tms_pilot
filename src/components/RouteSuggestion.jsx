@@ -9,7 +9,15 @@ const RouteSuggestion = ({ dataToChild }) => {
       text: "Visualisointi autolle 1 (Runkoreitti)",
     });
   
-    // Can be removed later. Only used for debugging.
+    // Reset selectedRoute when dataToChild changes
+    useEffect(() => {
+      setSelectedRoute({
+        index: 0,
+        text: "Visualisointi autolle 1 (Runkoreitti)",
+      });
+    }, [dataToChild]);
+
+    // Debugging useEffect
     useEffect(() => {
       console.log("RouteSuggestion dataToChild:", dataToChild);
     }, [dataToChild]);
@@ -25,6 +33,13 @@ const RouteSuggestion = ({ dataToChild }) => {
     }
 
     const routeSuggestions = dataToChild;
+
+    // Ensure selectedRoute.index is valid before rendering
+    // Otherwise can cause to issues if the dataToChild changes and selectedRoute.index is out of bounds.
+    if (!routeSuggestions[selectedRoute.index]) {
+      return <div>Odota... Ladataan reittiehdotuksia.</div>;
+    }
+
     return (
       <div>
         {routeSuggestions.map((suggestion, index) => (
