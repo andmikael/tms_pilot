@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import TemplateBody from "../components/templateDropdown/TemplateBody";
 import TableSection from "../components/pickupForm/Tablesection";
-import { geocodePoints, getOptimizedRoutes, appendPlaceToExcel, removePlaceFromExcel } from '../utils';
-import ErrorModal from './modals/ErrorModal';
+import { geocodePoints, getOptimizedRoutes, appendPlaceToExcel, removePlaceFromExcel, updateRouteTimeInExcel } from '../utils';
 import RouteSuggestion from '../components/RouteSuggestion';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Check, XCircle, Edit2 } from 'lucide-react';
 
 const RouteSelection = ({ dataToParent }) => {
   const [optionalPickups, setOptionalPickups] = useState([]);
@@ -14,6 +13,10 @@ const RouteSelection = ({ dataToParent }) => {
   const [amountOfVehicles, setAmountOfVehicles] = useState(1);
   const [trafficMode, setTrafficMode] = useState("best_guess");
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isEditTime, setIsEditTime] = useState(false);
+  const [newStart, setNewStart] = useState('');
+  const [newEnd, setNewEnd] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const unselectRoutes = () => {
     const optionalIdxs = document.getElementsByClassName("point-check");
@@ -50,15 +53,16 @@ const RouteSelection = ({ dataToParent }) => {
   const handleFormData = async (idata) => {
     const newPickup = await geocodePoints(idata);
     if (!newPickup.lat || !newPickup.lon) {
-      alert("Koordinaatteja ei löytynyt tälle paikalle. Noutopaikkaa ei lisätty.");
+      setErrorMessage("Koordinaatteja ei löytynyt tälle paikalle. Noutopaikkaa ei lisätty.");
       return;
     }
     const excelFilename = routeData.name;
     const result = await appendPlaceToExcel(excelFilename, newPickup);
     if (!result.error) {
       setOptionalPickups([...optionalPickups, newPickup]);
+      setErrorMessage("");
     } else {
-      alert(result.message);
+      setErrorMessage(result.message || "Noutopaikan lisääminen epäonnistui.");
     }
   };
   const formRouteSuggestion = async () => {
@@ -105,27 +109,94 @@ const RouteSelection = ({ dataToParent }) => {
     }
   };
 
+  const handleEditTimeClick = () => {
+    setNewStart(routeData.startTime);
+    setNewEnd(routeData.endTime);
+    setIsEditTime(true);
+  };
+
+  const handleTimeSave = async (newStartTime, newEndTime) => {
+    if (!routeData) return;
+    const filename = routeData.name;
+    const result = await updateRouteTimeInExcel(filename, newStartTime, newEndTime);
+    if (result.success) {
+      setRouteData({ ...routeData, startTime: newStartTime, endTime: newEndTime });
+    } else {
+      alert(result.message);
+    }
+  };
+
   return (
-    <div>
-      <div id="current-route-container" className="dropdown-content-padding">
-        <p><strong>Valittu reitti:</strong> {routeData.name}</p>
-        <p><strong>Lähtöpaikka:</strong> {routeData.startPlace.name}</p>
-        <p><strong>Määräpaikka:</strong> {routeData.endPlace.name}</p>
-        <p><strong>Aikataulu:</strong> {routeData.startTime} - {routeData.endTime}</p>
-        <p><strong>Vakioreitin noutopaikat:</strong> {standardPickups.length > 0 ? (
-          standardPickups.map((place, index) => (
-            `${place.name}` + (index < standardPickups.length - 1 ? ', ' : ''))
-          ).join('') 
-        ) : (
-          <span>Ei vakionoutopaikkoja reitillä.</span>
-        )} 
+    <div className="route-selection">
+      <div id="current-route-container">
+        <p>
+          <strong>Valittu reitti:</strong> {routeData.name}
+        </p>
+        <p>
+          <strong>Lähtöpaikka:</strong> {routeData.startPlace.name}
+        </p>
+        <p>
+          <strong>Määräpaikka:</strong> {routeData.endPlace.name}
+        </p>
+        <p>
+          <strong>Aikataulu:</strong> {routeData.startTime} - {routeData.endTime}
+          <button className="editTimeLink" onClick={handleEditTimeClick}>
+            <Edit2 size={16} /> Muokkaa
+          </button>
+        </p>
+        {isEditTime && (
+          <div className="inline-time-editor">
+            <div className="time-editor-inputs">
+              <div>
+                <label>Aloitusaika:</label>
+                <input
+                  type="text"
+                  value={newStart}
+                  onChange={(e) => setNewStart(e.target.value)}
+                />
+              </div>
+              <div>
+                <label>Lopetusaika:</label>
+                <input
+                  type="text"
+                  value={newEnd}
+                  onChange={(e) => setNewEnd(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="time-editor-buttons">
+              <button
+                className="save"
+                onClick={() => {
+                  handleTimeSave(newStart, newEnd);
+                  setIsEditTime(false);
+                }}
+              >
+                <Check size={16} /> Tallenna
+              </button>
+              <button className="cancel" onClick={() => setIsEditTime(false)}>
+                <XCircle size={16} /> Peruuta
+              </button>
+            </div>
+          </div>
+        )}
+        <p>
+          <strong>Vakioreitin noutopaikat:</strong>{" "}
+          {standardPickups.length > 0 ? (
+            standardPickups.map((place, index) => (
+              `${place.name}` + (index < standardPickups.length - 1 ? ', ' : '')
+            )).join('')
+          ) : (
+            <span>Ei vakionoutopaikkoja reitillä.</span>
+          )}
         </p>
       </div>
+
       {optionalPickups.length > 0 && (
         <div className="PickupList">
           <div className="row-center">
-            <h4 className="dropdown-content-padding">Valinnaiset noutopaikat:</h4>
-            <button id="edit-pickup-btn"onClick={() => setIsEditMode(!isEditMode)}>
+            <h4>Valinnaiset noutopaikat:</h4>
+            <button id="edit-pickup-btn" onClick={() => setIsEditMode(!isEditMode)}>
               {isEditMode ? "Valmis" : "Muokkaa noutopaikkoja"}
             </button>
           </div>
@@ -133,14 +204,15 @@ const RouteSelection = ({ dataToParent }) => {
           {isEditMode && (
             <TemplateBody
               PropComponent={TableSection}
-              PropName={"pickupform dropdown-content-padding"}
+              PropName={"pickupform"}
               PropTitle={"Lisää uusi noutopaikka"}
               PropFunc={handleFormData}
               Expandable={true}
             />
           )}
-        
-          <ul className="pointList dropdown-content-padding">
+          {errorMessage && <p className="warning-text">{errorMessage}</p>}
+
+          <ul className="pointList">
             {optionalPickups.map((itinerary, index) => (
               <li key={index} className="point">
                 <div className="point-info">
@@ -150,50 +222,60 @@ const RouteSelection = ({ dataToParent }) => {
                   </label>
                 </div>
                 <div className="point-list-controls">
-                  <input type="checkbox" id={"checkbox" + index} className="point-check"/>
-
+                  <input
+                    type="checkbox"
+                    id={"checkbox" + index}
+                    className="point-check"
+                  />
                   {isEditMode && (
-                      <button onClick={() => removePickup(index)} className="point-remove-btn">
-                        <Trash2/>
-                      </button>
+                    <button onClick={() => removePickup(index)} className="point-remove-btn">
+                      <Trash2 />
+                    </button>
                   )}
                 </div>
               </li>
             ))}
           </ul>
-        <button id="optional-route-unselect-btn" onClick={unselectRoutes}>
-          Poista noutopaikkojen valinnat
-        </button>
+          <button id="optional-route-unselect-btn" onClick={unselectRoutes}>
+            Poista noutopaikkojen valinnat
+          </button>
         </div>
       )}
 
-    <div id="route-options" className="dropdown-content-padding">
-    <span>Ajoneuvojen määrä</span>
-              <select id="vehicles-select"
-                value={amountOfVehicles} 
-                onChange={(e) => {
-                  setAmountOfVehicles(parseInt(e.target.value))}}>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-              </select>
-              <span>Liikenteen määrä</span>
-              <select id="traffic-pred"
-                value={trafficMode} 
-                onChange={(e) => {
-                setTrafficMode(e.target.value)}}>
-                <option value="optimistic">optimistinen</option>
-                <option value="best_guess">paras arvaus</option>
-                <option value="pessimistic">pessimistinen</option>
-              </select>
-              <button id="form-route-btn" onClick={formRouteSuggestion}>Muodosta reittiehdotus</button>
-    </div>  
+      <div id="route-options">
+        <span>Ajoneuvojen määrä</span>
+        <select
+          id="vehicles-select"
+          value={amountOfVehicles}
+          onChange={(e) => setAmountOfVehicles(parseInt(e.target.value))}
+        >
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+
+        <span>Liikenteen määrä</span>
+        <select
+          id="traffic-pred"
+          value={trafficMode}
+          onChange={(e) => setTrafficMode(e.target.value)}
+        >
+          <option value="optimistic">optimistinen</option>
+          <option value="best_guess">paras arvaus</option>
+          <option value="pessimistic">pessimistinen</option>
+        </select>
+
+        <button id="form-route-btn" onClick={formRouteSuggestion}>
+          Muodosta reittiehdotus
+        </button>
+      </div>
+
       <TemplateBody
         PropComponent={RouteSuggestion}
         PropName={'route-suggestion-container'}
         PropTitle={'Reittiehdotus'}
-        PropData={[optimizedRoutes, [routeData.startTime, routeData.endTime]]}
+        PropData={optimizedRoutes}
         Expandable={true}
       />
     </div>

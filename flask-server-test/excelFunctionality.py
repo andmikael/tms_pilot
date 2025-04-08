@@ -367,3 +367,56 @@ def remove_from_excel():
     except Exception as e:
         # Return an error message if save fails.
         return jsonify({"error": True, "message": f"Tiedoston tallennus epäonnistui: {e}"}), 500
+    
+"""
+Updates the start and end times of an existing route in an Excel file.
+
+:param file_name: str, name of the Excel file to update
+:param startTime: str, updated start time
+:param endTime: str, updated end time
+:return: JSON response, success or failure message
+"""
+@excel_bp.route('/api/update_route_time', methods=['PUT'])
+@cross_origin()
+def update_route_time():
+    # Parse JSON data from the request body
+    data = request.get_json()
+
+    # Retrieve file name and times from the request
+    file_name = data.get("file_name")
+    start_time = data.get("startTime")
+    end_time = data.get("endTime")
+
+    # Check that required fields are provided
+    if not file_name or start_time is None or end_time is None:
+        return jsonify({"error": "Puuttuvia kenttiä (file_name, startTime, endTime)."}), 400
+
+    # Ensure the file has a valid .xlsx extension
+    if not file_name.endswith(".xlsx"):
+        file_name += ".xlsx"
+
+    # Construct full path to the Excel file
+    file_path = os.path.join(".secret", "ExcelFiles", file_name)
+
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        return jsonify({"error": "Tiedostoa ei löytynyt."}), 404
+
+    try:
+        # Load the Excel workbook and select active sheet
+        wb = load_workbook(file_path)
+        ws = wb.active
+
+        # Update start and end times in cells N1 and N2
+        ws["N1"] = start_time
+        ws["N2"] = end_time
+
+        # Save the updated Excel workbook
+        wb.save(file_path)
+
+        # Return success message
+        return jsonify({"message": "Aika päivitetty onnistuneesti."}), 200
+
+    except Exception as e:
+        # Return error message if something goes wrong
+        return jsonify({"error": True, "message": f"Ajan päivitys epäonnistui: {e}"}), 500

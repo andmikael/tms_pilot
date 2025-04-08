@@ -413,6 +413,32 @@ export const removePlaceFromExcel = async (filename, pickupData) => {
   }
 };
 
+/*
+  updateRouteTimeInExcel: Funktio, joka päivittää reitin aikataulun Excel‑tiedostoon.
+  Lähetetään filename sekä päivitetyt startTime ja endTime Flask‑backendin reitille.
+*/
+export const updateRouteTimeInExcel = async (filename, newStart, newEnd) => {
+  try {
+    const response = await fetch(`${FLASK_URL}api/update_route_time`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        file_name: filename,
+        startTime: newStart,
+        endTime: newEnd
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return { success: false, message: error?.error || "Virhe ajan päivityksessä." };
+    }
+    return { success: true, message: "Aikataulu päivitetty onnistuneesti." };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
+
 
 
 
