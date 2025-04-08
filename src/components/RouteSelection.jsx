@@ -48,6 +48,10 @@ const RouteSelection = ({ dataToParent }) => {
 
   const handleFormData = async (idata) => {
     const newPickup = await geocodePoints(idata);
+    if (!newPickup.lat || !newPickup.lon) {
+      alert("Koordinaatteja ei löytynyt tälle paikalle. Noutopaikkaa ei lisätty.");
+      return;
+    }
     const excelFilename = routeData.name;
     const result = await appendPlaceToExcel(excelFilename, newPickup);
     if (!result.error) {
