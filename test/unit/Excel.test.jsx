@@ -69,7 +69,7 @@ test("should successfully respond to Excel get_route request", async () => {
       "standardPickup": "yes"
     },
     "endTime": "12:00",
-    "name": "Reitti_0",
+    "name": "Reitti",
     "routes": [
       {
         "address": "Korkeakoulunkatu 1",
