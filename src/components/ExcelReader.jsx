@@ -13,7 +13,7 @@ import * as XLSX from 'xlsx';
 import { useDropzone } from 'react-dropzone';
 import PropTypes from 'prop-types';
 import { routePropType } from '../propTypes/routePropType';
-import { StandardPickup, getCoordinates } from '../utils';
+import { StandardPickup, getCoordinates, formatTime } from '../utils';
 
 // Function to download a template for the Excel file
 const downloadTemplate = () => {
@@ -32,6 +32,7 @@ const downloadTemplate = () => {
 
     XLSX.writeFile(wb, "Kuljetusten paikat.xlsx");
 };
+
 
 export const ExcelReader = ({ dataToParent }) => {
     const [message, setMessage] = useState(null);
@@ -66,7 +67,8 @@ export const ExcelReader = ({ dataToParent }) => {
                         const street = row[1].toString().trim();
                         const postalCode = row[2].toString().trim();
                         const locality = row[3].toString().trim();
-                        const departureTime = row[4].toString().trim();
+                        const rawDepartureTime = row[4];
+                        const departureTime = formatTime(rawDepartureTime, i + 2, "lähtöaika");
                         const fullPlace = `${street}, ${postalCode} ${locality}`;
                         const coordinates = await getCoordinates(fullPlace);
                         startLocationData = {
@@ -96,7 +98,8 @@ export const ExcelReader = ({ dataToParent }) => {
                             const street = row[1].toString().trim();
                             const postalCode = row[2].toString().trim();
                             const locality = row[3].toString().trim();
-                            const endTime = row[4].toString().trim();
+                            const rawEndTime = row[4];
+                            const endTime = formatTime(rawEndTime, i + 2, "paluuaika");
                             const fullPlace = `${street}, ${postalCode} ${locality}`;
                             const coordinates = await getCoordinates(fullPlace);
                             endLocationData = {

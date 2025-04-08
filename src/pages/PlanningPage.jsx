@@ -4,6 +4,7 @@ import RouteSelection from '../components/RouteSelection';
 import ErrorModal from '../components/modals/ErrorModal';
 import PropTypes from "prop-types";
 import { fetchExcelData, fetchRoutes, deleteExcelFile } from "../utils";
+import { Trash2 } from 'lucide-react';
 
 const PlanningPage = () => {
   // Initialize component state
@@ -93,8 +94,13 @@ const PlanningPage = () => {
                   </option>
                 ))}
               </select>
-              <button onClick={handleDeleteExcelFile} disabled={!selectedFile}>
-                Poista tiedosto
+              <button 
+                onClick={handleDeleteExcelFile} 
+                disabled={!selectedFile} 
+                title="Poista reitti" 
+                className="delete-file-btn"
+              >
+                <Trash2 size={18} />
               </button>
             </div>
           ) : (

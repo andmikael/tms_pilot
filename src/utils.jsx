@@ -357,6 +357,35 @@ export async function fetchRoutes(setRouteData, setError) {
 }
 
 /**
+ * Converts Excel time input (either a number or string) to the "HH:mm" time format.
+ * 
+ * Excel stores time as a fraction of a day (e.g., 9:00 is 0.375). This function converts such 
+ * numerical representations into the corresponding "HH:mm" format. If the input is a string, 
+ * it also replaces any dots with colons and pads the hours or minutes to ensure a two-digit format.
+ *
+ * @param {number|string} timeInput The raw time value from Excel (e.g., 0.375 or "9:00"/"9.00").
+ * @param {number} rowIndex The row index in the Excel file for logging error messages if needed.
+ * @returns {string} The time formatted as a string in "HH:mm" format.
+ */
+export const formatTime = (timeInput, rowIndex, label) => {
+  //if value is number, Excel saves time as a portion of day
+  if (typeof timeInput === 'number') {
+      const totalMinutes = Math.round(timeInput * 24 * 60);
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+  }
+  // if string replace "." with ":"
+  let timeStr = timeInput.toString().trim().replace(".", ":");
+  if (/^\d{1,2}:\d{2}$/.test(timeStr)) {
+      const [h, m] = timeStr.split(":").map((s) => s.padStart(2, "0"));
+      return `${h}:${m}`;
+  } else {
+      return null;
+  }
+};
+
+/**
  * Removes a specific pickup location from an Excel file using the Flask backend.
  * 
  * @param {String} filename The name of the Excel file.

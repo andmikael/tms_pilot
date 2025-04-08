@@ -4,6 +4,7 @@ import TableSection from "../components/pickupForm/Tablesection";
 import { geocodePoints, getOptimizedRoutes, appendPlaceToExcel, removePlaceFromExcel } from '../utils';
 import ErrorModal from './modals/ErrorModal';
 import RouteSuggestion from '../components/RouteSuggestion';
+import { Trash2 } from 'lucide-react';
 
 const RouteSelection = ({ dataToParent }) => {
   const [optionalPickups, setOptionalPickups] = useState([]);
@@ -153,7 +154,7 @@ const RouteSelection = ({ dataToParent }) => {
 
                   {isEditMode && (
                       <button onClick={() => removePickup(index)} className="point-remove-btn">
-                        Poista
+                        <Trash2/>
                       </button>
                   )}
                 </div>
