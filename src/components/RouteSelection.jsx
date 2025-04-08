@@ -192,7 +192,7 @@ const RouteSelection = ({ dataToParent }) => {
         PropComponent={RouteSuggestion}
         PropName={'route-suggestion-container'}
         PropTitle={'Reittiehdotus'}
-        PropData={optimizedRoutes}
+        PropData={[optimizedRoutes, [routeData.startTime, routeData.endTime]]}
         Expandable={true}
       />
     </div>

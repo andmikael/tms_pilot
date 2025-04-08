@@ -9,6 +9,18 @@ const RouteSuggestion = ({ dataToChild }) => {
       index: 0,
       text: "Visualisointi autolle 1 (Runkoreitti)",
     });
+
+    const routeSuggestions = dataToChild[0] || [];
+    const routeTimetable = (dataToChild[1] || []).map((time) => {
+      const parsedTime = parseFloat(time);
+      if (isNaN(parsedTime)) {
+      console.error(`Invalid time value: ${time}`);
+      return null;
+      }
+      return parsedTime;
+    });
+
+    console.log("RouteSuggestion routeTimetable:", routeTimetable);
   
     // Reset selectedRoute when dataToChild changes
     useEffect(() => {
@@ -32,8 +44,6 @@ const RouteSuggestion = ({ dataToChild }) => {
         return <div>Muodosta reittiehdotus "muodosta reittiehdotus" painikkeella.</div>;
       }
     }
-
-    const routeSuggestions = dataToChild;
 
     // Ensure selectedRoute.index is valid before rendering
     // Otherwise can cause to issues if the dataToChild changes and selectedRoute.index is out of bounds.
@@ -67,6 +77,14 @@ const RouteSuggestion = ({ dataToChild }) => {
                 | Kokonaismatka: {suggestion.distances.toFixed(2)} km
                 | Kustannusarvio: {(suggestion.distances * KM_PRICE).toFixed(2)} € (km * {KM_PRICE})
               </strong></p>
+              <p className="warning-text">
+                {(routeTimetable[1] - routeTimetable[0]) < (suggestion.durations / 60) && (
+                  <span>
+                    Varoitus! Aika-arvio ylittää asetetun aikataulun (klo {routeTimetable[0]} - {routeTimetable[1]})! <br/>
+                    Harkitse useamman auton käyttämistä.
+                  </span>
+                )}
+              </p>
 
               <strong>Optimoitu reitti:</strong>
               {suggestion.ordered_routes.length > 0 ? (

@@ -390,3 +390,7 @@ td > input {
   transition: 0.1s ease;
   background-color:#AEE0FF;
 }
+
+.warning-text {
+  color: #ff4d4d;
+}
