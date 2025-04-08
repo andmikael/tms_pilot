@@ -51,7 +51,7 @@ def upload_excel():
             file_counter += 1
     
     # Construct final file name to be written into the Excel file.
-    final_file_name = os.path.splitext(os.path.basename(file_path))[0] + " (" + original_file_name + ")"
+    final_file_name = os.path.splitext(os.path.basename(file_path))[0]
     # Write the route name in cell B1 with a label in A1.
     ws["A1"] = "Reitin nimi:"
     ws["B1"] = final_file_name
