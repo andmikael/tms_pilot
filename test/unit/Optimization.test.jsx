@@ -28,7 +28,7 @@ test("should successfully respond to optimization request", async () => {
     "must_visit": [[], []],
     "traffic_mode": "best_guess"
   });
-  console.log(response)
+  /*console.log(response)*/
   expect(response.status).toBe(200);
   expect(response.body).toHaveProperty('ordered_routes');
 });
