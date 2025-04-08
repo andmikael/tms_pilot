@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import LeafletMap from "../components/LeafletMap";
 import TemplateBody from "../components/templateDropdown/TemplateBody";
 import RouteSelection from '../components/RouteSelection';
 import ErrorModal from '../components/modals/ErrorModal';

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import LeafletMap from "../components/LeafletMap";
 
-const KM_PRICE = 2; // TODO: Should be env variable at some point?
+// Gets the price per km from .env file, but also default to 2 if not set
+const KM_PRICE = parseFloat(import.meta.env.VITE_ROUTE_KM_PRICE) || 2;
 
 const RouteSuggestion = ({ dataToChild }) => {
     const [selectedRoute, setSelectedRoute] = useState({
@@ -9,7 +10,15 @@ const RouteSuggestion = ({ dataToChild }) => {
       text: "Visualisointi autolle 1 (Runkoreitti)",
     });
   
-    // Can be removed later. Only used for debugging.
+    // Reset selectedRoute when dataToChild changes
+    useEffect(() => {
+      setSelectedRoute({
+        index: 0,
+        text: "Visualisointi autolle 1 (Runkoreitti)",
+      });
+    }, [dataToChild]);
+
+    // Debugging useEffect
     useEffect(() => {
       console.log("RouteSuggestion dataToChild:", dataToChild);
     }, [dataToChild]);
@@ -25,6 +34,13 @@ const RouteSuggestion = ({ dataToChild }) => {
     }
 
     const routeSuggestions = dataToChild;
+
+    // Ensure selectedRoute.index is valid before rendering
+    // Otherwise can cause to issues if the dataToChild changes and selectedRoute.index is out of bounds.
+    if (!routeSuggestions[selectedRoute.index]) {
+      return <div>Odota... Ladataan reittiehdotuksia.</div>;
+    }
+
     return (
       <div>
         {routeSuggestions.map((suggestion, index) => (
@@ -46,8 +62,11 @@ const RouteSuggestion = ({ dataToChild }) => {
             />
             <div key={index} id="route-suggestion">
               <h4 id="route-suggestion-title">Reittiehdotus autolle {index + 1} {index === 0 ? "(Runkoreitti)" : "(Lisäkuljetus)"}</h4>
-              <p><strong>Aika-arvio: {suggestion.durations.toFixed(2)} min | Kokonaismatka: {suggestion.distances.toFixed(2)} km
-                | Kustannusarvio: {(suggestion.distances * KM_PRICE).toFixed(2)} e </strong></p>
+              <p><strong>
+                Aika-arvio: {Math.floor(suggestion.durations / 60)} h {Math.round(suggestion.durations % 60)} min 
+                | Kokonaismatka: {suggestion.distances.toFixed(2)} km
+                | Kustannusarvio: {(suggestion.distances * KM_PRICE).toFixed(2)} € (km * {KM_PRICE})
+              </strong></p>
 
               <strong>Optimoitu reitti:</strong>
               {suggestion.ordered_routes.length > 0 ? (
