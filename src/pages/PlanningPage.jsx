@@ -82,15 +82,17 @@ const PlanningPage = () => {
               </select>
             </div>
           ) : (
-            <p>Ladattuja reittejä ei löytynyt</p>
+            <p>TMS ei ole ladattu reittejä. Voit mennä "Tiedostot" -välilehdelle ja ladata uuden tiedoston järjestelmään.<br/>
+              Ladatut tiedostot tulevat näkymään tässä.
+            </p>
           )}
         </div>
 
         <div>
-          <h3>Poista tallennettu reitti</h3>
           {deleteMessage && <p>{deleteMessage}</p>}
           {Object.keys(excelData).length > 0 ? (
             <div>
+              <h3>Poista tallennettu reitti</h3>
               <select
                 value={selectedFile || ''}
                 onChange={(e) => {
@@ -108,7 +110,7 @@ const PlanningPage = () => {
               </button>
             </div>
           ) : (
-            <p>Ei tallennettuja reittejä</p>
+            <div></div>
           )}
         </div>
 
@@ -124,7 +126,7 @@ const PlanningPage = () => {
     />
   </>
 ) : (
-  <div>Reittiä ei ole valittu. Reittikarttaa ei voida piirtää.</div>
+  <div></div>
   )}
   </div>
   </div>
