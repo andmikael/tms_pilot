@@ -36,8 +36,11 @@ if exist .env (
 ) else (
     echo .env file not found. Creating it now...
     echo ORS_API_KEY='' > .env
+    echo VITE_ROUTE_KM_PRICE=2.0 >> .env
     echo .env file has been created.
-    echo Please open the .env file with notepad and fill in your openrouteservice API key inside the quotation marks ''. Re-run this script afterwards.
+    echo Please open the .env file with notepad and fill in your openrouteservice API key inside the quotation marks ''.
+    echo You can also change VITE_ROUTE_KM_PRICE to your desired price per kilometer. Defaults to 2.0e per 1 km.
+    echo Re-run this script afterwards.
     echo.
     pause ;;
     exit /b 0
