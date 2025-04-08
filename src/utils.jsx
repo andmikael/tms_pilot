@@ -49,12 +49,21 @@ export const StandardPickup = Object.freeze({
   NO: "no"
 });
 
-// Funktio koordinaattien hakemiseen OpenStreetMapista
+/**
+ * Fetches the coordinates (latitude and longitude) for a given address
+ * using the OpenStreetMap Nominatim API.
+ * 
+ * @param {String} fullPlace The full address (e.g., street address, postal code, and city).
+ * @returns {Object|null} An object { lat, lon } with coordinates, or null if not found.
+ */
 export async function getCoordinates(fullPlace) {
+  // Construct the URL with the encoded address.
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullPlace)}`;
   try {
+      // Fetch from the OSM Nominatim API.
       const response = await fetch(url);
       const data = await response.json();
+      // if any data is returned return the coordinates
       if (data.length > 0) {
           return {
               lat: data[0].lat,
@@ -69,38 +78,6 @@ export async function getCoordinates(fullPlace) {
       return null;
   }
 }
-
-export const appendPlaceToExcel = async (filename, pickupData) => {
-  try {
-    const response = await fetch("http://localhost:8000/api/append_to_excel", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        filename: filename,
-        data: {
-          name: pickupData.name,
-          address: pickupData.address,
-          postalCode: pickupData.postalCode,
-          city: pickupData.city,
-          standardPickup: "no",
-          lat: pickupData.lat,
-          lon: pickupData.lon,
-        },
-      }),
-    });
-
-    if (response.ok) {
-      return { success: true, message: "Paikka lisätty onnistuneesti!" };
-    } else {
-      const error = await response.json();
-      return { success: false, message: error?.error || "Tuntematon virhe." };
-    }
-  } catch (error) {
-    return { success: false, message: error.message };
-  }
-};
 
 /**
  * Adds coordinates for new pickup place.
@@ -260,13 +237,87 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
 
 export { exampleRoute, geocodePoints, getOptimizedRoutes };
 
+
+
+/**
+ * Appends a new pickup location to an existing Excel file using the Flask backend.
+ * 
+ * @param {String} filename The name of the Excel file to modify.
+ * @param {Object} pickupData The pickup information to append (name, address, postal code, city, lat, lon).
+ * @returns {Object} An object indicating success or failure and a message for the user.
+ */
+export const appendPlaceToExcel = async (filename, pickupData) => {
+  try {
+    const response = await fetch(`${FLASK_URL}api/append_to_excel`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        filename: filename,
+        data: {
+          name: pickupData.name,
+          address: pickupData.address,
+          postalCode: pickupData.postalCode,
+          city: pickupData.city,
+          standardPickup: "no",
+          lat: pickupData.lat,
+          lon: pickupData.lon,
+        },
+      }),
+    });
+
+    if (response.ok) {
+      return { success: true, message: "Paikka lisätty onnistuneesti!" };
+    } else {
+      const error = await response.json();
+      return { success: false, message: error?.error || "Tuntematon virhe." };
+    }
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
+
+/**
+ * Deletes an entire Excel file from the backend.
+ * 
+ * @param {String} fileName The name of the Excel file to delete.
+ * @returns {Object} A JSON response indicating whether the deletion was successful.
+ */
+export const deleteExcelFile = async (fileName) => {
+  try {
+    // Send a DELETE request to remove the Excel file.
+    const response = await fetch(`${FLASK_URL}api/delete_excel`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ file_name: fileName }),
+    });
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    return { error: true, message: "Poistopyynnön virhe: " + err.message };
+  }
+};
+
+/**
+ * Fetches the list of available Excel files from the Flask backend
+ * and updates the frontend state accordingly.
+ * 
+ * @param {Function} setExcelData React setter to update the Excel file list.
+ * @param {Function} setSelectedFile React setter to update the currently selected file.
+ * @param {Function} setError React setter for handling error messages.
+ * @param {String} selectedFile The currently selected Excel file.
+ */
 export async function fetchExcelData(setExcelData, setSelectedFile, setError, selectedFile) {
   try {
-    const response = await fetch("http://localhost:8000/api/get_excel_files");
+    // Fetch the Excel files from the Flask API endpoint.
+    const response = await fetch(`${FLASK_URL}api/get_excel_files`);
     if (!response.ok) throw new Error("Excel-tiedostojen haku epäonnistui");
     const data = await response.json();
+    // Update the state with the retrieved data.
     setExcelData(data);
     
+    // Set the default selected file if none is already selected.
     const files = Object.keys(data);
     if (files.length > 0 && !selectedFile) {
       setSelectedFile(files[0]);
@@ -276,12 +327,20 @@ export async function fetchExcelData(setExcelData, setSelectedFile, setError, se
   }
 }
 
+/**
+ * Fetches route data from the Flask backend and filters out any invalid routes.
+ * 
+ * @param {Function} setRouteData React setter to store the fetched route data.
+ * @param {Function} setError React setter to handle any errors.
+ */
 export async function fetchRoutes(setRouteData, setError) {
   try {
+    // Retrieve the route data from the Flask API.
     const response = await fetch("http://localhost:8000/api/get_route");
-    if (!response.ok) throw new Error("Reittidatan haku epäonnistui");
+    if (!response.ok) throw new Error("Failed to fetch route data");
     const data = await response.json();
     
+    // Filter out any routes that have an error property.
     const validRoutes = Object.entries(data)
       .filter(([_, value]) => !value.error)
       .reduce((acc, [key, value]) => {
@@ -289,15 +348,25 @@ export async function fetchRoutes(setRouteData, setError) {
         return acc;
       }, {});
     
+    // Update the state with the valid routes.
     setRouteData(validRoutes);
   } catch (err) {
+    // Set the error state if something goes wrong.
     setError(err.message);
   }
 }
 
+/**
+ * Removes a specific pickup location from an Excel file using the Flask backend.
+ * 
+ * @param {String} filename The name of the Excel file.
+ * @param {Object} pickupData The pickup location to be removed.
+ * @returns {Object} A JSON response from the backend indicating success or error.
+ */
 export const removePlaceFromExcel = async (filename, pickupData) => {
   try {
-    const response = await fetch('http://localhost:8000/api/remove_from_excel', {
+    // Send a POST request to remove the specified pickup location.
+    const response = await fetch(`${FLASK_URL}api/remove_from_excel`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ filename, data: pickupData }),
@@ -315,16 +384,6 @@ export const removePlaceFromExcel = async (filename, pickupData) => {
   }
 };
 
-export const deleteExcelFile = async (fileName) => {
-  try {
-    const response = await fetch("http://localhost:8000/api/delete_excel", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ file_name: fileName }),
-    });
-    const result = await response.json();
-    return result;
-  } catch (err) {
-    return { error: true, message: "Poistopyynnön virhe: " + err.message };
-  }
-};
+
+
+
