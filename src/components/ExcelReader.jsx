@@ -1,13 +1,11 @@
 /*
 * ExcelReader komponentti: Luetaan runkoreittiin liittyvät tiedot syötetystä excel tiedostosta 
 * ja tallennetaan luettu reitti järjestelmään.
-* -> Ei vielä kokonaan valmis!
-*
-* TODO: aloituspaikan, lopetuspaikan, reitin nimen?, aloitusajan, viimeisen lopetusajan lukeminen. 
 *
 * Lukee tiedot noutopaikan nimestä, osoitteesta (osoite, postinumero ja kaupunki) 
 * sekä onko noudossa vakionouto päivittäin
 * Rivit tulevat olla tässä järjestyksessä xlsx tiedostossa: nimi, osoite, postinumero, kaupunki, vakionouto
+*
 */
 
 import { useState, useCallback } from 'react';
@@ -17,7 +15,7 @@ import PropTypes from 'prop-types';
 import { routePropType } from '../propTypes/routePropType';
 import { StandardPickup, getCoordinates } from '../utils';
 
-// Lataa Excel-pohjan käyttäjälle
+// Function to download a template for the Excel file
 const downloadTemplate = () => {
     const ws = XLSX.utils.aoa_to_sheet([
         ["Reitin nimi:"],
@@ -38,8 +36,9 @@ const downloadTemplate = () => {
 export const ExcelReader = ({ dataToParent }) => {
     const [message, setMessage] = useState(null);
 
-    // Funktio käsittelemään yhtä taulukkoa. Nyt se saa myös tiedoston nimen parametrina.
+    // Function to process each sheet in the Excel file
     const processSheet = async (sheet, sheetName, fileName) => {
+        // Extract route name from the sheet
         const routeName = sheet["B1"] ? sheet["B1"].v : "Uusi reitti";
         const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
         
@@ -51,7 +50,9 @@ export const ExcelReader = ({ dataToParent }) => {
         let startLocationData = null;
         let endLocationData = null;
         
+        // Process each row of the sheet
         for (let i = 2; i < jsonData.length; i++) {
+            // Look for the start location
             if (
                 jsonData[i][0] &&
                 jsonData[i][0].toString().toLowerCase().includes("aloituspaikka")
@@ -80,6 +81,7 @@ export const ExcelReader = ({ dataToParent }) => {
                     }
                 }
                 i += 2;
+                // Look for the end location
                 if (
                     i < jsonData.length &&
                     jsonData[i][0] &&
@@ -111,6 +113,7 @@ export const ExcelReader = ({ dataToParent }) => {
                 }
                 break;
             } else {
+                // Process general location rows
                 const row = jsonData[i].slice(0, 5);
                 if (row.length < 4) {
                     console.warn(`Puuttuvia tietoja rivillä ${i + 1}, ohitetaan...`, row);
@@ -139,10 +142,9 @@ export const ExcelReader = ({ dataToParent }) => {
                     lon: coordinates ? coordinates.lon : null,
                 };
                 excelData.push(newPlaceObject);
-                console.log(newPlaceObject);
             }
         }
-
+        // Check for missing coordinates and return an error if any are missing
         let missingCoordinates = [];
         if (startLocationData && (!startLocationData.lat || !startLocationData.lon)) {
             missingCoordinates.push(`Aloituspaikka: ${startLocationData.name}`);
@@ -155,7 +157,8 @@ export const ExcelReader = ({ dataToParent }) => {
                 missingCoordinates.push(point.name);
             }
         }
-        
+
+        // If there are valid route points, send them to the parent component
         if (missingCoordinates.length > 0) {
             return { 
                 sheetName, 
@@ -167,13 +170,13 @@ export const ExcelReader = ({ dataToParent }) => {
         if (excelData.length !== 0) {
             dataToParent({ points: excelData, startLocation: startLocationData, endLocation: endLocationData });
             
-            // Lähetetään data mukana myös tiedoston nimi
+            // Send the data with the file name to the backend
             const response = await fetch("http://localhost:8000/upload", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
                     routeName, 
-                    fileName,  // Tiedoston nimi mukana
+                    fileName,
                     data: excelData, 
                     startLocation: startLocationData, 
                     endLocation: endLocationData 
@@ -191,6 +194,7 @@ export const ExcelReader = ({ dataToParent }) => {
         }
     };
 
+    // Function to handle the file upload and processing
     const processFile = async (file) => {
         setMessage({ type: "info", message: "Luetaan tiedostoa..." });
         if (!file.name.endsWith(".xlsx")) {
@@ -206,7 +210,7 @@ export const ExcelReader = ({ dataToParent }) => {
                 let successMessages = [];
                 let errorMessages = [];
                 
-                // Käydään läpi kaikki taulukot ja välitetään tiedoston nimi (file.name)
+                // Iterate through all sheets in the workbook
                 for (const sheetName of workbook.SheetNames) {
                     const sheet = workbook.Sheets[sheetName];
                     const result = await processSheet(sheet, sheetName, file.name);
@@ -237,6 +241,7 @@ export const ExcelReader = ({ dataToParent }) => {
         };
     };
 
+    // Dropzone callback to handle dropped files
     const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
         if (rejectedFiles.length > 0) {
             setMessage({ type: "error", message: "Väärä tiedostotyyppi. Hyväksytyt tiedostotyypit: .xlsx" });
