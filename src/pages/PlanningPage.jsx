@@ -80,37 +80,14 @@ const PlanningPage = () => {
                   </option>
                 ))}
               </select>
-            </div>
-          ) : (
-            <p>TMS ei ole ladattu reittejä. Voit mennä "Tiedostot" -välilehdelle ja ladata uuden tiedoston järjestelmään.<br/>
-              Ladatut tiedostot tulevat näkymään tässä.
-            </p>
-          )}
-        </div>
-
-        <div>
-          {deleteMessage && <p>{deleteMessage}</p>}
-          {Object.keys(excelData).length > 0 ? (
-            <div>
-              <h3>Poista tallennettu reitti</h3>
-              <select
-                value={selectedFile || ''}
-                onChange={(e) => {
-                  setSelectedFile(e.target.value);
-                }}
-              >
-                {Object.keys(excelData).map((fileName) => (
-                  <option key={fileName} value={fileName}>
-                    {fileName}
-                  </option>
-                ))}
-              </select>
               <button onClick={handleDeleteExcelFile} disabled={!selectedFile}>
                 Poista tiedosto
               </button>
             </div>
           ) : (
-            <div></div>
+            <p>TMS ei ole ladattu reittejä. Voit ladata uuden tiedoston järjestelmään "Tiedostot" -välilehdeltä.<br/>
+              Ladatut tiedostot tulevat näkymään tässä.
+            </p>
           )}
         </div>
 
