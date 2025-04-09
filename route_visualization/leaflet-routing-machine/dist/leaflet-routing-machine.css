@@ -7,8 +7,8 @@
 }
 
 .leaflet-control-container .leaflet-routing-container-hide {
-    width: 32px;
-    height: 32px;
+    width: 0px;
+    height: 0px;
 }
 
 .leaflet-routing-container h2 {
@@ -70,7 +70,7 @@
 
 .leaflet-routing-alt::-webkit-scrollbar-thumb {
     border-radius: 2px;
-    background-color: #888;
+    background-color: #888888;
 }
 
 .leaflet-routing-icon {
@@ -226,9 +226,8 @@
     left: 4px;
     top: 4px;
     display: block;
-    width: 26px;
-    height: 23px;
-    background-image: url('routing-icon.png');
+    width: 0px;
+    height: 0px;
 }
 
 .leaflet-routing-container-hide .leaflet-routing-collapse-btn:after {
