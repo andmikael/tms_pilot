@@ -19,8 +19,6 @@ const RouteSuggestion = ({ dataToChild }) => {
       }
       return parsedTime;
     });
-
-    console.log("RouteSuggestion routeTimetable:", routeTimetable);
   
     // Reset selectedRoute when dataToChild changes
     useEffect(() => {
@@ -36,25 +34,25 @@ const RouteSuggestion = ({ dataToChild }) => {
     }, [dataToChild]);
   
     // For showing if error happens when fetching optimized routes. 
-    if (!dataToChild || Object.keys(dataToChild).length === 0) {
-      if (dataToChild === null) {
+    if (!routeSuggestions || Object.keys(routeSuggestions).length === 0) {
+      if (routeSuggestions === null) {
         return <div id="route-suggestion-error">Virhe tapahtui reittioptimoinnissa! Yritä uudelleen.</div>;
       } 
       else {
-        return <div>Muodosta reittiehdotus "muodosta reittiehdotus" painikkeella.</div>;
+        return <div className="dropdown-content-padding">Muodosta reittiehdotus "muodosta reittiehdotus" painikkeella.</div>;
       }
     }
 
     // Ensure selectedRoute.index is valid before rendering
     // Otherwise can cause to issues if the dataToChild changes and selectedRoute.index is out of bounds.
     if (!routeSuggestions[selectedRoute.index]) {
-      return <div>Odota... Ladataan reittiehdotuksia.</div>;
+      return <div className="dropdown-content-padding">Odota... Ladataan reittiehdotuksia.</div>;
     }
 
     return (
       <div>
         {routeSuggestions.map((suggestion, index) => (
-          <div className="row-center">
+          <div className="suggestion-row-center">
             <input
               className="route-suggestion-radio"
               type="radio"
