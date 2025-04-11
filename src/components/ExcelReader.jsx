@@ -14,6 +14,7 @@ import { useDropzone } from 'react-dropzone';
 import PropTypes from 'prop-types';
 import { routePropType } from '../propTypes/routePropType';
 import { StandardPickup, getCoordinates, formatTime } from '../utils';
+import { Download } from 'lucide-react';
 
 // Function to download a template for the Excel file
 const downloadTemplate = () => {
@@ -261,18 +262,19 @@ export const ExcelReader = ({ dataToParent }) => {
     });
 
     return (
-      <div>
+    <div>
         <div {...getRootProps()} id="dropzone">
-          <input {...getInputProps()} />
-          <p>Raahaa ja pudota Excel-tiedosto tähän tai klikkaa valitaksesi tiedoston</p>
+        <input {...getInputProps()} />
+        <p>Raahaa ja pudota Excel-tiedosto tähän tai klikkaa valitaksesi tiedoston</p>
         </div>
-
         {message && <pre className={`${message.type} dropdown-content-padding`}>{message.message}</pre>}
-
         <div id="new-excel" className="dropdown-content-padding">
-          <p>Kadotitko Excel-pohjan?</p>
-          <button onClick={downloadTemplate}>Lataa uusi Excel pohja</button>
+            <p className="excel-text">Kadotitko Excel-pohjan?</p>
+            <button onClick={downloadTemplate} className="excel-button">
+                <Download size={18} />
+                Lataa uusi Excel-pohja
+            </button>
         </div>
-      </div>
+    </div>
     );
 };

@@ -109,10 +109,9 @@ async function geocodePoints(optionalPickup) {
  * @param {Array} mandatoryAddresses Array of standard pickup addresses (runkoreitti)
  * @param {Array} pickUpAdresses Array of all the additional addresses what need to be visited (pickup places)
  * @param {Number} amountOfVehicles Amount of vehicles for which route suggestions are needed.
- * @param {String} trafficMode Either "best_guess", "optimistic" or "pessimistic".
  * @returns Array of routesuggestions, in which each item consists of "distances", "durations" and "ordered_routes".
  */
-async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pickUpAdresses, amountOfVehicles, trafficMode) {
+async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pickUpAdresses, amountOfVehicles) {
   // Saving all the addresses which are sent to Flask as a key connected with rest of their information.
   // Key is string representation of coordinates, e.g. "23.123456,62.123456".
   // Value is the object with all the information about the place.
@@ -184,7 +183,6 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
     "end_indexes": end_indexes,
     "number_of_vehicles": amountOfVehicles,
     "must_visit": must_visit,
-    "traffic_mode": trafficMode,
   };
   console.log('requestBody to Flask: ', requestBody);
 
