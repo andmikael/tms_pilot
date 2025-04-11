@@ -248,6 +248,7 @@ export { exampleRoute, geocodePoints, getOptimizedRoutes };
  */
 export const appendPlaceToExcel = async (filename, pickupData) => {
   try {
+    console.log(pickupData);
     const response = await fetch(`${FLASK_URL}api/append_to_excel`, {
       method: "POST",
       headers: {
@@ -260,7 +261,7 @@ export const appendPlaceToExcel = async (filename, pickupData) => {
           address: pickupData.address,
           postalCode: pickupData.postalCode,
           city: pickupData.city,
-          standardPickup: "no",
+          standardPickup: pickupData.standardPickup,
           lat: pickupData.lat,
           lon: pickupData.lon,
         },
@@ -336,7 +337,7 @@ export async function fetchExcelData(setExcelData, setSelectedFile, setError, se
 export async function fetchRoutes(setRouteData, setError) {
   try {
     // Retrieve the route data from the Flask API.
-    const response = await fetch("http://localhost:8000/api/get_route");
+    const response = await fetch(`${FLASK_URL}api/get_route`);
     if (!response.ok) throw new Error("Failed to fetch route data");
     const data = await response.json();
     

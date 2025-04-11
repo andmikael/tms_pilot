@@ -315,6 +315,36 @@ select:hover {
   width:100%;
 }
 
+input[type="checkbox"].styled-checkbox {
+  appearance: none;
+  width: 97%;
+  height: 20px;
+  border: 1px solid #2294FF;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+
+input[type="checkbox"].styled-checkbox:checked {
+  background-color: #2294FF;
+  border-color: #2294FF;
+}
+
+input[type="checkbox"].styled-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
 .dropdown-content-padding{
   padding-left: 30px;
   padding-right: 30px;

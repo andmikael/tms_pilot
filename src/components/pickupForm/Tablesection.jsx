@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { StandardPickup } from "../../utils";
 
 const TableSection = ({ dataToParent }) => {
 
@@ -7,7 +8,7 @@ const TableSection = ({ dataToParent }) => {
         address: "",
         postalCode: "",
         city: "",
-        standardPickup: "no",
+        standardPickup: StandardPickup.NO,
         lat: null,
         lon: null
     });
@@ -17,8 +18,19 @@ const TableSection = ({ dataToParent }) => {
     }
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewPickup({ ...newPickup, [name]: value });
+        const { name, value, type, checked } = e.target;
+
+    if (type === "checkbox" && name === "standardPickup") {
+        setNewPickup({
+            ...newPickup,
+            standardPickup: checked ? StandardPickup.YES : StandardPickup.NO
+        });
+    } else {
+        setNewPickup({
+            ...newPickup,
+            [name]: value
+        });
+    }
     };
 
     const addNewPickup = () => {
@@ -89,6 +101,20 @@ const TableSection = ({ dataToParent }) => {
                       value={newPickup.city}
                       onChange={handleInputChange}
                       placeholder="Kauhajoki"
+                    />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>Vakionouto</label>
+                </td>
+                <td className="table-input-container">
+                    <input
+                        type="checkbox"
+                        class="styled-checkbox"
+                        name="standardPickup"
+                        checked={newPickup.standardPickup === StandardPickup.YES}
+                        onChange={handleInputChange}
                     />
                 </td>
             </tr>

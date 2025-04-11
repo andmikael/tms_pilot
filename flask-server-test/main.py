@@ -189,7 +189,7 @@ def build_distance_matrix(response, return_type):
 #     to_node = manager.IndexToNode(to_index)
 #     return data["distance_matrix"][from_node][to_node]
 
-def route_order(list_of_addresses, starts, ends, number_of_vehicles, traffic_mode, forced_visits = []):
+def route_order(list_of_addresses, starts, ends, number_of_vehicles, forced_visits = []):
     """
     Creates optimized routes for each vehicle given list of addresses to visit 
     and start and end locations for each vehicle.
@@ -212,7 +212,6 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, traffic_mod
     data['num_vehicles'] = number_of_vehicles
     data['starts'] = starts
     data['ends'] = ends
-    data['traffic_mode'] = traffic_mode
     #data['distance_matrix'] = create_distance_matrix(data)
     distance_matrix, duration_matrix = create_distance_matrix_ors(data)
     data['distance_matrix'] = distance_matrix
@@ -368,10 +367,8 @@ def route_test():
         raise DataError("If must_visit locations are defined, the length of must_visit must equal number_of_vehicles")    
     if len(data['addresses']) < 2:
         raise DataError("Less than 2 addresses provided")
-    if ((data['traffic_mode'] != 'best_guess') and (data['traffic_mode'] != 'optimistic') and (data['traffic_mode'] != 'pessimistic')):
-        raise DataError("Invalid traffic mode (must be 'best_guess', 'optimistic' or 'pessimistic'")
 
-    routes, durations, distances = route_order(data['addresses'], data['start_indexes'], data['end_indexes'], data['number_of_vehicles'], data['traffic_mode']  , data['must_visit'])
+    routes, durations, distances = route_order(data['addresses'], data['start_indexes'], data['end_indexes'], data['number_of_vehicles'], data['must_visit'])
     return_data = {}
     return_data['ordered_routes'] = routes
     return_data['durations'] = durations

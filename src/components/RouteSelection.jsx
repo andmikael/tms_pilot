@@ -59,7 +59,11 @@ const RouteSelection = ({ dataToParent }) => {
     const excelFilename = routeData.name;
     const result = await appendPlaceToExcel(excelFilename, newPickup);
     if (!result.error) {
-      setOptionalPickups([...optionalPickups, newPickup]);
+      if (newPickup.standardPickup === "yes") {
+        setStandardPickups([...standardPickups, newPickup]);
+      } else {
+        setOptionalPickups([...optionalPickups, newPickup]);
+      }
       setErrorMessage("");
     } else {
       setErrorMessage(result.message || "Noutopaikan lisääminen epäonnistui.");
@@ -253,17 +257,6 @@ const RouteSelection = ({ dataToParent }) => {
           <option value="2">2</option>
           <option value="3">3</option>
           <option value="4">4</option>
-        </select>
-
-        <span>Liikenteen määrä</span>
-        <select
-          id="traffic-pred"
-          value={trafficMode}
-          onChange={(e) => setTrafficMode(e.target.value)}
-        >
-          <option value="optimistic">optimistinen</option>
-          <option value="best_guess">paras arvaus</option>
-          <option value="pessimistic">pessimistinen</option>
         </select>
 
         <button id="form-route-btn" onClick={formRouteSuggestion}>
