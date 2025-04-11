@@ -50,6 +50,20 @@ class GoogleAPIError(Exception):
     def __str__(self):
         return f"{self.message} (Error Code: {self.error_code})"
 
+class orsAPIError(Exception):
+    """Exception raised for errors from google api
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"{self.message} (Error Code: {self.error_code})"
+
 import os
 import pandas as pd
 from openpyxl import Workbook, load_workbook
@@ -63,14 +77,22 @@ def create_distance_matrix_ors(data):
         'Authorization': OPENROUTESERVICE_API_KEY,
         'Content-Type': 'application/json; charset=utf-8'
     }
-
+    
     call = requests.post('https://api.openrouteservice.org/v2/matrix/driving-car', json=body, headers=headers)
+
+
 
     call_json = json.loads(call.text)
     print(call_json)
 
+    if 'error' in call_json:
+        if 'Access to this API has been disallowed' in call_json['error']:
+            raise orsAPIError("Error from Open route service api: " + call_json['error'] + 
+            ", API key might be incorrect")
+        else:
+            raise orsAPIError("Error from Open route service api: " + call_json['error'])
 
-
+    #ORS api antaa etäisyydet ja ajat floatteina, muutetaan ne inteiksi ortoolsia varten
     distance_matrix = [[int(distance) for distance in row] for row in call_json["distances"]]
     print(distance_matrix)
     duration_matrix = [[int(duration) for duration in row] for row in call_json["durations"]]
@@ -316,6 +338,13 @@ cors = CORS(app, origins='*')
 #def handle_bad_request(e):
 #    return 'bad request!', 400
 
+# @app.errorhandler(ConnectionError)
+# def handle_exception(e):
+#     error_data = {
+#         "error_message": "ConnectionError: " + e.message,
+#     }
+#     return jsonify(error_data), 400
+
 @app.errorhandler(DataError)
 def handle_exception(e):
     error_data = {
@@ -333,6 +362,14 @@ def handle_exception(e):
 #Muiden kuin itse määritettyjen exceptioneiden käsittelyä varten
 @app.errorhandler(Exception)
 def handle_exception(e):
+
+    if isinstance(e, requests.exceptions.ConnectionError):
+        error_data = {
+        "error_message": "ConnectionError: " + repr(e) + ", Check internet connection"
+        }
+        return jsonify(error_data), 400
+
+
     error_data = {
         "error_message": "Exception: " + repr(e)
     }

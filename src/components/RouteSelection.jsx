@@ -132,7 +132,7 @@ const RouteSelection = ({ dataToParent }) => {
 
   return (
     <div className="route-selection">
-      <div id="current-route-container">
+      <div id="current-route-container" className="dropdown-content-padding">
         <p>
           <strong>Valittu reitti:</strong> {routeData.name}
         </p>
@@ -199,7 +199,7 @@ const RouteSelection = ({ dataToParent }) => {
       {optionalPickups.length > 0 && (
         <div className="PickupList">
           <div className="row-center">
-            <h4>Valinnaiset noutopaikat:</h4>
+            <h4 className="dropdown-content-padding">Valinnaiset noutopaikat:</h4>
             <button id="edit-pickup-btn" onClick={() => setIsEditMode(!isEditMode)}>
               {isEditMode ? "Valmis" : "Muokkaa noutopaikkoja"}
             </button>
@@ -208,7 +208,7 @@ const RouteSelection = ({ dataToParent }) => {
           {isEditMode && (
             <TemplateBody
               PropComponent={TableSection}
-              PropName={"pickupform"}
+              PropName={"pickupform dropdown-content-padding"}
               PropTitle={"Lisää uusi noutopaikka"}
               PropFunc={handleFormData}
               Expandable={true}
@@ -216,7 +216,7 @@ const RouteSelection = ({ dataToParent }) => {
           )}
           {errorMessage && <p className="warning-text">{errorMessage}</p>}
 
-          <ul className="pointList">
+          <ul className="pointList dropdown-content-padding">
             {optionalPickups.map((itinerary, index) => (
               <li key={index} className="point">
                 <div className="point-info">
@@ -246,7 +246,7 @@ const RouteSelection = ({ dataToParent }) => {
         </div>
       )}
 
-      <div id="route-options">
+      <div id="route-options" className="dropdown-content-padding">
         <span>Ajoneuvojen määrä</span>
         <select
           id="vehicles-select"
@@ -268,7 +268,7 @@ const RouteSelection = ({ dataToParent }) => {
         PropComponent={RouteSuggestion}
         PropName={'route-suggestion-container'}
         PropTitle={'Reittiehdotus'}
-        PropData={optimizedRoutes}
+        PropData={[optimizedRoutes, [routeData.startTime, routeData.endTime]]}
         Expandable={true}
       />
     </div>
