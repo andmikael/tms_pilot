@@ -101,7 +101,7 @@ async function geocodePoints(optionalPickup) {
 }
 
 /**
- * Sends a request for Flask route optimization endpoint (api/route_test) to get optimizated routes.
+ * Sends a request for Flask route optimization endpoint (api/routing) to get optimizated routes.
  * Function modifies routes data to the form that Flask endpoint accepts it. Flask responds with ordered routes, distances and durations.
  * 
  * @param {Object} startPlace Details of route's starting place, in the form of placePropType.
@@ -187,7 +187,7 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   console.log('requestBody to Flask: ', requestBody);
 
   try {
-    const response = await fetch(`${FLASK_URL}api/route_test`, {
+    const response = await fetch(`${FLASK_URL}api/routing`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),

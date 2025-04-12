@@ -83,7 +83,7 @@ def create_distance_matrix_ors(data):
 
 
     call_json = json.loads(call.text)
-    print(call_json)
+    #print(call_json)
 
     if 'error' in call_json:
         if 'Access to this API has been disallowed' in call_json['error']:
@@ -94,9 +94,9 @@ def create_distance_matrix_ors(data):
 
     #ORS api antaa etäisyydet ja ajat floatteina, muutetaan ne inteiksi ortoolsia varten
     distance_matrix = [[int(distance) for distance in row] for row in call_json["distances"]]
-    print(distance_matrix)
+    #print(distance_matrix)
     duration_matrix = [[int(duration) for duration in row] for row in call_json["durations"]]
-    print(duration_matrix)
+    #print(duration_matrix)
 
 
 
@@ -389,9 +389,9 @@ Esim. {"addresses": ["Prannarintie+8+Kauhajoki", "Prannarintie+10+Kauhajoki", "T
 palauttaa {"ordered_routes": [["Prannarintie+8+Kauhajoki","Topeeka+26+Kauhajoki","Prannarintie+10+Kauhajoki",
 "Prannarintie+8+Kauhajoki"]]}
 """
-@app.route('/api/route_test', methods =['POST', 'OPTIONS'])
+@app.route('/api/routing', methods =['POST', 'OPTIONS'])
 @cross_origin()
-def route_test():
+def routing():
     data = request.get_json()
     #print(data)
     if data['number_of_vehicles'] < 1:

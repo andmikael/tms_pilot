@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 const FLASK_URL = 'http://0.0.0.0:8000/';
 
 async function sendRequest(body, failOnStatusCode = true) {
-  const response = await fetch(`${FLASK_URL}api/route_test`, {
+  const response = await fetch(`${FLASK_URL}api/routing`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
