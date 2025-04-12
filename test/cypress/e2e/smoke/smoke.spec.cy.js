@@ -55,7 +55,7 @@ describe("Smoke tests", () => {
     it("should respond to OPTIONS request with 200 OK", () => {
       cy.request({
         method: 'OPTIONS',
-        url: FLASK_URL + 'api/route_test'
+        url: FLASK_URL + 'api/routing'
       }).then(
         (response) => {
           expect(response.status).to.eq(200)
