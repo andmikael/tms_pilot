@@ -24,7 +24,7 @@ describe("Header", () => {
     });
 
     it("renders title", () => {
-        const h3Title = screen.getByText("Kuljetuksien suunnittelujärjestelmä");
+        const h3Title = screen.getByText("TMS - Kuljetuksien suunnittelujärjestelmä");
         expect(h3Title).toBeInTheDocument();
     });
 
