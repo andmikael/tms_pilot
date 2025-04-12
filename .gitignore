@@ -30,4 +30,4 @@ cypress/
 venv/
 .env
 
-flask-server-test/__pycache__/
+flask-server/__pycache__/
