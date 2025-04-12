@@ -175,7 +175,7 @@ export const ExcelReader = ({ dataToParent }) => {
             dataToParent({ points: excelData, startLocation: startLocationData, endLocation: endLocationData });
             
             // Send the data with the file name to the backend
-            const response = await fetch("http://localhost:8000/upload", {
+            const response = await fetch("http://localhost:8000/api/upload", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 

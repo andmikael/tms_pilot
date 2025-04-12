@@ -39,7 +39,7 @@ test("should successfully respond to upload_excel request", async () => {
     ],
   };
 
-  const response = await fetch(`${FLASK_URL}upload`, {
+  const response = await fetch(`${FLASK_URL}api/upload`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

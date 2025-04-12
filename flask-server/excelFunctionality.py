@@ -18,7 +18,7 @@ Handles the upload of route data and saves it into a new Excel file.
 :param end_location: dict, dictionary with the end location details
 :return: JSON response, success or failure message
 """
-@excel_bp.route('/upload', methods=['POST'])
+@excel_bp.route('/api/upload', methods=['POST'])
 @cross_origin()
 def upload_excel():
     # Parse JSON data from the request body
