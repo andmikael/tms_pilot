@@ -17,7 +17,7 @@ jobs:
         run: npm install
 
       - name: Setting up Flask backend
-        working-directory: flask-server-test
+        working-directory: flask-server
         run: |
           echo "ORS_API_KEY=${{ secrets.SECRET_OPENROUTE_SERVICE_KEY }}" > .env
           python -m venv venv
@@ -29,7 +29,7 @@ jobs:
           nohup npm run dev &
 
       - name: Starting Flask backend (port 8000)
-        working-directory: flask-server-test
+        working-directory: flask-server
         run: |
           source venv/bin/activate
           python main.py &

@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "start": "npm install && concurrently \"npm run dev\" \"npm run flask-backend\"",
-    "flask-backend": "cd flask-server-test && python -m venv venv && venv\\Scripts\\activate && pip install -r requirements.txt && python main.py",
+    "flask-backend": "cd flask-server && python -m venv venv && venv\\Scripts\\activate && pip install -r requirements.txt && python main.py",
     "lint": "eslint .",
     "preview": "vite preview",
     "leaflet-backend": "node index.cjs",
