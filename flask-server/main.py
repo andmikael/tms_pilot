@@ -389,7 +389,7 @@ Esim. {"addresses": ["Prannarintie+8+Kauhajoki", "Prannarintie+10+Kauhajoki", "T
 palauttaa {"ordered_routes": [["Prannarintie+8+Kauhajoki","Topeeka+26+Kauhajoki","Prannarintie+10+Kauhajoki",
 "Prannarintie+8+Kauhajoki"]]}
 """
-@app.route('/api/routing', methods =['POST', 'OPTIONS'])
+@app.route('/api/routing', methods =['POST'])
 @cross_origin()
 def routing():
     data = request.get_json()
@@ -410,7 +410,7 @@ def routing():
     return_data['ordered_routes'] = routes
     return_data['durations'] = durations
     return_data['distances'] = distances
-    return jsonify(return_data)
+    return jsonify(return_data), 200
 
 """
     Updates the VITE_ROUTE_KM_PRICE value in the .env file.
@@ -421,7 +421,8 @@ def routing():
 
     :return: JSON response indicating success or failure
 """
-@app.route('/api/update-km-price', methods=['POST'])
+@app.route('/api/update_km_price', methods=['POST', 'OPTIONS'])
+@cross_origin()
 def update_km_price():
     data = request.get_json()
     new_price = data.get('price')
@@ -452,7 +453,7 @@ def update_km_price():
             if not found:
                 f.write(f"VITE_ROUTE_KM_PRICE={new_price}\n")
 
-        return jsonify({'success': True})
+        return jsonify({'success': True}), 200
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
