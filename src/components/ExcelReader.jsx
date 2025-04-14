@@ -35,7 +35,7 @@ const downloadTemplate = () => {
 };
 
 
-export const ExcelReader = ({ dataToParent }) => {
+export const ExcelReader = ({ dataToParent, setReloadSignal }) => {
     const [message, setMessage] = useState(null);
 
     // Function to process each sheet in the Excel file
@@ -188,6 +188,10 @@ export const ExcelReader = ({ dataToParent }) => {
             });
 
             const result = await response.json();
+            
+            if (setReloadSignal) {
+                setReloadSignal(prev => prev + 1);
+            }
             return { 
                 sheetName, 
                 success: !result.error, 

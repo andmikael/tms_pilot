@@ -423,7 +423,7 @@ td > input {
 }
 
 .button-save {
-  padding: 10px;
+  padding: 7px;
   background-color:#2294FF;
   color: white;
   font-weight: bold;
@@ -512,7 +512,7 @@ td > input {
   background-color: #ef4444;
 }
 
-.editTimeLink {
+.editLink {
   background: transparent;
   color: #007bff;
   border: none;
@@ -629,4 +629,91 @@ td > input {
 .excel-icon {
   width: 18px;
   height: 18px;
+}
+
+.wrapper {
+  margin: 0 auto;
+  max-width: 600px;
+  font-family: sans-serif;
+}
+
+.headerBox {
+  background-color: #a4d7ff;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}
+
+.headerText {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.listContainer {
+  background-color: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+}
+
+.itemRow {
+  border-bottom: 1px solid #eee;
+  padding: 0.5rem 0.25rem;
+}
+
+.rowTop {
+  display: flex;
+  align-items: center;
+}
+
+.collapseButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.groupInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-grow: 1;
+}
+
+.fileName {
+  font-weight: bold;
+}
+
+.fileDate {
+  font-size: 0.9rem;
+  color: #777;
+  margin-left: 1rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  padding: 0;
+}
+
+.expandedList {
+  margin-top: 0.5rem;
+  padding-left: 2rem;
+  color: #555;
+}
+
+.expandedItem {
+  padding: 0.25rem 0;
+  font-size: 0.9rem;
 }

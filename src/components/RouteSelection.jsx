@@ -17,6 +17,7 @@ const RouteSelection = ({ dataToParent }) => {
   const [newStart, setNewStart] = useState('');
   const [newEnd, setNewEnd] = useState('');
   const [errorMessage, setErrorMessage] = useState("");
+  const [timeErrorMessage, setTimeErrorMessage] = useState("");
 
   const unselectRoutes = () => {
     const optionalIdxs = document.getElementsByClassName("point-check");
@@ -125,8 +126,9 @@ const RouteSelection = ({ dataToParent }) => {
     const result = await updateRouteTimeInExcel(filename, newStartTime, newEndTime);
     if (result.success) {
       setRouteData({ ...routeData, startTime: newStartTime, endTime: newEndTime });
+      setTimeErrorMessage("");
     } else {
-      alert(result.message);
+      setTimeErrorMessage(result.message || "Aikojen tallennus epäonnistui.");
     }
   };
 
@@ -144,7 +146,7 @@ const RouteSelection = ({ dataToParent }) => {
         </p>
         <p>
           <strong>Aikataulu:</strong> {routeData.startTime} - {routeData.endTime}
-          <button className="editTimeLink" onClick={handleEditTimeClick}>
+          <button className="editLink" onClick={handleEditTimeClick}>
             <Edit2 size={16} /> Muokkaa
           </button>
         </p>
@@ -167,12 +169,18 @@ const RouteSelection = ({ dataToParent }) => {
                   onChange={(e) => setNewEnd(e.target.value)}
                 />
               </div>
+              {timeErrorMessage && <p className="warning-text">{timeErrorMessage}</p>}
             </div>
             <div className="time-editor-buttons">
               <button
                 className="save"
-                onClick={() => {
-                  handleTimeSave(newStart, newEnd);
+                onClick={async () => {
+                  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+                  if (!timeRegex.test(newStart) || !timeRegex.test(newEnd)) {
+                    setTimeErrorMessage("Aikojen täytyy olla muodossa hh:mm (esim. 08:30).");
+                    return;
+                  }
+                  await handleTimeSave(newStart, newEnd);
                   setIsEditTime(false);
                 }}
               >

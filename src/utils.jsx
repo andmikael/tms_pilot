@@ -438,6 +438,23 @@ export const updateRouteTimeInExcel = async (filename, newStart, newEnd) => {
   }
 };
 
+export const postKmPrice = async (price) => {
+  try {
+    const response = await fetch(`${FLASK_URL}api/update_km_price`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ price }),
+    });
 
-
-
+    const result = await response.json();
+    if (!result.success) {
+      console.error('Virhe km-hinnan päivityksessä:', result.message);
+    }
+    return result;
+  } catch (error) {
+    console.error('Virhe km-hinnan lähetyksessä:', error);
+    return { success: false, message: error.message };
+  }
+};

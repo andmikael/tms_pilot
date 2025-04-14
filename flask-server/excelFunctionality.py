@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from openpyxl import Workbook, load_workbook
 from flask_cors import cross_origin
+from datetime import date
 
 # Create a Blueprint object for Excel-related functions
 excel_bp = Blueprint('excel', __name__)
@@ -50,11 +51,14 @@ def upload_excel():
             file_path = os.path.join(save_dir, f"{route_name} {file_counter} ({original_file_name}).xlsx")
             file_counter += 1
     
+    today = date.today()
     # Construct final file name to be written into the Excel file.
     final_file_name = os.path.splitext(os.path.basename(file_path))[0]
     # Write the route name in cell B1 with a label in A1.
     ws["A1"] = "Reitin nimi:"
     ws["B1"] = final_file_name
+    ws["C1"] = original_file_name
+    ws["D1"] = today.strftime("%d.%m.%Y")
 
     # Set up header for the Excel sheet.
     header = ["Nimi", "Osoite", "Postinumero", "Kaupunki", "Vakionouto", "Lat", "Lon"]
@@ -420,3 +424,89 @@ def update_route_time():
     except Exception as e:
         # Return error message if something goes wrong
         return jsonify({"error": True, "message": f"Ajan päivitys epäonnistui: {e}"}), 500
+
+"""
+Retrieves the original file names (C1) and save dates (D1) from each Excel file.
+
+:return: JSON response, dictionary containing C1 and D1 values from all .xlsx files
+"""
+@excel_bp.route('/api/get_original_names', methods=['GET'])
+@cross_origin()
+def get_original_names():
+    # Define the folder where Excel files are stored
+    folder = os.path.join(".secret", "ExcelFiles")
+    cells_data = {}
+    
+    # Check if the folder exists
+    if not os.path.exists(folder):
+        return jsonify({"error": "Kansiota ei löydy"}), 404
+
+    # Iterate through all .xlsx files in the folder
+    for file_name in os.listdir(folder):
+        if file_name.endswith(".xlsx"):
+            file_path = os.path.join(folder, file_name)
+            try:
+                # Load the Excel workbook and select the active sheet
+                wb = load_workbook(file_path, data_only=True)
+                ws = wb.active
+                # Read values from cells C1 and D1; return None if not available
+                cell_C1 = ws["C1"].value
+                cell_D1 = ws["D1"].value
+                # Use the base filename (without extension) as the key
+                base_name = os.path.splitext(file_name)[0]
+                cells_data[base_name] = {"C1": cell_C1, "D1": cell_D1}
+            except Exception as e:
+                # Handle errors gracefully by returning them per file
+                cells_data[file_name] = {"error": str(e)}
+
+    # Return collected C1 and D1 values as JSON
+    return jsonify(cells_data)
+
+"""
+Deletes all Excel files that were generated from same file
+
+:param c1: str, the value to match in cell C1 of each Excel file
+:return: JSON response listing deleted and failed files
+"""
+@excel_bp.route('/api/delete_by_group', methods=['DELETE'])
+@cross_origin()
+def delete_by_group():
+    # Parse JSON data from the request body
+    data = request.get_json()
+    # Retrieve the C1 value from the request data
+    c1_value = data.get("c1")
+
+    # Return error if C1 value is not provided
+    if not c1_value:
+        return jsonify({"error": "alkuperäistä tiedostoa ei annettu"}), 400
+
+    # Define folder path for Excel files
+    folder = os.path.join(".secret", "ExcelFiles")
+    if not os.path.exists(folder):
+        return jsonify({"error": "Tiedostokansiota ei löytynyt"}), 404
+
+    # Initialize lists to track deleted and failed files
+    deleted_files = []
+    failed_files = []
+
+    # Iterate over each Excel file in the folder
+    for file in os.listdir(folder):
+        if file.endswith(".xlsx"):
+            try:
+                # Load the workbook in read-only mode and get the active worksheet
+                wb = load_workbook(os.path.join(folder, file), read_only=True)
+                ws = wb.active
+                # Check if cell C1 matches the provided value
+                if str(ws["C1"].value) == str(c1_value):
+                    os.remove(os.path.join(folder, file))
+                    deleted_files.append(file)
+            except Exception as e:
+                # Record any errors encountered during deletion
+                failed_files.append({"file": file, "error": str(e)})
+
+    # Return JSON response with lists of deleted and failed files
+    return jsonify({
+        "deleted": deleted_files,
+        "failed": failed_files,
+        "message": f"{len(deleted_files)} tiedostoa poistettu"
+    }), 200

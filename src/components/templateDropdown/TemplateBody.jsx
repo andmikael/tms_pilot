@@ -21,7 +21,7 @@
     import useOpenController from "./useOpenController";
     import ExpandableButton from "./ExpandableButton";
     
-    const TemplateBody = ({PropComponent, PropName, PropTitle, PropFunc=null, PropData=null, Expandable=false}) => {
+    const TemplateBody = ({PropComponent, PropName, PropTitle, PropFunc=null, PropData=null, Expandable=false, ExtraProps=null}) => {
         const {isOpen, toggle} = useOpenController(false);
     
             if (PropFunc != null) {
@@ -33,7 +33,7 @@
                                     <ExpandableButton isOpen={isOpen} toggle={toggle} ButtonTitle={PropTitle}/>
                                 </div>
                                 <div className="template-body">
-                                    {isOpen && <PropComponent dataToParent={PropFunc} dataToChild={PropData}/>}
+                                    {isOpen && <PropComponent dataToParent={PropFunc} dataToChild={PropData} {...ExtraProps} />}
                                 </div>
                             </div>
                         </div>
@@ -46,7 +46,7 @@
                                     <span>{PropTitle}</span>
                                 </div>
                                 <div className="template-body">
-                                    <PropComponent dataToParent={PropFunc} dataToChild={PropData}/>
+                                    <PropComponent dataToParent={PropFunc} dataToChild={PropData} {...ExtraProps} />
                                 </div>
                             </div>
                         </div>
@@ -61,7 +61,7 @@
                                     <ExpandableButton isOpen={isOpen} toggle={toggle} ButtonTitle={PropTitle}/>
                                 </div>
                                 <div className="template-body">
-                                    {isOpen && <PropComponent dataToChild={PropData}/>}
+                                    {isOpen && <PropComponent dataToChild={PropData} {...ExtraProps}/>}
                                 </div>
                             </div>
                         </div>
@@ -74,7 +74,7 @@
                                     <span>{PropTitle}</span>
                                 </div>
                                 <div className="template-body">
-                                    <PropComponent dataToChild={PropData}/>
+                                    <PropComponent dataToChild={PropData} {...ExtraProps}/>
                                 </div>
                             </div>
                         </div>

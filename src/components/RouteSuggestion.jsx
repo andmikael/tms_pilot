@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import LeafletMap from "../components/LeafletMap";
-
-// Gets the price per km from .env file, but also default to 2 if not set
-const KM_PRICE = parseFloat(import.meta.env.VITE_ROUTE_KM_PRICE) || 2;
+import { postKmPrice } from '../utils';
+import { Edit2, Check } from 'lucide-react';
 
 const RouteSuggestion = ({ dataToChild }) => {
+
+  const [kmPrice, setKmPrice] = useState(parseFloat(import.meta.env.VITE_ROUTE_KM_PRICE) || 2);
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [tempPrice, setTempPrice] = useState(kmPrice);
+
+  // Log kmPrice changes
+  useEffect(() => {
+    console.log("KM-hinta päivitetty:", kmPrice);
+  }, [kmPrice]);
+
     const [selectedRoute, setSelectedRoute] = useState({
       index: 0,
       text: "Visualisointi autolle 1 (Runkoreitti)",
@@ -50,9 +59,9 @@ const RouteSuggestion = ({ dataToChild }) => {
     }
 
     return (
-      <div>
+      <div>  
         {routeSuggestions.map((suggestion, index) => (
-          <div className="suggestion-row-center">
+          <div className="suggestion-row-center" key={index}>
             <input
               className="route-suggestion-radio"
               type="radio"
@@ -73,7 +82,38 @@ const RouteSuggestion = ({ dataToChild }) => {
               <p><strong>
                 Aika-arvio: {Math.floor(suggestion.durations / 60)} h {Math.round(suggestion.durations % 60)} min 
                 | Kokonaismatka: {suggestion.distances.toFixed(2)} km
-                | Kustannusarvio: {(suggestion.distances * KM_PRICE).toFixed(2)} € (km * {KM_PRICE})
+                | Kustannusarvio: {(suggestion.distances * kmPrice).toFixed(2)} € (km * {kmPrice})
+                {isEditingPrice ? (
+                  <>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={tempPrice}
+                      onChange={(e) => setTempPrice(parseFloat(e.target.value) || 0)}
+                    />
+                  <button
+                    className='button-save'
+                    onClick={async () => {
+                    setKmPrice(tempPrice);
+                    setIsEditingPrice(false);
+                    await postKmPrice(tempPrice);
+                    }}
+                  >Tallenna
+                  </button>
+                </>
+                ) : (
+                  <span>
+                      <button className='editLink'
+                        onClick={() => {
+                          setTempPrice(kmPrice);
+                          setIsEditingPrice(true);
+                    }}
+                  >
+                    <Edit2 size={16} />Muokkaa
+                  </button>
+                  </span>
+                )}
               </strong></p>
               <p className="warning-text">
                 {(routeTimetable[1] - routeTimetable[0]) < (suggestion.durations / 60) && (

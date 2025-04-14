@@ -412,6 +412,51 @@ def routing():
     return_data['distances'] = distances
     return jsonify(return_data)
 
+"""
+    Updates the VITE_ROUTE_KM_PRICE value in the .env file.
+
+    - If the .env file does not exist, it is created.
+    - If the VITE_ROUTE_KM_PRICE line is missing, it is added.
+    - If the line exists, it is updated with the new value.
+
+    :return: JSON response indicating success or failure
+"""
+@app.route('/api/update-km-price', methods=['POST'])
+def update_km_price():
+    data = request.get_json()
+    new_price = data.get('price')
+
+    if new_price is None:
+        return jsonify({'success': False, 'message': 'Hinta puuttuu.'}), 400
+
+    env_path = os.path.join(os.getcwd(), '.env')
+
+    try:
+        if not os.path.exists(env_path):
+            with open(env_path, 'w') as f:
+                f.write(f"VITE_ROUTE_KM_PRICE={new_price}\n")
+            return jsonify({'success': True})
+
+        with open(env_path, 'r') as f:
+            lines = f.readlines()
+
+        found = False
+        with open(env_path, 'w') as f:
+            for line in lines:
+                if line.startswith("VITE_ROUTE_KM_PRICE="):
+                    f.write(f"VITE_ROUTE_KM_PRICE={new_price}\n")
+                    found = True
+                else:
+                    f.write(line)
+
+            if not found:
+                f.write(f"VITE_ROUTE_KM_PRICE={new_price}\n")
+
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
 app.register_blueprint(excel_bp)
 if __name__ == "__main__":
     app.run(debug=True, port=8000, host='0.0.0.0')
