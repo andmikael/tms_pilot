@@ -10,6 +10,7 @@ from excelFunctionality import excel_bp
 import requests
 
 STOPPING_TIME = 10 * 60 #pysähdys kestää 10 minuuttia
+#STOPPING_TIME = 0
 
 load_dotenv()
 
@@ -268,8 +269,8 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, forced_visi
         for forced_visit_indexes in forced_visits:
             
             for index in forced_visit_indexes:
-                
-                routing.SetAllowedVehiclesForIndex([vehicle_number], index)
+                #Pitää muuttaa annettuun reittiin viittaavat indexit routingin sisäisiin indexeihin
+                routing.SetAllowedVehiclesForIndex([vehicle_number], manager.NodeToIndex(index))
             
             vehicle_number += 1
 
@@ -282,7 +283,7 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, forced_visi
         transit_callback_index,
         0,  # no slack
         
-        100000000,  #vehicle maximum travel distance (Valittu satunnainen iso luku)
+        1000000,  #vehicle maximum travel distance (Valittu satunnainen iso luku)
         True,  # start cumul to zero
         dimension_name,
     )
@@ -291,10 +292,11 @@ def route_order(list_of_addresses, starts, ends, number_of_vehicles, forced_visi
 
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     #search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
-    search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.GLOBAL_CHEAPEST_ARC)
+    search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.AUTOMATIC)
+
 
     solution = routing.SolveWithParameters(search_parameters)
-    
+
     vehicle_routes = []
     durations = []
     
