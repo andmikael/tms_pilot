@@ -20,14 +20,22 @@ const RouteSuggestion = ({ dataToChild }) => {
     });
 
     const routeSuggestions = dataToChild[0] || [];
-    const routeTimetable = (dataToChild[1] || []).map((time) => {
-      const parsedTime = parseFloat(time);
-      if (isNaN(parsedTime)) {
-      console.error(`Invalid time value: ${time}`);
-      return null;
+    const parseTimeToMinutes = (timeStr) => {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      if (isNaN(hours) || isNaN(minutes)) {
+        console.error(`Invalid time value: ${timeStr}`);
+        return null;
       }
-      return parsedTime;
-    });
+      return hours * 60 + minutes;
+    };
+    
+    const routeTimetable = (dataToChild[1] || []).map(parseTimeToMinutes);
+
+    const formatMinutesToTime = (minutes) => {
+      const hrs = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return `${hrs}:${mins.toString().padStart(2, '0')}`;
+    };
   
     // Reset selectedRoute when dataToChild changes
     useEffect(() => {
@@ -116,9 +124,10 @@ const RouteSuggestion = ({ dataToChild }) => {
                 )}
               </strong></p>
               <p className="warning-text">
-                {(routeTimetable[1] - routeTimetable[0]) < (suggestion.durations / 60) && (
+                {(routeTimetable[1] - routeTimetable[0]) < (suggestion.durations) && (
                   <span>
-                    Varoitus! Aika-arvio ylittää asetetun aikataulun (klo {routeTimetable[0]} - {routeTimetable[1]})! <br/>
+                    Varoitus! Aika-arvio ylittää asetetun aikataulun (klo {formatMinutesToTime(routeTimetable[0])} - {formatMinutesToTime(routeTimetable[1])})! <br/>
+                    Tämä reitti saapuisi perille vasta klo {formatMinutesToTime(routeTimetable[0] + Math.round(suggestion.durations))}<br/>
                     Harkitse useamman auton käyttämistä.
                   </span>
                 )}
