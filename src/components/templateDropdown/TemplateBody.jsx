@@ -22,7 +22,7 @@
     import ExpandableButton from "./ExpandableButton";
     
     const TemplateBody = ({PropComponent, PropName, PropTitle, PropFunc=null, PropData=null, Expandable=false, ExtraProps=null}) => {
-        const {isOpen, toggle} = useOpenController(false);
+        const {isOpen, toggle} = useOpenController(true);
     
             if (PropFunc != null) {
                 if (Expandable) {
