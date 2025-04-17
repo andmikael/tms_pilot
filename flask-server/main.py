@@ -432,7 +432,8 @@ def update_km_price():
     if new_price is None:
         return jsonify({'success': False, 'message': 'Hinta puuttuu.'}), 400
 
-    env_path = os.path.join(os.getcwd(), '.env')
+    root_dir = os.path.abspath(os.path.join(os.getcwd(), '..'))
+    env_path = os.path.join(root_dir, '.env')
 
     try:
         if not os.path.exists(env_path):
@@ -453,6 +454,8 @@ def update_km_price():
                     f.write(line)
 
             if not found:
+                if lines and not lines[-1].endswith('\n'):
+                    f.write('\n')
                 f.write(f"VITE_ROUTE_KM_PRICE={new_price}\n")
 
         return jsonify({'success': True}), 200

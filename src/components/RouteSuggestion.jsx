@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LeafletMap from "../components/LeafletMap";
 import { postKmPrice } from '../utils';
-import { Edit2, Check } from 'lucide-react';
+import { Edit2, Check, BrainCogIcon } from 'lucide-react';
 
 const RouteSuggestion = ({ dataToChild }) => {
 
@@ -109,6 +109,8 @@ const RouteSuggestion = ({ dataToChild }) => {
                     }}
                   >Tallenna
                   </button>
+                  <br></br>
+                  <span className='warning-text'>Huom! Hinnan päivittäminen aiheuttaa sivun uudelleenlatauksen.</span>
                 </>
                 ) : (
                   <span>
