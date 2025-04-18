@@ -120,7 +120,12 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   let addresses = [];
 
   if (startPlace === null || endPlace === null ) {
-    console.error(`Start or end place has not been defined. startplace: ${startPlace}, endPlace: ${endPlace}`);
+    console.error("Error! Start or end place has not been defined");
+    return null;
+  }
+
+  if (startPlace.lat === null || startPlace.lon === null || endPlace.lat === null || endPlace.lon === null) {
+    console.error("Error! Coordinates have not been set for start place or end place");
     return null;
   }
 
@@ -129,32 +134,39 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   const startAddress = [startPlace.lon, startPlace.lat];
   const endAddress = [endPlace.lon, endPlace.lat];
 
-  if (startAddress === null || endAddress === null ) {
-    return null;
-  }
-
   // Setting up start and end addresses and indexes for Flask.
   addresses.push(startAddress, endAddress);
   const start_indexes = Array(amountOfVehicles).fill(0);
   const end_indexes = Array(amountOfVehicles).fill(1);
 
-  // Save startPlace and endPlace with string keys
-  placesMap.set(`${startAddress[0]},${startAddress[1]}`, startPlace);
-  placesMap.set(`${endAddress[0]},${endAddress[1]}`, endPlace);
+  // Save startPlace and endPlace with string keys: key is 'lon, lat' string.
+  placesMap.set(`${startPlace.lon},${startPlace.lat}`, [startPlace]);
+  placesMap.set(`${endPlace.lon},${endPlace.lat}`, [endPlace]);
 
   // Adding standardPickUp addresses to the addresses array and defining indexes for must_visit places.
   const mustVisitIndexes = [];
   if (Array.isArray(mandatoryAddresses) && mandatoryAddresses.length > 0) {
     let mustVisitIndex = 2;
     for (const place of mandatoryAddresses) {
-      let address = [place.lon, place.lat];
-      if (address !== null) {
+      if (place.lon !== null && place.lat !== null) {
+        let address = [place.lon, place.lat];
         addresses.push(address);
         mustVisitIndexes.push(mustVisitIndex);
         mustVisitIndex += 1;
 
         // Saving this to the map.
-        placesMap.set(`${address[0]},${address[1]}`, place);
+        const key = `${place.lon},${place.lat}`;
+        // When places have same address.
+        if (placesMap.has(key)) {
+          placesMap.get(key).push(place);
+        }
+        else {
+          placesMap.set(key, [place]);
+        }
+        
+      }
+      else {
+        console.error(`Mandatory address ${place.name} coordinates not defined: not included in the route optimization!`);
       }
     }
   }
@@ -167,12 +179,22 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
   // Adding selected pickup places to the addresses array.
   if (Array.isArray(pickUpAdresses) && pickUpAdresses.length > 0) {
     for (const place of pickUpAdresses) {
-      let address = [place.lon, place.lat];
-      if (address !== null) {
+      if (place.lon !== null && place.lat !== null) {
+        let address = [place.lon, place.lat];
         addresses.push(address);
 
         // Saving this to the map.
-        placesMap.set(`${address[0]},${address[1]}`, place);
+        const key = `${place.lon},${place.lat}`;
+        // When places have same address.
+        if (placesMap.has(key)) {
+          placesMap.get(key).push(place);
+        }
+        else {
+          placesMap.set(key, [place]);
+        }
+      }
+      else {
+        console.error(`Additional address ${place.name} coordinates not defined: not included in the route optimization!`);
       }
     }
   }
@@ -194,7 +216,7 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
     });
 
     if (!response.ok) {
-      console.error(`Virhe reittioptimoinnissa: ${response.status}`);
+      console.error(`Virhe reittioptimoinnissa! status: ${response.status}, message: ${response.message}`);
       return null;
     }
 
@@ -210,9 +232,19 @@ async function getOptimizedRoutes(startPlace, endPlace, mandatoryAddresses, pick
         // The key must be created from the coordinates gotten from Flask
         // E.g. [23.123456, 62.123456] => "23.123456,62.123456"
         const key = address.join(',');
-        const place = placesMap.get(key);
-        if (place !== undefined) { // If returned address was matched with rest of the data.
-          ordered_routes.push(place);
+        const placeArray = placesMap.get(key);
+
+        // If returned address was matched with rest of the data.
+        if (placeArray !== undefined) { 
+          // If there are more than one place with the same address ->
+          // Removing used places with same addresses from the map so that if places have same coordinates, different place name is shown.
+          if (placeArray.length > 1) {
+            ordered_routes.push(placeArray[0]);
+            placeArray.shift(); // Removes the first element which was added to ordered_routes.
+          }
+          else {
+            ordered_routes.push(placeArray[0]);
+          }
         }
       }
 
