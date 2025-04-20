@@ -180,8 +180,24 @@ const RouteSelection = ({ dataToParent }) => {
                     setTimeErrorMessage("Aikojen täytyy olla muodossa hh:mm (esim. 08:30).");
                     return;
                   }
-                  await handleTimeSave(newStart, newEnd);
-                  setIsEditTime(false);
+                  const startTime = newStart.split(":");
+                  const endTime = newEnd.split(":");
+                  if (parseInt(startTime[0]) < parseInt(endTime[0])) {
+                    await handleTimeSave(newStart, newEnd);
+                    setIsEditTime(false);
+                  } else if (parseInt(startTime[0]) == parseInt(endTime[0])) {
+                    if (parseInt(startTime[1]) >= parseInt(endTime[1])) {
+                    setTimeErrorMessage("Nouto pitää aloittaa lopetusaikaa aikaisemmin.");
+                    return;
+                    } else {
+                      await handleTimeSave(newStart, newEnd);
+                      setIsEditTime(false);
+                    }
+                  } else {
+                    setTimeErrorMessage("Nouto pitää aloittaa lopetusaikaa aikaisemmin.");
+                    return;
+                  }
+
                 }}
               >
                 <Check size={16} /> Tallenna
@@ -208,7 +224,13 @@ const RouteSelection = ({ dataToParent }) => {
         <div className="PickupList">
           <div className="row-center">
             <h4 className="dropdown-content-padding">Valinnaiset noutopaikat:</h4>
-            <button id="edit-pickup-btn" onClick={() => setIsEditMode(!isEditMode)}>
+            <button
+              id="edit-pickup-btn"
+              onClick={() => {
+                if (isEditMode) setErrorMessage("");
+                setIsEditMode(!isEditMode);
+              }}
+            >
               {isEditMode ? "Valmis" : "Muokkaa noutopaikkoja"}
             </button>
           </div>

@@ -471,42 +471,41 @@ Deletes all Excel files that were generated from same file
 @excel_bp.route('/api/delete_by_group', methods=['DELETE'])
 @cross_origin()
 def delete_by_group():
-    # Parse JSON data from the request body
     data = request.get_json()
-    # Retrieve the C1 value from the request data
     c1_value = data.get("c1")
-
-    # Return error if C1 value is not provided
     if not c1_value:
         return jsonify({"error": "alkuperäistä tiedostoa ei annettu"}), 400
 
-    # Define folder path for Excel files
     folder = os.path.join(".secret", "ExcelFiles")
     if not os.path.exists(folder):
         return jsonify({"error": "Tiedostokansiota ei löytynyt"}), 404
 
-    # Initialize lists to track deleted and failed files
     deleted_files = []
     failed_files = []
 
-    # Iterate over each Excel file in the folder
-    for file in os.listdir(folder):
-        if file.endswith(".xlsx"):
-            try:
-                # Load the workbook in read-only mode and get the active worksheet
-                wb = load_workbook(os.path.join(folder, file), read_only=True)
-                ws = wb.active
-                # Check if cell C1 matches the provided value
-                if str(ws["C1"].value) == str(c1_value):
-                    os.remove(os.path.join(folder, file))
-                    deleted_files.append(file)
-            except Exception as e:
-                # Record any errors encountered during deletion
-                failed_files.append({"file": file, "error": str(e)})
+    for filename in os.listdir(folder):
+        if not filename.endswith(".xlsx"):
+            continue
 
-    # Return JSON response with lists of deleted and failed files
+        path = os.path.join(folder, filename)
+        try:
+            # Lue C1-solun arvo
+            wb = load_workbook(path, data_only=True)
+            ws = wb.active
+            file_c1 = ws["C1"].value
+            wb.close()
+
+            # Vertaa siistittyinä ja pienennettyinä
+            if str(file_c1).strip().lower() == str(c1_value).strip().lower():
+                # Poista tiedosto
+                os.remove(path)
+                deleted_files.append(filename)
+        except Exception as e:
+            failed_files.append({"file": filename, "error": str(e)})
+
     return jsonify({
         "deleted": deleted_files,
         "failed": failed_files,
         "message": f"{len(deleted_files)} tiedostoa poistettu"
     }), 200
+
