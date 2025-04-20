@@ -40,10 +40,12 @@ export const ExcelReader = ({ dataToParent, setReloadSignal }) => {
 
     // Function to process each sheet in the Excel file
     const processSheet = async (sheet, sheetName, fileName) => {
-        // Extract route name from the sheet
-        const routeName = sheet["B1"] ? sheet["B1"].v : "Uusi reitti";
+    // Extract raw route name and sanitize: remove all except unicode letters, numbers, spaces, hyphens
+    const rawRouteName = sheet['B1'] ? sheet['B1'].v.toString() : 'Uusi reitti';
+    const sanitized = rawRouteName.replace(/[^\p{L}\p{N}\s-]/gu, '');
+    const routeName = sanitized.trim() || 'Uusi reitti';
+
         const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-        
         if (jsonData.length === 0) {
             return { sheetName, success: false, msg: "Taulukko on tyhjä." };
         }
@@ -169,6 +171,17 @@ export const ExcelReader = ({ dataToParent, setReloadSignal }) => {
                 success: false, 
                 msg: "Koordinaatteja ei löytynyt seuraavilta paikoilta: " + missingCoordinates.join(', ') + ". Reittiä ei tallennettu." 
             };
+        }
+
+         // Validate that departure and return times exist and are in correct order
+        if (!startLocationData?.departureTime) {
+            return { sheetName, success: false, msg: 'Lähtöaika puuttuu.' };
+        }
+        if (!endLocationData?.endTime) {
+            return { sheetName, success: false, msg: 'Paluuaika puuttuu.' };
+        }
+        if (startLocationData.departureTime >= endLocationData.endTime) {
+            return { sheetName, success: false, msg: 'Lähtöaika pitää olla ennen paluuaikaa.' };
         }
 
         if (excelData.length !== 0) {

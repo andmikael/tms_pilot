@@ -208,7 +208,13 @@ const RouteSelection = ({ dataToParent }) => {
         <div className="PickupList">
           <div className="row-center">
             <h4 className="dropdown-content-padding">Valinnaiset noutopaikat:</h4>
-            <button id="edit-pickup-btn" onClick={() => setIsEditMode(!isEditMode)}>
+            <button
+              id="edit-pickup-btn"
+              onClick={() => {
+                if (isEditMode) setErrorMessage("");
+                setIsEditMode(!isEditMode);
+              }}
+            >
               {isEditMode ? "Valmis" : "Muokkaa noutopaikkoja"}
             </button>
           </div>
