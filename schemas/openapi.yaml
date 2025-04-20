@@ -1,0 +1,497 @@
+openapi: 3.1.0
+info:
+  title: Optimization API
+  description: "."
+  version: 0.0.2
+paths:
+  /api/routing:
+    post:
+      summary: Calculate route.
+      description: Sends a route to be calculated, returns an optimized result
+      operationId: route_order
+      requestBody:
+        description: "JSON object with route data"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/routing/request"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/routing/responseSuccess"
+        '400':
+          description: Fail
+          content:
+            application/json:
+              schema:
+                  $ref: "#/routing/responseFail"
+  /api/upload_excel:
+      post:
+        summary: ""
+        description: "Save information to local file in XLSX format"
+        operationId: upload_excel
+        requestBody:
+          description: ""
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/upload_excel/request"
+        responses:
+          '200':
+            description: Success
+            content:
+              application/json:
+                schema:
+                  $ref: "#/upload_excel/responseSuccess"
+          '500':
+            description: Fail
+            content:
+              application/json:
+                schema:
+                    $ref: "#/upload_excel/responseFail"
+  /api/get_excel_files:
+      get:
+        summary: 
+        description: "Get all saved Excel data"
+        operationId: get_excel_jsons
+        responses:
+          '200':
+            description: Success
+            content:
+              application/json:
+                schema:
+                  $ref: "#/get_excel_files/responseSuccess"
+          '404':
+            description: Fail
+            content:
+              application/json:
+                schema:
+                  $ref: "#/get_excel_files/responseFail"
+
+  /api/delete_excel:
+      delete:
+        summary: 
+        description: "Delete an Excel file"
+        operationId: delete_excel
+        requestBody:
+          description: 
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/delete_excel/request"
+        responses:
+          '200':
+            description: "Success"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/delete_excel/responseSuccess"
+          '500':
+            description: "Deletion failed"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/delete_excel/responseFail"
+          '404':
+            description: "File not found"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/delete_excel/responseFail"
+                  
+  /api/get_route:
+      get:
+        summary: 
+        description: "Get all saved routes"
+        operationId: get_excel_routes
+        responses:
+          '200':
+            description: Success
+            content:
+              application/json:
+                schema:
+                  $ref: "#/get_route/response"
+
+"routing": {
+    "request": {
+        "properties": {
+            "addresses": {
+                "description": "List of coordinate pairs to be visited",
+                "type": "array",
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "float",
+                        "numItems": 2
+                    }
+                },
+                "minItems": 1,
+                "uniqueItems": true
+            },
+            "number_of_vehicles": {
+                "description": "Number of vehicles",
+                "type": "integer"
+            },
+            "start_time": {
+                "description": "Start time of delivery",
+                "type": "string"
+            },
+            "must_visit": {
+                "description": "List of lists of indices of the address array that MUST be visited, one for each vehicle",
+                "type": "array",
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "minItems": 1,
+                "uniqueItems": false
+            },
+            "traffic_mode": {
+                "description": "Traffic mode",
+                "type": "string",
+                "enum": [
+                    "best_guess",
+                    "optimistic",
+                    "pessimistic"
+                ]
+            },
+            "start_indexes": {
+                "description": "List of start locations of each vehicle in order, defined as indices of the list of addresses",
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                },
+                "minItems": 1,
+                "uniqueItems": false
+            },
+            "end_indexes": {
+                "description": "List of end locations of each vehicle in order, defined as indices of the list of addresses",
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                },
+                "minItems": 1,
+                "uniqueItems": false
+            }
+        }
+    },
+    "responseSuccess": {
+        "properties": {
+            "ordered_routes": {
+                "type": "array",
+                "description": "List of routes (one for each vehicle)",
+                "items": {
+                    "type": "array",
+                    "description": "Single route; a list of ordered locations",
+                    "items": {
+                        "type": "string",
+                        "minItems": 1,
+                        "uniqueItems": true
+                    }
+                },
+                "distances": {
+                    "type": "array",
+                    "description": "Total distance traveled on each route in kilometers",
+                    "items": {
+                        "type": "float"
+                    }
+                },
+                "durations": {
+                    "type": "array",
+                    "description": "Total time traveled on each route in minutes",
+                    "items": {
+                        "type": "float"
+                    }
+                }
+            }
+        },
+        "required": [
+            "ordered_routes",
+            "distances",
+            "durations"
+        ]
+    },
+    "responseFail": {
+        "properties": {
+            "error_message": {
+                "description": "Message describing the cause of the error",
+                "type": "string"
+            }
+        }
+    }
+}
+
+
+"upload_excel": {
+  "request": {
+      "properties": {
+    "routeName": {
+      "description": "Reitin nimi",
+      "type": "string"
+    },
+    "endLocation": {
+      "description": "Loppuetappi",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "lat": {
+          "type": ["string", "null"]
+        },
+        "lon": {
+          "type": ["string", "null"]
+        },
+        "endTime": {
+          "type": "string"
+        }
+      },
+      "required": ["name", "address", "postalCode", "city", "lat", "lon", "endTime"]
+    },
+    "startLocation": {
+      "description": "Alkuetappi",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "lat": {
+          "type": ["string", "null"]
+        },
+        "lon": {
+          "type": ["string", "null"]
+        },
+        "departureTime": {
+          "type": "string"
+        }
+      },
+      "required": ["name", "address", "postalCode", "city", "standardPickup", "lat", "lon", "departureTime"]
+    },
+    "data": {
+      "type": "array",
+      "description": "Reitti määritelty listana noutopaikkoja. Tähän ei kuulu alku- ja loppupaikka",
+      "items": {
+        "$ref": "#/$defs/place"
+      }
+    }
+  },
+  "required": ["routeName","endLocation", "startLocation", "data"],
+
+  }, 
+  "responseSuccess": {
+    "properties": {
+        "file_path": {
+            "description":  "Path to saved file",
+            "type": "string"
+        },
+      "message": {
+          "description":  "Message",
+          "type": "string"
+      }
+      
+    },
+    "required": ["file_path", "message"]
+
+  }, 
+  "responseFail": {
+    "properties": {
+    "error": {
+      "description": "Whether error happened (true if happened)",
+      "type": "boolean"
+    },
+    "message": {
+      "description": "Error message",
+      "type": "string"
+    }
+  },
+  "required": [
+    "error",
+    "message"
+  ]
+
+  }
+
+}
+
+"delete_excel": {
+    "request": {
+        "properties": {
+            "file_name": {
+                "description": "File to be deleted",
+                "type": "string"
+            }
+        }
+    },
+    "responseSuccess": {
+        "properties": {
+            "message": {
+                "description": "Status of deletion query",
+                "type": "string"
+            }
+        },
+    },
+    "responseFail": {
+        "properties": {
+            "error": {
+                "description": "Whether error happened",
+                "type": "boolean"
+            },
+            "message": {
+                "description": "Error message",
+                "type": "string"
+            }
+        }
+    }
+}
+
+"get_excel_files": {
+    "responseSuccess": {
+        "additionalProperties": {
+            "type": "object",
+            "properties": {
+                "file_name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "file_name",
+                "path"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "responseFail": {
+        "properties": {
+            "error": {
+                "description": "Error message",
+                "type": "string"
+            }
+        }
+    }
+}
+
+"get_route": {
+    "response": {
+        "additionalProperties": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/route"
+                },
+                {
+                    "$ref": "#/$defs/error"
+                }
+            ]
+        }
+    }
+}
+
+"$defs": {
+  "place": {
+    "description": "Yksittäinen noutopaikka",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "address": {
+        "type": "string"
+      },
+      "postalCode": {
+        "type": "string"
+      },
+      "city": {
+        "type": "string"
+      },
+      "standardPickup": {
+        "type": "string",
+        "enum": ["yes", "no"]
+      },
+      "lat": {
+        "type": ["string", "null"]
+      },
+      "lon": {
+        "type": ["string", "null"]
+      }
+    },
+    "required": ["name", "address", "postalCode", "city", "standardPickup", "lat", "lon"]
+  },
+  "route": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "startTime": {
+                        "type": "string"
+                    },
+                    "endTime": {
+                        "type": "string"
+                    },
+                    "startPlace": {
+                        "$ref": "#/$defs/place"
+                    },
+                    "endPlace": {
+                        "$ref": "#/$defs/place"
+                    },
+                    "routes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/$defs/place"
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "startTime",
+                    "endTime",
+                    "startPlace",
+                    "endPlace",
+                    "routes"
+                ]
+            },
+            "error": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "boolean",
+                        "const": true
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "error",
+                    "message"
+                ]
+            }
+}
