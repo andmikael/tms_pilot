@@ -309,7 +309,7 @@ def append_to_excel():
         return jsonify({"message": "Paikka lisätty onnistuneesti."}), 200
     except Exception as e:
         # Return error message in case saving fails.
-        return jsonify({"error": True, "message": f"Tiedoston tallennus epäonnistui: {e}"}),
+        return jsonify({"error": True, "message": f"Tiedoston tallennus epäonnistui: {e}"}), 500
 
 """
 Removes a specified pickup point from an Excel file.
