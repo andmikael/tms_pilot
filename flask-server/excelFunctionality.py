@@ -24,6 +24,7 @@ Handles the upload of route data and saves it into a new Excel file.
 def upload_excel():
     # Parse JSON data from the request body
     data = request.get_json()
+    
     # Retrieve route name, file name, Excel data, start, and end locations from the request.
     route_name = data.get("routeName", "Uusi_reitti")
     file_name = data.get("fileName", "Tuntematon_tiedostonimi")
@@ -113,7 +114,7 @@ Retrieves the list of all Excel files stored in the server directory.
 """
 @excel_bp.route('/api/get_excel_files', methods=['GET'])
 @cross_origin()
-def get_excel_jsons():
+def get_excel_files():
     # Define the folder where Excel files are stored.
     folder = os.path.join(".secret", "ExcelFiles")
     excel_jsons = {}
@@ -133,9 +134,10 @@ def get_excel_jsons():
                     excel_jsons[base_name] = {"error": str(e)}
     else:
         # If the folder does not exist, return a 404 error.
-        return jsonify({"error": "Kansiota ei löydy"}), 404
+        return jsonify({"error": True, "message": "Kansiota ei löydy"}), 404
     
     # Return the JSON object containing file data.
+    
     return jsonify(excel_jsons)
 
 """
@@ -151,7 +153,7 @@ def delete_excel():
     file_name = data.get("file_name")
     # Check if file_name parameter is provided.
     if not file_name:
-        return jsonify({"error": "file_name not provided"}), 400
+        return jsonify({"error": True, "message": "file_name not provided"}), 400
 
     # Ensure the file name ends with ".xlsx"
     if not file_name.endswith(".xlsx"):
@@ -164,7 +166,7 @@ def delete_excel():
     
     # Return error if file does not exist.
     if not os.path.exists(file_path):
-        return jsonify({"error": "Tiedostoa ei löytynyt"}), 404
+        return jsonify({"error": True, "message": "Tiedostoa ei löytynyt"}), 404
 
     try:
         # Attempt to remove the file.
@@ -181,13 +183,13 @@ Reads and returns the content of a specified Excel file, including route details
 """
 @excel_bp.route('/api/get_route', methods=['GET'])
 @cross_origin()
-def get_excel_routes():
+def get_route():
     folder = os.path.join(".secret", "ExcelFiles")
     excel_routes = {}
     
     # Check if the designated folder exists.
     if not os.path.exists(folder):
-        return jsonify({"error": "Kansiota ei löydy"}), 404
+        return jsonify({"error": True, "message": "Kansiota ei löydy"}), 404
     
     # Iterate over each Excel file in the folder.
     for file_name in os.listdir(folder):
@@ -262,6 +264,7 @@ def get_excel_routes():
                 excel_routes[file_name] = {"error": str(e)}
     
     # Return all the parsed routes in JSON format.
+
     return jsonify(excel_routes)
 
 """
@@ -281,12 +284,12 @@ def append_to_excel():
     # Validate that all required fields are present in the pickup data.
     required_fields = ["name", "address", "postalCode", "city", "standardPickup", "lat", "lon"]
     if not filename or not all(field in pickup for field in required_fields):
-        return jsonify({"error": "Puuttuvia kenttiä datasta."}), 400
+        return jsonify({"error": True, "message": "Puuttuvia kenttiä datasta."}), 400
 
     # Construct the file path of the Excel file.
     file_path = os.path.join(".secret", "ExcelFiles", f"{filename}.xlsx")
     if not os.path.exists(file_path):
-        return jsonify({"error": "Excel-tiedostoa ei löydy."}), 404
+        return jsonify({"error":True, "message": "Excel-tiedostoa ei löydy."}), 404
 
     # Load the workbook and select the active worksheet.
     wb = load_workbook(file_path)
@@ -328,12 +331,12 @@ def remove_from_excel():
     # Validate required fields in the pickup data.
     required_fields = ["name", "address", "postalCode", "city", "standardPickup", "lat", "lon"]
     if not filename or not pickup or not all(field in pickup for field in required_fields):
-        return jsonify({"error": "Puuttuvia kenttiä datasta."}), 400
+        return jsonify({"error": True, "message": "Puuttuvia kenttiä datasta."}), 400
 
     # Construct the file path of the Excel file.
     file_path = os.path.join(".secret", "ExcelFiles", f"{filename}.xlsx")
     if not os.path.exists(file_path):
-        return jsonify({"error": "Excel-tiedostoa ei löydy."}), 404
+        return jsonify({"error": True, "message":"Excel-tiedostoa ei löydy."}), 404
 
     # Load the workbook and select the active worksheet.
     wb = load_workbook(file_path)
@@ -362,7 +365,7 @@ def remove_from_excel():
 
     if not found:
         # Return an error if the pickup location was not found.
-        return jsonify({"error": "Noutopaikkaa ei löytynyt Excel-tiedostosta."}), 404
+        return jsonify({"error": True, "message": "Noutopaikkaa ei löytynyt Excel-tiedostosta."}), 404
 
     try:
         # Save the workbook after deletion.
@@ -386,6 +389,7 @@ def update_route_time():
     # Parse JSON data from the request body
     data = request.get_json()
 
+
     # Retrieve file name and times from the request
     file_name = data.get("file_name")
     start_time = data.get("startTime")
@@ -393,7 +397,7 @@ def update_route_time():
 
     # Check that required fields are provided
     if not file_name or start_time is None or end_time is None:
-        return jsonify({"error": "Puuttuvia kenttiä (file_name, startTime, endTime)."}), 400
+        return jsonify({"error": True, "message": "Puuttuvia kenttiä (file_name, startTime, endTime)."}), 400
 
     # Ensure the file has a valid .xlsx extension
     if not file_name.endswith(".xlsx"):
@@ -404,7 +408,7 @@ def update_route_time():
 
     # Check if the file exists
     if not os.path.exists(file_path):
-        return jsonify({"error": "Tiedostoa ei löytynyt."}), 404
+        return jsonify({"error": True, "message": "Tiedostoa ei löytynyt."}), 404
 
     try:
         # Load the Excel workbook and select active sheet
@@ -439,7 +443,7 @@ def get_original_names():
     
     # Check if the folder exists
     if not os.path.exists(folder):
-        return jsonify({"error": "Kansiota ei löydy"}), 404
+        return jsonify({"error": True, "message": "Kansiota ei löydy"}), 404
 
     # Iterate through all .xlsx files in the folder
     for file_name in os.listdir(folder):
@@ -457,9 +461,10 @@ def get_original_names():
                 cells_data[base_name] = {"C1": cell_C1, "D1": cell_D1}
             except Exception as e:
                 # Handle errors gracefully by returning them per file
-                cells_data[file_name] = {"error": str(e)}
+                cells_data[file_name] = {"error": True, "message": str(e)}
 
     # Return collected C1 and D1 values as JSON
+
     return jsonify(cells_data)
 
 """
@@ -472,13 +477,14 @@ Deletes all Excel files that were generated from same file
 @cross_origin()
 def delete_by_group():
     data = request.get_json()
+
     c1_value = data.get("c1")
     if not c1_value:
-        return jsonify({"error": "alkuperäistä tiedostoa ei annettu"}), 400
+        return jsonify({"error": True, "message": "alkuperäistä tiedostoa ei annettu"}), 400
 
     folder = os.path.join(".secret", "ExcelFiles")
     if not os.path.exists(folder):
-        return jsonify({"error": "Tiedostokansiota ei löytynyt"}), 404
+        return jsonify({"error": True, "message": "Tiedostokansiota ei löytynyt"}), 404
 
     deleted_files = []
     failed_files = []
