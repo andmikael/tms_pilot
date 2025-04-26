@@ -1,0 +1,12 @@
+{
+    "filename": "Reitti (Testireitti 1).xlsx",
+    "data": {
+      "name": "Uusi paikka",
+      "address": "Teekkarinkatu 1",
+      "postalCode": "33720",
+      "city": "Tampere",
+      "standardPickup": "yes",
+      "lat": "27.00",
+      "lon": "63.00"
+    }
+  }

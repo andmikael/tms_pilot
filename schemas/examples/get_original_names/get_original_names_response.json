@@ -1,0 +1,19 @@
+{
+
+  "Reitti 1 (Testireitti)":{
+     "C1":"Testireitti",
+     "D1":"27.04.2025"
+  },
+  "Reitti 2 (Testimpi) ":{
+     "C1":"Testimpi",
+     "D1":"20.04.2025"
+  },
+  "Uusi reitti (Uusitesti)":{
+     "C1":"Uusitesti",
+     "D1":"24.04.2025"
+  },
+  "fail.xlsx":{
+     "error": true,
+     "message":"[Errno 13] Permission denied: '.secret\\\\ExcelFiles\\\\fail.xlsx'"
+  }
+}

@@ -1,0 +1,17 @@
+{
+    "deleted": [
+      "Reitti 1 (Testireitti).xlsx",
+      "Reitti 2 (Testireitti).xlsx"
+    ],
+    "failed": [
+      {
+        "file": "Reitti 3 (Testireitti).xlsx",
+        "error": "[WinError 32] Prosessi ei voi käyttää tiedostoa, koska se on toisen prosessin käytössä: '.secret\\\\ExcelFiles\\\\Reitti 3 (Testireitti).xlsx'"
+      },
+      {
+        "file": "Reitti 4 (Testireitti).xlsx",
+        "error": "[Errno 13] Permission denied: '.secret\\\\ExcelFiles\\\\Reitti 4 (Testireitti).xlsx'"
+      }
+    ],
+    "message": "2 tiedostoa poistettu"
+  }

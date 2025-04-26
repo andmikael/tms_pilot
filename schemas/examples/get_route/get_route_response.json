@@ -1,5 +1,5 @@
 {
-  "Reitti.xlsx": {
+  "Reitti (Testireitti 1).xlsx": {
     "endPlace": {
       "address": "Korkeakoulunkatu 6",
       "city": "Tampere",
@@ -9,8 +9,9 @@
       "postalCode": "33720",
       "standardPickup": "yes"
     },
+    "startTime": "9:00",
     "endTime": "12:00",
-    "name": "Reitti_0",
+    "name": "Reitti (Testireitti 1)",
     "routes": [
       {
         "address": "Korkeakoulunkatu 1",
@@ -30,11 +31,10 @@
       "name": "Tampere-talo",
       "postalCode": "33100",
       "standardPickup": "yes"
-    },
-    "startTime": "9:00"
+    }
   },
 
-  "Reitti2.xlsx":{
+  "Reitti2 (Testireitti 2).xlsx":{
     "endPlace": {
       "address": "Hautausmaankatu 6",
       "city": "Tampere",
@@ -45,7 +45,7 @@
       "standardPickup": "yes"
     },
     "endTime": "15:00",
-    "name": "Reitti2_0",
+    "name": "Reitti2 (Testireitti 2)",
     "routes": [
       {
         "address": "Hämeenkatu 17",
