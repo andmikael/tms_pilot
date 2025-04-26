@@ -95,7 +95,7 @@ test("should successfully respond to Excel get_route request", async () => {
   })
 });
 
-test("should successfully respond to Excel get_files request", async () => {
+test("should successfully respond to Excel get_excel_files request", async () => {
   const response = await fetch(`${FLASK_URL}api/get_excel_files`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' }
@@ -196,11 +196,7 @@ test("should get original names successfully", async () => {
 
 });
 
-
-
 test("should delete_by_group successfully", async () => {
-
-
   var body = {
     "routeName": "delete_by_group test",
     "fileName": "dbgtesti",
