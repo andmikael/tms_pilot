@@ -1,3 +1,8 @@
+/*
+Component for selecting the depots on the current route, and the number of vehicles
+*/
+
+
 import React, { useState, useEffect } from 'react';
 import TemplateBody from "../components/templateDropdown/TemplateBody";
 import TableSection from "../components/pickupForm/Tablesection";

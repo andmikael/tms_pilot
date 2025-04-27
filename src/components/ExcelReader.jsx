@@ -1,18 +1,16 @@
 /*
-* ExcelReader komponentti: Luetaan runkoreittiin liittyvät tiedot syötetystä excel tiedostosta 
-* ja tallennetaan luettu reitti järjestelmään.
+* ExcelReader component: reads route information from supplied Excel file and saves the route into the system
 *
-* Lukee tiedot noutopaikan nimestä, osoitteesta (osoite, postinumero ja kaupunki) 
-* sekä onko noudossa vakionouto päivittäin
-* Rivit tulevat olla tässä järjestyksessä xlsx tiedostossa: nimi, osoite, postinumero, kaupunki, vakionouto
+* Reads depot name, address (street address, postal code, city) and whether it is a default daily pickup (vakionouto)
+
+* Routes must be in this order in XLSX file: name, address, postal code, city, default pickup
 *
 */
 
 import { useState, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import { useDropzone } from 'react-dropzone';
-import PropTypes from 'prop-types';
-import { routePropType } from '../propTypes/routePropType';
+
 import { StandardPickup, getCoordinates, formatTime } from '../utils';
 import { Download } from 'lucide-react';
 

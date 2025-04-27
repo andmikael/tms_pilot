@@ -1,5 +1,5 @@
 /* 
-* TMS header, jossa on järjestelmän nimi ja navigointipainikkeet.
+* TMS header with name of the system and navigation buttons
 */
 
 import { NavLink } from "react-router-dom";
