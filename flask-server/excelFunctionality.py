@@ -1,13 +1,11 @@
 from flask import Blueprint, jsonify, request
 import os
-import pandas as pd
 from openpyxl import Workbook, load_workbook
 from flask_cors import cross_origin
 from datetime import date
 
 # Create a Blueprint object for Excel-related functions
 excel_bp = Blueprint('excel', __name__)
-
 
 """
 Handles the upload of route data and saves it into a new Excel file.
@@ -129,7 +127,7 @@ def get_excel_files():
                     base_name = os.path.splitext(file_name)[0]
                     excel_jsons[base_name] = {"file_name": file_name, "path": file_path}
                 except Exception as e:
-                    print(f"Error reading file {file_name}: {e}")
+                    #print(f"Error reading file {file_name}: {e}")
                     base_name = os.path.splitext(file_name)[0]
                     excel_jsons[base_name] = {"error": str(e)}
     else:
@@ -429,6 +427,8 @@ def update_route_time():
         # Return error message if something goes wrong
         return jsonify({"error": True, "message": f"Ajan päivitys epäonnistui: {e}"}), 500
 
+
+import sys
 """
 Retrieves the original file names (C1) and save dates (D1) from each Excel file.
 
@@ -508,7 +508,7 @@ def delete_by_group():
                 deleted_files.append(filename)
         except Exception as e:
             failed_files.append({"file": filename, "error": str(e)})
-
+            
     return jsonify({
         "deleted": deleted_files,
         "failed": failed_files,
