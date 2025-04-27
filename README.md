@@ -62,9 +62,9 @@ You can run all the unit test with the command:
 
 # APIs
 
-API schemas for utilizing the optimization and Excel backend are provided in the `schemas` folder
+API schemas for utilizing the optimization and Excel backend are provided in the `schemas` folder. The `openapi.yaml` file is meant to be viewed with Swagger (https://editor.swagger.io/) and documents all the API calls of the backend. The `schemas/examples` folder provides examples of JSON data that may be provided or returned by these API calls. 
 
 # LICENSING
 
-todo
 This software is only licensed for use on Microsoft Windows operating systems due to the licensing conditions of the XLSX.js package used for handling Excel spreadsheet documents in JavaScript.
+OR-Tools is licensed under the Apache 2.0 license, granting rights to reproduce and distribute copies of the Work or Derivative Works thereof in any medium, with or without modifications, and in Source or Object form, under certain conditions.
