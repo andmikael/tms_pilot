@@ -136,7 +136,7 @@ describe('Optimization API Tests', () => {
       "start_indexes": [3, 3], // Aloitetaan Helsingistä 
       "end_indexes": [13, 13], // Päädytään Kajaaniin 
       "number_of_vehicles": 2,
-      "must_visit": [[3, 0, 2, 13], []], // Runkoreitti: Helsinki-Tampere-Jyväskylä-Kajaani 
+      "must_visit": [[0, 2], []], // Runkoreitti: Helsinki-Tampere-Jyväskylä-Kajaani 
     });
     //console.log(response.body.ordered_routes)
     expect(response.status).toBe(200);
