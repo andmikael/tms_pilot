@@ -10,9 +10,8 @@ import requests
 
 
 STOPPING_TIME = 10 * 60 # Vehicles stop at depots for 10 minutes
-OPENROUTESERVICE_API_KEY = os.getenv('ORS_API_KEY')
-
 load_dotenv()
+OPENROUTESERVICE_API_KEY = os.getenv('ORS_API_KEY')
 
 if not OPENROUTESERVICE_API_KEY:
     raise ValueError("OpenRouteService api key not found in .env file")
