@@ -9,7 +9,7 @@ import Header from "./components/Header";
 function App() {
   const [routes, setRoutes] = useState([]);
 
-  // Funktio uuden runkoreitin lisäämisestä reittilistaan.
+  // Function for adding new route into list of routes
   const handleUploadingRoute = (newRoute) => {
     setRoutes((prev) => [...prev, newRoute]);
   };

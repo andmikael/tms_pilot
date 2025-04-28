@@ -1,6 +1,7 @@
 /**
- * routePropType määrittelee yhden reitin (vakionoudot + vaihtoehtoiset noudot) rakenteen
- * ja siihen liittyvät tiedot, kuten reitin nimen, aloituspaikan jne.
+ * routePropType defines a single route (default depots + optional depots) structure and related data;
+ * route name, start location , end location etc
+ * (Start and end location are not part of the routes array)
  */
 
 import PropTypes from "prop-types";

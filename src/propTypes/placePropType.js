@@ -1,5 +1,6 @@
 /**
- * placeProptype määrittelee yhden noutopaikan rakenteen.
+ * placeProptype defines structure for a single depot
+ * 
  */
 
 import PropTypes from "prop-types";
